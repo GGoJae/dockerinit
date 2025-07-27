@@ -1,8 +1,8 @@
 package com.dockerinit.controller;
 
-import com.dockerinit.dto.makeDockerfile.DockerfilePreset;
-import com.dockerinit.dto.makeDockerfile.DockerfileRequest;
-import com.dockerinit.dto.makeDockerfile.DockerfileResponse;
+import com.dockerinit.dto.dockerfile.DockerfilePreset;
+import com.dockerinit.dto.dockerfile.DockerfileRequest;
+import com.dockerinit.dto.dockerfile.DockerfileResponse;
 import com.dockerinit.service.DockerfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;

@@ -1,4 +1,4 @@
-package com.dockerinit.dto.makeDockerfile;
+package com.dockerinit.dto.dockerfile;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,0 +1,17 @@
+{
+  "spring-postgres": {
+    "name": "spring-postgres",
+    "description": "Spring Boot + PostgreSQL",
+    "ymlContent": "version: '3.8'\nservices:\n  app:\n    image: openjdk:17\n    ports:\n      - '8080:8080'\n    depends_on:\n      - db\n  db:\n    image: postgres:15\n    environment:\n      POSTGRES_USER: user\n      POSTGRES_PASSWORD: pass\n      POSTGRES_DB: appdb"
+  },
+  "node-redis": {
+    "name": "node-redis",
+    "description": "Node.js + Redis",
+    "ymlContent": "version: '3.8'\nservices:\n  node:\n    image: node:18\n    ports:\n      - '3000:3000'\n  redis:\n    image: redis:alpine\n    ports:\n      - '6379:6379'"
+  },
+  "python-mongo": {
+    "name": "python-mongo",
+    "description": "Python Flask + MongoDB",
+    "ymlContent": "version: '3.8'\nservices:\n  app:\n    image: python:3.11\n    ports:\n      - '5000:5000'\n    volumes:\n      - .:/app\n    command: python app.py\n    depends_on:\n      - mongo\n  mongo:\n    image: mongo:latest\n    ports:\n      - '27017:27017'"
+  }
+}

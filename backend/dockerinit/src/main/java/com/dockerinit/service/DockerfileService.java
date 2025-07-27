@@ -1,7 +1,7 @@
 package com.dockerinit.service;
 
-import com.dockerinit.dto.makeDockerfile.DockerfilePreset;
-import com.dockerinit.dto.makeDockerfile.DockerfileRequest;
+import com.dockerinit.dto.dockerfile.DockerfilePreset;
+import com.dockerinit.dto.dockerfile.DockerfileRequest;
 import com.dockerinit.util.DockerfileGenerator;
 import org.springframework.stereotype.Service;
 

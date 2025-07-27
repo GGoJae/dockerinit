@@ -1,6 +1,6 @@
 package com.dockerinit.util;
 
-import com.dockerinit.dto.makeDockerfile.DockerfileRequest;
+import com.dockerinit.dto.dockerfile.DockerfileRequest;
 
 import java.util.List;
 
