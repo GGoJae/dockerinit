@@ -22,6 +22,6 @@ public class DockerController {
     @PostMapping("/run")
     public ResponseEntity<?> generateRunCommand(@RequestBody DockerRunRequest request) {
         String command = dockerCommandService.generateDockerRunCommand(request);
-        return ResponseEntity.ok(ApiResponse.success(new DockerRunResponse(command)));
+        return ResponseEntity.ok(ApiResponse.success(command));
     }
 }

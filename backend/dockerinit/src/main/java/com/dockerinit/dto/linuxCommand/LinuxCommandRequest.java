@@ -1,5 +1,6 @@
 package com.dockerinit.dto.linuxCommand;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,8 +8,15 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
+@Schema(description = "리눅스 커맨드 생성 요청 객체")
 public class LinuxCommandRequest {
+
+    @Schema(description = "실행할 리눅스 명령어", example = "chmod")
     private String command;
+
+    @Schema(description = "명령어에 전달할 인자 목록", example = "[\"-R\", \"755\"]")
     private List<String> args;
+
+    @Schema(description = "명령어가 적용될 대상 파일 또는 디렉토리", example = "/var/www")
     private String target;
 }

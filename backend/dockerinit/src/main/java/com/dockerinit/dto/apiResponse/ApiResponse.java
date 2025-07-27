@@ -1,16 +1,26 @@
 package com.dockerinit.dto.apiResponse;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
+@Schema(description = "공통 API 응답 객체")
 public class ApiResponse<T> {
 
+    @Schema(description = "요청 성공 여부", example = "true")
     private boolean success;
+
+    @Schema(description = "응답 상태 코드 (성공/에러 등)")
     private StateCode stateCode;
+
+    @Schema(description = "응답 메시지", example = "성공적으로 처리되었습니다.")
     private String message;
+
+    @Schema(description = "응답 데이터")
     private T data;
+
+    @Schema(description = "응답 시간 (KST)", example = "2025-07-28T15:00:00+09:00")
     private ZonedDateTime timestamp;
 
     public ApiResponse(boolean success, StateCode stateCode, String message, T data) {
@@ -34,8 +44,8 @@ public class ApiResponse<T> {
     }
 
     public static <T> ApiResponse<T> error(StateCode errorCode, String message, T data) {
-        return new ApiResponse<T>(false, errorCode, message, data);
+        return new ApiResponse<>(false, errorCode, message, data);
     }
 
-
+    // Getter 생략 또는 @Getter 추가 (Swagger에는 영향 없음)
 }

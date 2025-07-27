@@ -52,12 +52,12 @@ public class LinuxCommandService {
     }
 
 
-    public List<String> autocompleteCommand(String prefix) {
-        if (prefix == null || prefix.isBlank()) {
+    public List<String> autocompleteCommand(String string) {
+        if (string == null || string.isBlank()) {
             return Collections.emptyList();
         }
 
-        String prefixLowerCase = prefix.toLowerCase();
+        String prefixLowerCase = string.toLowerCase();
 
         return explanationMap.keySet()
                 .stream()

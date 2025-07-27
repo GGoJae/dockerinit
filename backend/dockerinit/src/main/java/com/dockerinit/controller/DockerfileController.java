@@ -1,15 +1,13 @@
 package com.dockerinit.controller;
 
 import com.dockerinit.dto.apiResponse.ApiResponse;
-import com.dockerinit.dto.dockerfile.DockerfilePreset;
 import com.dockerinit.dto.dockerfile.DockerfileRequest;
 import com.dockerinit.dto.dockerfile.DockerfileResponse;
 import com.dockerinit.service.DockerfileService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/dockerfile")
@@ -18,17 +16,25 @@ public class DockerfileController {
 
     private final DockerfileService service;
 
+    @Operation(summary = "Dockerfile 생성",
+            description = "요청 형식에 따라 Dockerfile 내용을 문자열로 생성해 반환합니다.")
     @PostMapping
     public ResponseEntity<?> generateDockerfile(@RequestBody DockerfileRequest request) {
         String content = service.generateDockerfile(request);
         return ResponseEntity.ok(ApiResponse.success(new DockerfileResponse(content)));
     }
 
+
+    @Operation(summary = "Dockerfile 프리셋 전체 조회",
+            description = "자주 사용하는 Dockerfile 프리셋 전체 목록을 제공합니다.")
     @GetMapping("/presets")
     public ResponseEntity<?> getPresets() {
         return ResponseEntity.ok(ApiResponse.success(service.getAllPresets()));
     }
 
+
+    @Operation(summary = "Dockerfile 프리셋 단건 조회",
+            description = "지정한 이름의 Dockerfile 프리셋을 반환합니다.")
     @GetMapping("/presets/{name}")
     public ResponseEntity<?> getPresentByName(@PathVariable String name) {
         return service.getPresentByName(name)
@@ -36,6 +42,9 @@ public class DockerfileController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
+    @Operation(summary = "Dockerfile 다운로드 (ZIP)",
+            description = "요청 형식에 따라 생성된 Dockerfile을 ZIP 파일 형태로 다운로드합니다.")
     @PostMapping("/download")
     public ResponseEntity<byte[]> downloadDockerfileZip(@RequestBody DockerfileRequest request) {
         byte[] zipBytes = service.downloadDockerfile(request);
