@@ -1,5 +1,6 @@
 package com.dockerinit.controller;
 
+import com.dockerinit.dto.apiResponse.ApiResponse;
 import com.dockerinit.dto.dockerfile.DockerfilePreset;
 import com.dockerinit.dto.dockerfile.DockerfileRequest;
 import com.dockerinit.dto.dockerfile.DockerfileResponse;
@@ -18,14 +19,14 @@ public class DockerfileController {
     private final DockerfileService service;
 
     @PostMapping
-    public DockerfileResponse generateDockerfile(@RequestBody DockerfileRequest request) {
+    public ResponseEntity<?> generateDockerfile(@RequestBody DockerfileRequest request) {
         String content = service.generateDockerfile(request);
-        return new DockerfileResponse(content);
+        return ResponseEntity.ok(ApiResponse.success(new DockerfileResponse(content)));
     }
 
     @GetMapping("/presets")
-    public List<DockerfilePreset> getPresets() {
-        return service.getAllPresets();
+    public ResponseEntity<?> getPresets() {
+        return ResponseEntity.ok(ApiResponse.success(service.getAllPresets()));
     }
 
     @GetMapping("/presets/{name}")

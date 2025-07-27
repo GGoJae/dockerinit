@@ -1,5 +1,6 @@
 package com.dockerinit.controller;
 
+import com.dockerinit.dto.apiResponse.ApiResponse;
 import com.dockerinit.dto.dockerCompose.DockerComposePreset;
 import com.dockerinit.dto.dockerCompose.DockerComposeRequest;
 import com.dockerinit.service.DockerComposeService;
@@ -20,13 +21,13 @@ public class DockerComposeController {
     private final DockerComposeService service;
 
     @GetMapping("/presets")
-    public List<DockerComposePreset> getAllPresets() {
-        return service.getAllPresets();
+    public ResponseEntity<?> getAllPresets() {
+        return ResponseEntity.ok(ApiResponse.success(service.getAllPresets()));
     }
 
     @GetMapping("/presets/{name}")
-    public DockerComposePreset getPreset(@PathVariable String name) {
-        return service.getPreset(name);
+    public ResponseEntity<?> getPreset(@PathVariable String name) {
+        return ResponseEntity.ok(ApiResponse.success(service.getPreset(name)));
     }
 
     @GetMapping("/presets/{name}/download")
@@ -38,8 +39,8 @@ public class DockerComposeController {
     }
 
     @PostMapping("/generate")
-    public String generateCustomCompose(@RequestBody DockerComposeRequest request) {
-        return service.generateCustomComposeYml(request);
+    public ResponseEntity<?> generateCustomCompose(@RequestBody DockerComposeRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(service.generateCustomComposeYml(request)));
     }
 
     @PostMapping("/generate/download")
