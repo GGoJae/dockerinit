@@ -1,6 +1,7 @@
 package com.dockerinit.dto.linuxCommand;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,6 +13,7 @@ import java.util.List;
 public class LinuxCommandRequest {
 
     @Schema(description = "실행할 리눅스 명령어", example = "chmod")
+    @NotBlank(message = "명령어 이름은 필 수 입니다.")
     private String command;
 
     @Schema(description = "명령어에 전달할 인자 목록", example = "[\"-R\", \"755\"]")

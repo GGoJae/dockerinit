@@ -4,6 +4,7 @@ import com.dockerinit.dto.apiResponse.ApiResponse;
 import com.dockerinit.dto.linuxCommand.LinuxCommandRequest;
 import com.dockerinit.service.LinuxCommandService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class LinuxCommandController {
     @Operation(summary = "리눅스 명령어 설명 제공",
             description = "요청한 명령어에 대한 설명과 옵션에 대한 정보를 제공합니다.")
     @PostMapping("/commands")
-    public ResponseEntity<?> generate(@RequestBody LinuxCommandRequest request) {
+    public ResponseEntity<?> generate(@Valid @RequestBody LinuxCommandRequest request) {
         return ResponseEntity.ok(ApiResponse.success(service.generate(request)));
     }
 

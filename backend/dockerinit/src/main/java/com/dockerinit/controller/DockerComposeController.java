@@ -4,6 +4,7 @@ import com.dockerinit.dto.apiResponse.ApiResponse;
 import com.dockerinit.dto.dockerCompose.DockerComposeRequest;
 import com.dockerinit.service.DockerComposeService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -48,7 +49,7 @@ public class DockerComposeController {
     @Operation(summary = "사용자 정의 Docker Compose 생성 (문자열)",
             description = "사용자가 입력한 설정에 따라 Docker Compose 파일을 문자열로 생성해 반환합니다.")
     @PostMapping("/generate")
-    public ResponseEntity<?> generateCustomCompose(@RequestBody DockerComposeRequest request) {
+    public ResponseEntity<?> generateCustomCompose(@Valid @RequestBody DockerComposeRequest request) {
         return ResponseEntity.ok(ApiResponse.success(service.generateCustomComposeYml(request)));
     }
 
