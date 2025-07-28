@@ -6,6 +6,7 @@ import com.dockerinit.dto.dockerfile.DockerfileRequest;
 import com.dockerinit.dto.dockerfile.DockerfileResponse;
 import com.dockerinit.service.DockerfileService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class DockerfileController {
     @Operation(summary = "Dockerfile 생성",
             description = "요청 형식에 따라 Dockerfile 내용을 문자열로 생성해 반환합니다.")
     @PostMapping
-    public ResponseEntity<?> generateDockerfile(@RequestBody DockerfileRequest request) {
+    public ResponseEntity<?> generateDockerfile(@Valid @RequestBody DockerfileRequest request) {
         String content = service.generateDockerfile(request);
         return ResponseEntity.ok(ApiResponse.success(new DockerfileResponse(content)));
     }

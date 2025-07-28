@@ -1,6 +1,9 @@
 package com.dockerinit.dto.dockerfile;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +16,7 @@ import java.util.Map;
 public class DockerfileRequest {
 
     @Schema(description = "사용할 베이스 이미지", example = "openjdk:17")
+    @NotNull(message = "기본 이미지(baseImage)는 필수입니다.")
     private String baseImage;
 
     @Schema(description = "WORKDIR 설정", example = "/app")
@@ -31,6 +35,7 @@ public class DockerfileRequest {
     private List<Integer> expose;
 
     @Schema(description = "CMD 설정", example = "[\"java\", \"-jar\", \"app.jar\"]")
+    @NotEmpty(message = "CMD는 필수입니다.")
     private List<String> cmd;
 
     @Schema(description = "RUN 명령어 리스트", example = "[\"apt-get update\", \"apt-get install -y curl\"]")
@@ -60,8 +65,10 @@ public class DockerfileRequest {
     @Schema(description = "파일 복사 지시자 (COPY 또는 ADD 에 사용)")
     public record CopyDirective(
             @Schema(description = "소스 경로", example = "src/")
+            @NotBlank(message = "source는 필수입니다.")
             String source,
             @Schema(description = "타겟 경로", example = "/app")
+            @NotBlank(message = "target은 필수입니다")
             String target
     ) {
     }

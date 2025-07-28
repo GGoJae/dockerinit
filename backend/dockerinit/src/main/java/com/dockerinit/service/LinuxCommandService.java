@@ -72,12 +72,12 @@ public class LinuxCommandService {
                 .toList();
     }
 
-    public List<String> autocompleteOptions(String command, String prefix) {
+    public List<String> autocompleteOptions(String command, String string) {
         CommandHelp help = explanationMap.get(command.toLowerCase());
         if (help == null || help.options == null) return List.of();
 
         return help.options.keySet().stream()
-                .filter(opt -> opt.contains(prefix))
+                .filter(opt -> opt.contains(string))
                 .sorted()
                 .toList();
     }

@@ -1,12 +1,17 @@
 package com.dockerinit.exception;
 
+import com.dockerinit.constant.ErrorMessage;
 import com.dockerinit.dto.apiResponse.ApiResponse;
 import com.dockerinit.dto.apiResponse.StateCode;
 import com.dockerinit.exception.CustomException.CustomApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -16,6 +21,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(toHttpStatus(ex.getErrorCode()))
                 .body(ApiResponse.error(ex.getErrorCode(), ex.getMessage(), ex.getData()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<?>> handleValidationException(MethodArgumentNotValidException ex) {
+        Map<String, String> errorMap = ex.getBindingResult().getFieldErrors().stream()
+                .collect(Collectors.toMap(
+                        fieldError -> fieldError.getField(),
+                        fieldError -> fieldError.getDefaultMessage(),
+                        (msg1, msg2) -> msg1
+                ));
+
+        return ResponseEntity.badRequest().body(
+                ApiResponse.error(StateCode.INVALID_INPUT, ErrorMessage.INVALID_INPUT, errorMap)
+        );
     }
 
     @ExceptionHandler(Exception.class)

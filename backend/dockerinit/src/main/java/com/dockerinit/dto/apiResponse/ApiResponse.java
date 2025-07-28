@@ -1,11 +1,13 @@
 package com.dockerinit.dto.apiResponse;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 @Schema(description = "공통 API 응답 객체")
+@Getter
 public class ApiResponse<T> {
 
     @Schema(description = "요청 성공 여부", example = "true")
