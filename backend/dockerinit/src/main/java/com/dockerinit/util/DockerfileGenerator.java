@@ -3,78 +3,113 @@ package com.dockerinit.util;
 import com.dockerinit.dto.dockerfile.DockerfileRequest;
 
 import java.util.List;
+import java.util.Map;
 
 public class DockerfileGenerator {
 
     public static String generate(DockerfileRequest req) {
         StringBuilder sb = new StringBuilder();
 
-        // FROM
+        // 1. FROM
         sb.append("FROM ").append(req.getBaseImage()).append("\n");
 
-        // ARG
-        if (req.getArgs() != null) {
-            req.getArgs().forEach((key, val) ->
-                    sb.append("ARG ").append(key).append(val != null ? "=" + val : "").append("\n")
-            );
-        }
+        // 2. LABEL
+        appendLabel(sb, req.getLabel());
 
-        // ENV (with comment)
-        if ("prod".equalsIgnoreCase(req.getEnvMode()) && req.getEnvVars() != null) {
-            sb.append("# ENV 설정은 외부에서 주입하세요:\n");
-            req.getEnvVars().forEach((key, val) -> {
-                sb.append("# export ").append(key).append("=").append(val).append("\n");
-                sb.append("ENV ").append(key).append("=${").append(key).append("}\n");
-            });
-        }
+        // 3. ARG
+        appendArgs(sb, req.getArgs());
 
-        // WORKDIR
-        if (req.getWorkdir() != null)
+        // 4. ENV
+        appendEnv(sb, req.getEnvVars(), req.getEnvMode());
+
+        // 5. WORKDIR
+        if (notEmpty(req.getWorkdir())) {
             sb.append("WORKDIR ").append(req.getWorkdir()).append("\n");
-
-        // ADD
-        if (req.getAdd() != null)
-            for (DockerfileRequest.CopyDirective d : req.getAdd())
-                sb.append("ADD ").append(d.source()).append(" ").append(d.target()).append("\n");
-
-        // COPY
-        if (req.getCopy() != null)
-            for (DockerfileRequest.CopyDirective d : req.getCopy())
-                sb.append("COPY ").append(d.source()).append(" ").append(d.target()).append("\n");
-
-        // RUN
-        if (req.getRun() != null)
-            for (String r : req.getRun())
-                sb.append("RUN ").append(r).append("\n");
-
-        // USER
-        if (req.getUser() != null)
-            sb.append("USER ").append(req.getUser()).append("\n");
-
-        // VOLUME
-        if (req.getVolume() != null && !req.getVolume().isEmpty()) {
-            String joined = quoteJoin(req.getVolume());
-            sb.append("VOLUME [").append(joined).append("]\n");
         }
 
-        // EXPOSE
-        if (req.getExpose() != null)
-            for (Integer port : req.getExpose())
-                sb.append("EXPOSE ").append(port).append("\n");
+        // 6. ADD
+        appendCopyDirectives(sb, "ADD", req.getAdd());
 
-        // HEALTHCHECK
-        if (req.getHealthcheck() != null)
+        // 7. COPY
+        appendCopyDirectives(sb, "COPY", req.getCopy());
+
+        // 8. RUN
+        appendListLines(sb, "RUN", req.getRun());
+
+        // 9. USER
+        if (notEmpty(req.getUser())) {
+            sb.append("USER ").append(req.getUser()).append("\n");
+        }
+
+        // 10. VOLUME
+        if (req.getVolume() != null && !req.getVolume().isEmpty()) {
+            sb.append("VOLUME [").append(quoteJoin(req.getVolume())).append("]\n");
+        }
+
+        // 11. EXPOSE
+        if (req.getExpose() != null) {
+            req.getExpose().forEach(port -> sb.append("EXPOSE ").append(port).append("\n"));
+        }
+
+        // 12. HEALTHCHECK
+        if (notEmpty(req.getHealthcheck())) {
             sb.append("HEALTHCHECK CMD ").append(req.getHealthcheck()).append("\n");
+        }
 
-        // ENTRYPOINT
-        if (req.getEntrypoint() != null)
+        // 13. ENTRYPOINT
+        if (req.getEntrypoint() != null && !req.getEntrypoint().isEmpty()) {
             sb.append("ENTRYPOINT ").append(jsonArray(req.getEntrypoint())).append("\n");
+        }
 
-        // CMD
-        if (req.getCmd() != null)
+        // 14. CMD
+        if (req.getCmd() != null && !req.getCmd().isEmpty()) {
             sb.append("CMD ").append(jsonArray(req.getCmd())).append("\n");
+        }
 
         return sb.toString().trim();
+    }
+
+    // ------- 헬퍼 메서드 --------
+    private static void appendLabel(StringBuilder sb, Map<String, String> labels) {
+        if (labels != null) {
+            labels.forEach((k, v) -> sb.append("LABEL ").append(k).append("=\"").append(v).append("\"\n"));
+        }
+    }
+
+    private static void appendArgs(StringBuilder sb, Map<String, String> args) {
+        if (args != null) {
+            args.forEach((k, v) -> sb.append("ARG ").append(k).append(v != null ? "=" + v : "").append("\n"));
+        }
+    }
+
+    private static void appendEnv(StringBuilder sb, Map<String, String> envVars, String mode) {
+        if (envVars != null && !envVars.isEmpty()) {
+            String envMode = (mode != null) ? mode.toLowerCase() : "prod";
+
+            if ("test".equals(envMode)) {
+                envVars.forEach((k, v) -> sb.append("ENV ").append(k).append("=").append(v).append("\n"));
+            } else {
+                sb.append("# ENV 설정은 외부에서 주입하세요:\n");
+                envVars.forEach((k, v) -> {
+                    sb.append("# export ").append(k).append("=").append(v).append("\n");
+                    sb.append("ENV ").append(k).append("=${").append(k).append("}\n");
+                });
+            }
+        }
+    }
+
+    private static void appendCopyDirectives(StringBuilder sb, String directive, List<DockerfileRequest.CopyDirective> list) {
+        if (list != null) {
+            for (DockerfileRequest.CopyDirective d : list) {
+                sb.append(directive).append(" ").append(d.source()).append(" ").append(d.target()).append("\n");
+            }
+        }
+    }
+
+    private static void appendListLines(StringBuilder sb, String prefix, List<String> lines) {
+        if (lines != null) {
+            lines.forEach(line -> sb.append(prefix).append(" ").append(line).append("\n"));
+        }
     }
 
     private static String quoteJoin(List<String> list) {
@@ -83,5 +118,9 @@ public class DockerfileGenerator {
 
     private static String jsonArray(List<String> parts) {
         return "[" + quoteJoin(parts) + "]";
+    }
+
+    private static boolean notEmpty(String str) {
+        return str != null && !str.trim().isEmpty();
     }
 }

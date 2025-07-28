@@ -1,6 +1,7 @@
 package com.dockerinit.controller;
 
 import com.dockerinit.dto.apiResponse.ApiResponse;
+import com.dockerinit.dto.dockerfile.DockerfilePreset;
 import com.dockerinit.dto.dockerfile.DockerfileRequest;
 import com.dockerinit.dto.dockerfile.DockerfileResponse;
 import com.dockerinit.service.DockerfileService;
@@ -37,9 +38,7 @@ public class DockerfileController {
             description = "지정한 이름의 Dockerfile 프리셋을 반환합니다.")
     @GetMapping("/presets/{name}")
     public ResponseEntity<?> getPresentByName(@PathVariable String name) {
-        return service.getPresentByName(name)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(ApiResponse.success(service.getPresentByName(name)));
     }
 
 
