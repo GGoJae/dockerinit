@@ -13,4 +13,10 @@ public class CustomApiException extends RuntimeException{
         this.errorCode = errorCode;
         this.data = data;
     }
+
+    public CustomApiException(String message, Throwable cause, StateCode errorCode, Object data) {
+        super(message, cause);
+        this.errorCode = errorCode;
+        this.data = data;
+    }
 }

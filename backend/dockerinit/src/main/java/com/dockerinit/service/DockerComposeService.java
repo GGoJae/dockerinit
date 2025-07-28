@@ -1,7 +1,10 @@
 package com.dockerinit.service;
 
+import com.dockerinit.constant.ErrorMessage;
 import com.dockerinit.dto.dockerCompose.DockerComposePreset;
 import com.dockerinit.dto.dockerCompose.DockerComposeRequest;
+import com.dockerinit.exception.CustomException.InternalErrorCustomException;
+import com.dockerinit.exception.CustomException.NotFoundCustomException;
 import com.dockerinit.util.DockerComposeGenerator;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,10 +20,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -41,15 +41,23 @@ public class DockerComposeService {
     }
 
     public List<DockerComposePreset> getAllPresets() {
-        return new ArrayList<>(presetMap.values());
+        return presetMap.values().stream().toList();
     }
 
     public DockerComposePreset getPreset(String name) {
-        return presetMap.get(name);
+        return Optional.ofNullable(presetMap.get(name))
+                .orElseThrow(() -> new NotFoundCustomException(
+                        ErrorMessage.PRESET_NOT_FOUND,
+                        Map.of("presetName", name)
+                ));
     }
 
     public Resource getPresetAsYml(String name) {
-        DockerComposePreset preset = presetMap.get(name);
+        DockerComposePreset preset = Optional.ofNullable(presetMap.get(name))
+                .orElseThrow(() -> new NotFoundCustomException(
+                        ErrorMessage.PRESET_NOT_FOUND,
+                        Map.of("presetName", name)
+                ));
 
         Path tempFile = null;
         try {
@@ -83,9 +91,12 @@ public class DockerComposeService {
             zos.putNextEntry(new ZipEntry("docker-compose.yml"));
             zos.write(ymlContent.getBytes(StandardCharsets.UTF_8));
             zos.closeEntry();
+
+            return new ByteArrayResource(baos.toByteArray());
+
         } catch (IOException e) {
-            throw new RuntimeException("Zip 생성 중 오류 발생", e);
+            throw new InternalErrorCustomException(ErrorMessage.FAILED_TO_CREATE_ZIP, e);
         }
-        return new ByteArrayResource(baos.toByteArray());
+
     }
 }
