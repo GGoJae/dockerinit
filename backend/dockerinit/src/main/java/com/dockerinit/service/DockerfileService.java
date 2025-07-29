@@ -3,8 +3,10 @@ package com.dockerinit.service;
 import com.dockerinit.constant.ErrorMessage;
 import com.dockerinit.dto.dockerfile.DockerfilePreset;
 import com.dockerinit.dto.dockerfile.DockerfileRequest;
+import com.dockerinit.exception.CustomException.InvalidInputCustomException;
 import com.dockerinit.exception.CustomException.NotFoundCustomException;
 import com.dockerinit.util.DockerfileGenerator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -20,15 +22,24 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class DockerfileService {
 
+    private final DockerImageValidationService dockerImageValidationService;
+
+
     private final Map<String, DockerfilePreset> dockerfilePresets = new HashMap<>();
 
-    public DockerfileService() {
+    public DockerfileService(DockerImageValidationService dockerImageValidationService) {
+        this.dockerImageValidationService = dockerImageValidationService;
         dockerfilePresets.put("spring-boot-jar", springBootJar());
         dockerfilePresets.put("node-js-express", nodeJsExpress());
         dockerfilePresets.put("python-flask", pythonFlask());
     }
 
     public String generateDockerfile(DockerfileRequest request) {
+        String baseImage = request.getBaseImage();
+        if (!dockerImageValidationService.existsInDockerHub(baseImage)) {
+            throw new InvalidInputCustomException("유효하지 않은 Docker 이미지입니다.", Map.of("image", baseImage));
+        };
+
         return DockerfileGenerator.generate(request);
     }
 
