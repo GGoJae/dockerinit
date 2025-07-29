@@ -4,6 +4,7 @@ import com.dockerinit.constant.ErrorMessage;
 import com.dockerinit.dto.dockerCompose.DockerComposePreset;
 import com.dockerinit.dto.dockerCompose.DockerComposeRequest;
 import com.dockerinit.exception.CustomException.InternalErrorCustomException;
+import com.dockerinit.exception.CustomException.InvalidInputCustomException;
 import com.dockerinit.exception.CustomException.NotFoundCustomException;
 import com.dockerinit.util.DockerComposeGenerator;
 import com.fasterxml.jackson.core.exc.StreamReadException;
@@ -27,9 +28,11 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class DockerComposeService {
 
+    private final DockerImageValidationService dockerImageValidationService;
     private final Map<String, DockerComposePreset> presetMap = new HashMap<>();
 
-    public DockerComposeService() {
+    public DockerComposeService(DockerImageValidationService dockerImageValidationService) {
+        this.dockerImageValidationService = dockerImageValidationService;
         try {
             ObjectMapper mapper = new ObjectMapper();
             InputStream is = this.getClass().getResourceAsStream("/data/docker-compose-presets.json");
@@ -80,6 +83,8 @@ public class DockerComposeService {
     }
 
     public String generateCustomComposeYml(DockerComposeRequest request) {
+        validateImages(request);
+
         return DockerComposeGenerator.generateYml(request);
     }
 
@@ -98,5 +103,30 @@ public class DockerComposeService {
             throw new InternalErrorCustomException(ErrorMessage.FAILED_TO_CREATE_ZIP, e);
         }
 
+    }
+
+    private void validateImages(DockerComposeRequest request) {
+        Map<String, String> target = Map.of(
+                "language", request.language(),
+                "database", request.database(),
+                "cache", request.cache(),
+                "messageQueue", request.messageQueue()
+        );
+
+        Map<String, Object> invalidImages = new HashMap<>();
+
+        target.forEach((type, image) -> {
+            if (image != null && !dockerImageValidationService.existsInDockerHub(image)) {
+                invalidImages.put(type, image);
+            }
+        });
+
+        if (hasError(invalidImages)) {
+            throw new InvalidInputCustomException("유효하지 않은 Docker 이미지 입니다.", invalidImages);
+        }
+    }
+
+    private static boolean hasError(Map<String, Object> bindingResult) {
+        return !bindingResult.isEmpty();
     }
 }
