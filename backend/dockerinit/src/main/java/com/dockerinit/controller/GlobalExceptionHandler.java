@@ -1,4 +1,4 @@
-package com.dockerinit.exception;
+package com.dockerinit.controller;
 
 import com.dockerinit.constant.ErrorMessage;
 import com.dockerinit.dto.apiResponse.ApiResponse;
