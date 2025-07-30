@@ -6,7 +6,6 @@ import com.dockerinit.dto.dockerfile.DockerfileRequest;
 import com.dockerinit.exception.CustomException.InvalidInputCustomException;
 import com.dockerinit.exception.CustomException.NotFoundCustomException;
 import com.dockerinit.util.DockerfileGenerator;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -37,7 +36,7 @@ public class DockerfileService {
     public String generateDockerfile(DockerfileRequest request) {
         String baseImage = request.getBaseImage();
         if (!dockerImageValidationService.existsInDockerHub(baseImage)) {
-            throw new InvalidInputCustomException("유효하지 않은 Docker 이미지입니다.", Map.of("image", baseImage));
+            throw new InvalidInputCustomException(ErrorMessage.INVALID_DOCKER_IMAGE, Map.of("image", baseImage));
         };
 
         return DockerfileGenerator.generate(request);
@@ -57,6 +56,10 @@ public class DockerfileService {
 
 
     public byte[] downloadDockerfile(DockerfileRequest request) {
+        String baseImage = request.getBaseImage();
+        if (!dockerImageValidationService.existsInDockerHub(baseImage)) {
+            throw new InvalidInputCustomException(ErrorMessage.INVALID_DOCKER_IMAGE, Map.of("image", baseImage));
+        };
         String dockerfileContent = DockerfileGenerator.generate(request);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
