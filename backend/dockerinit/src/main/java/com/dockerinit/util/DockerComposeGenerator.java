@@ -1,8 +1,11 @@
 package com.dockerinit.util;
 
 import com.dockerinit.dto.dockerCompose.DockerComposeRequest;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-public class DockerComposeGenerator {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class DockerComposeGenerator {
 
     public static String generateYml(DockerComposeRequest request) {
         StringBuilder sb = new StringBuilder();

@@ -1,0 +1,32 @@
+package com.dockerinit.util;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ShellTokenizer {
+
+    public static List<Token> tokenize(String line) {
+        List<Token> out = new ArrayList<>();
+        int start = 0;
+        boolean inQuote = false;
+
+        for (int i = 0; i < line.length(); i++) {
+            char ch = line.charAt(i);
+            if (ch == '"') inQuote = !inQuote;
+            if (!inQuote && Character.isWhitespace(ch)) {
+                if (start < i) out.add(new Token(line.substring(start, i), start, i));
+                start = i + 1;
+            }
+        }
+        if (start < line.length())
+            out.add(new Token(line.substring(start), start, line.length()));
+
+        return out;
+    }
+
+    public record Token(String text, int begin, int end) {}
+}

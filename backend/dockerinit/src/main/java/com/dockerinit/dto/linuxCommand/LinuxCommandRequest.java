@@ -96,17 +96,18 @@ public record LinuxCommandRequest(
 
         Map<String, LinuxCommand.OptionInfo> optionInfoMap =
                 optionList.isEmpty()
-        ? Collections.emptyMap()
+                        ? Collections.emptyMap()
                         : optionList.stream().collect(
-                Collectors.toMap(
-                        option -> option.flag,
-                        option -> new LinuxCommand.OptionInfo(
-                                option.argName(), option.argRequired(), option.typeHint(), option.defaultValue(), option.description()
-                        ),
-                        (a, b) -> {
-                            throw new InvalidInputCustomException(LINUX_COMMAND_DUPLICATE_FLAG, Map.of("duplicate flag", a.argName()));}
-                )
-        );
+                        Collectors.toMap(
+                                option -> option.flag,
+                                option -> new LinuxCommand.OptionInfo(
+                                        option.argName(), option.argRequired(), option.typeHint(), option.defaultValue(), option.description()
+                                ),
+                                (a, b) -> {
+                                    throw new InvalidInputCustomException(LINUX_COMMAND_DUPLICATE_FLAG, Map.of("duplicate flag", a.argName()));
+                                }
+                        )
+                );
 
         return new LinuxCommand(category, command, description, usage, example, verified, optionRequired, optionInfoMap, tags);
 

@@ -1,11 +1,14 @@
 package com.dockerinit.util;
 
 import com.dockerinit.dto.dockerfile.DockerfileRequest;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
 
-public class DockerfileGenerator {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class DockerfileGenerator {
 
     public static String generate(DockerfileRequest req) {
         StringBuilder sb = new StringBuilder();
