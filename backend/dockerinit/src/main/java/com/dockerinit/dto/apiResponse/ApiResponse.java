@@ -49,5 +49,4 @@ public class ApiResponse<T> {
         return new ApiResponse<>(false, errorCode, message, data);
     }
 
-    // Getter 생략 또는 @Getter 추가 (Swagger에는 영향 없음)
 }
