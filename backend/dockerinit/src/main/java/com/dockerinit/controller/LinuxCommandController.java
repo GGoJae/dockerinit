@@ -31,7 +31,7 @@ public class LinuxCommandController {
             description = "입력한 문자열을 포함하는 리눅스 명령어, 옵션, 인수를 자동완성 형태로 제공합니다.")
     @GetMapping("/autocomplete")
     public ResponseEntity<?> autocomplete(@Valid LinuxAutoCompleteRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(service.autoCompleteCommand(request)));
+        return ResponseEntity.ok(ApiResponse.success(service.autocompleteCommand(request)));
     }
 
     @GetMapping("/commands")

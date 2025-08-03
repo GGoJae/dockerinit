@@ -1,10 +1,7 @@
 package com.dockerinit.service;
 
 import com.dockerinit.domain.LinuxCommand;
-import com.dockerinit.dto.linuxCommand.LinuxAutoCompleteRequest;
-import com.dockerinit.dto.linuxCommand.LinuxAutoCompleteResponse;
-import com.dockerinit.dto.linuxCommand.LinuxCommandRequest;
-import com.dockerinit.dto.linuxCommand.LinuxCommandResponse;
+import com.dockerinit.dto.linuxCommand.*;
 import com.dockerinit.exception.CustomException.NotFoundCustomException;
 import com.dockerinit.repository.LinuxCommandRepository;
 import com.dockerinit.util.RedisKeys;
@@ -12,8 +9,8 @@ import com.dockerinit.util.ShellTokenizer;
 import com.dockerinit.vo.Linux.AcPhase;
 import com.dockerinit.vo.Linux.Suggestion;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.connection.RedisZSetCommands.Limit;
-import org.springframework.data.redis.connection.RedisZSetCommands.Range;
+import org.springframework.data.domain.Range;
+import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
@@ -46,6 +43,12 @@ public class LinuxCommandService {
     public LinuxCommandResponse createCommand(LinuxCommandRequest req) {
         LinuxCommand saved = repo.save(req.toEntity());
         return LinuxCommandResponse.of(saved);
+    }
+
+    /* ────────────────────────────── 리눅스 커맨드 분석 API ───────────────────────────── */
+
+    public LinuxCommandResponse generate(LinuxCommandGenerateRequest request) {
+        return null; // TODO 명령어 분석 하는 로직 작성
     }
 
     /* ────────────────────────────── 자동완성 API ───────────────────────────── */
@@ -147,6 +150,8 @@ public class LinuxCommandService {
                 .toList();
     }
 
+
+
     /** 인수 자동완성(현재는 placeholder 하나) */
     private List<Suggestion> suggestArgument(ParseCtx ctx) {
         String ph = placeholder(ctx.baseCommand, ctx.prevFlag);
@@ -156,10 +161,16 @@ public class LinuxCommandService {
     /* ─────────────── 공통 헬퍼 ─────────────── */
 
     private List<String> fetchFromRedisByPrefix(String key, String prefix) {
-        Range range = Range.range().gte(prefix).lte(prefix + "\uFFFF");
-        Set<String> set = redis.opsForZSet()
-                .rangeByLex(key, range, Limit.limit().count(15));
-        return new ArrayList<>(set);
+//        Range range = Range.range().gte(prefix).lte(prefix + "\uFFFF");
+//        Set<String> set = redis.opsForZSet()
+//                .rangeByLex(key, range, Limit.limit().count(15));
+
+        Range<String> range = Range.closed(prefix, prefix + "\uFFFF");
+        Limit limit = Limit.limit().count(15);
+        Set<String> strings = redis.opsForZSet()
+                .rangeByLex(key, range, limit);
+
+        return strings == null ? List.of() : new ArrayList<>(strings);
     }
 
     private void cacheStringsAsZSet(String key, Collection<String> values) {
@@ -169,12 +180,12 @@ public class LinuxCommandService {
                 .map(v -> new DefaultTypedTuple<String>(v, 0.0))
                 .collect(Collectors.toSet());
 
-        redis.opsForZSet().add(key, tuples);   // ✅ 컴파일 OK
+        redis.opsForZSet().add(key, tuples);
     }
 
     private String placeholder(String cmd, String flag) {
         return repo.findByCommand(cmd)
-                .map(c -> c.getOptions().get(flag))
+                .map(c -> c.getOptions().getOrDefault(flag, null))
                 .map(o -> "<" + o.argName() + ">")
                 .orElse("<arg>");
     }

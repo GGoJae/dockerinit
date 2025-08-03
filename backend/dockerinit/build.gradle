@@ -36,11 +36,11 @@ dependencies {
 	/* ── Redis (Lettuce 클라이언트 기본) ── */
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }
 
 tasks.named('test') {

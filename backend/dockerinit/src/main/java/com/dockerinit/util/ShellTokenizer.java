@@ -22,8 +22,12 @@ public final class ShellTokenizer {
                 start = i + 1;
             }
         }
-        if (start < line.length())
+
+        if (start < line.length()) {
             out.add(new Token(line.substring(start), start, line.length()));
+        } else if (line.endsWith(" ")) {
+            out.add(new Token("", line.length(), line.length()));
+        }
 
         return out;
     }
