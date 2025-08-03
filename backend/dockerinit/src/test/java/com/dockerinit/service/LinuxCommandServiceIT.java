@@ -1,11 +1,11 @@
 package com.dockerinit.service;
 
-import com.dockerinit.domain.LinuxCommand;
-import com.dockerinit.dto.linuxCommand.LinuxAutoCompleteRequest;
-import com.dockerinit.dto.linuxCommand.LinuxAutoCompleteResponse;
-import com.dockerinit.repository.LinuxCommandRepository;
-import com.dockerinit.service.linux.LinuxCommandService;
-import com.dockerinit.vo.Linux.AcPhase;
+import com.dockerinit.linux.domain.LinuxCommand;
+import com.dockerinit.linux.dto.LinuxAutoCompleteRequest;
+import com.dockerinit.linux.dto.LinuxAutoCompleteResponse;
+import com.dockerinit.linux.repository.LinuxCommandRepository;
+import com.dockerinit.linux.service.LinuxCommandService;
+import com.dockerinit.linux.model.AcPhase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

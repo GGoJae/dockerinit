@@ -1,10 +1,12 @@
 package com.dockerinit.service;
 
-import com.dockerinit.constant.ErrorMessage;
-import com.dockerinit.dto.dockerfile.DockerfilePreset;
-import com.dockerinit.dto.dockerfile.DockerfileRequest;
-import com.dockerinit.exception.CustomException.InvalidInputCustomException;
-import com.dockerinit.exception.CustomException.NotFoundCustomException;
+import com.dockerinit.global.constants.ErrorMessage;
+import com.dockerinit.dockerfile.service.DockerfileService;
+import com.dockerinit.dockerfile.dto.DockerfilePreset;
+import com.dockerinit.dockerfile.dto.DockerfileRequest;
+import com.dockerinit.global.exception.InvalidInputCustomException;
+import com.dockerinit.global.exception.NotFoundCustomException;
+import com.dockerinit.global.validation.DockerImageValidationService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static com.dockerinit.constant.ErrorMessage.INVALID_DOCKER_IMAGE;
+import static com.dockerinit.global.constants.ErrorMessage.INVALID_DOCKER_IMAGE;
 
 @ExtendWith(MockitoExtension.class)
 class DockerfileServiceTest {
