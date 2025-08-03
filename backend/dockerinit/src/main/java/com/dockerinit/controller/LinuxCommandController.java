@@ -4,7 +4,7 @@ import com.dockerinit.dto.apiResponse.ApiResponse;
 import com.dockerinit.dto.linuxCommand.LinuxAutoCompleteRequest;
 import com.dockerinit.dto.linuxCommand.LinuxCommandGenerateRequest;
 import com.dockerinit.dto.linuxCommand.LinuxCommandRequest;
-import com.dockerinit.service.LinuxCommandService;
+import com.dockerinit.service.linux.LinuxCommandService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,12 +1,13 @@
-package com.dockerinit.service;
+package com.dockerinit.service.linux;
 
 import com.dockerinit.domain.LinuxCommand;
 import com.dockerinit.dto.linuxCommand.*;
 import com.dockerinit.exception.CustomException.NotFoundCustomException;
 import com.dockerinit.repository.LinuxCommandRepository;
+import com.dockerinit.service.linux.strategy.parseStrategy.ParseStrategy;
+import com.dockerinit.service.linux.strategy.parseStrategy.parseStrategyImpl.DefaultOptionStrategy;
 import com.dockerinit.util.RedisKeys;
 import com.dockerinit.util.ShellTokenizer;
-import com.dockerinit.vo.Linux.AcPhase;
 import com.dockerinit.vo.Linux.Suggestion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Range;
@@ -27,6 +28,8 @@ public class LinuxCommandService {
 
     private final StringRedisTemplate redis;
     private final LinuxCommandRepository repo;
+    private final List<ParseStrategy> strategies;
+
 
     /* ─────────────────────────────── CRUD API ─────────────────────────────── */
 
@@ -57,61 +60,45 @@ public class LinuxCommandService {
 
         ParseCtx ctx = parse(req.line(), req.cursor());
 
-        List<Suggestion> sugg = switch (ctx.phase) {
-            case COMMAND  -> suggestCommand(ctx);
-            case OPTION   -> suggestOption(ctx);
+        List<Suggestion> suggest = switch (ctx.phase()) {
+            case COMMAND -> suggestCommand(ctx);
+            case OPTION -> suggestOption(ctx);
             case ARGUMENT -> suggestArgument(ctx);
         };
 
-        return new LinuxAutoCompleteResponse(ctx.phase, ctx.baseCommand, ctx.currentToken, sugg);
+        return new LinuxAutoCompleteResponse(ctx.phase(), ctx.baseCommand(), ctx.currentToken(), suggest);
     }
 
     /* ─────────────── Phase 판단 ─────────────── */
+    /**
+     * 전략에 일치하지 않으면 항상 OPTION 단계로 fallback 처리
+     */
 
-    private record ParseCtx(AcPhase phase, String baseCommand,
-                            String currentToken, String prevFlag) {}
 
     private ParseCtx parse(String line, int cursor) {
         List<ShellTokenizer.Token> tokens = ShellTokenizer.tokenize(line);
-        if (tokens.isEmpty())
-            return new ParseCtx(AcPhase.COMMAND, "", "", null);
 
-        ShellTokenizer.Token curTok = tokens.get(tokens.size() - 1);
-        for (ShellTokenizer.Token t : tokens)
-            if (cursor <= t.end()) { curTok = t; break; }
-
-        String cur = curTok.text();
-        if (tokens.size() == 1 && cursor <= curTok.end())
-            return new ParseCtx(AcPhase.COMMAND, "", cur, null);
-
-        String baseCmd   = tokens.get(0).text();
-        String prevToken = tokens.size() >= 2 ? tokens.get(tokens.size() - 2).text() : "";
-
-        if (cur.startsWith("-"))
-            return new ParseCtx(AcPhase.OPTION, baseCmd, cur, null);
-
-        if (prevToken.startsWith("-") && optionRequiresArg(baseCmd, prevToken))
-            return new ParseCtx(AcPhase.ARGUMENT, baseCmd, cur, prevToken);
-
-        if (cursor == line.length() && line.endsWith(" "))
-            return new ParseCtx(AcPhase.OPTION, baseCmd, "", null);
-
-        return new ParseCtx(AcPhase.OPTION, baseCmd, cur, null);
+        return strategies.stream()
+                .filter(s -> s.matches(line, cursor, tokens))
+                .findFirst().orElseGet(DefaultOptionStrategy::new)
+                .apply(line, cursor, tokens);
     }
 
     private boolean optionRequiresArg(String cmd, String flag) {
         return repo.findByCommand(cmd)
                 .map(c -> Optional.ofNullable(c.getOptions().get(flag)))
                 .flatMap(o -> o.map(info -> info.argRequired()))
-                .orElse(false);
+                .orElseGet(() -> false);
     }
 
     /* ─────────────── Suggestion 영역 ─────────────── */
 
-    /** 명령어 자동완성 */
+    /**
+     * 명령어 자동완성
+     */
     private List<Suggestion> suggestCommand(ParseCtx ctx) {
-        String key     = RedisKeys.acCmd();
-        String prefix  = ctx.currentToken;
+        String key = RedisKeys.acCmd();
+        String prefix = ctx.currentToken();
 
         List<String> res = fetchFromRedisByPrefix(key, prefix);
         if (res.isEmpty()) {
@@ -126,35 +113,38 @@ public class LinuxCommandService {
                 .toList();
     }
 
-    /** 옵션 자동완성 */
+    /**
+     * 옵션 자동완성
+     */
     private List<Suggestion> suggestOption(ParseCtx ctx) {
 
-        String key    = RedisKeys.acOpt(ctx.baseCommand);
-        String prefix = ctx.currentToken;
+        String key = RedisKeys.acOpt(ctx.baseCommand());
+        String prefix = ctx.currentToken();
 
         List<String> res = fetchFromRedisByPrefix(key, prefix);
         if (res.isEmpty()) {
-            repo.findByCommand(ctx.baseCommand).ifPresent(cmd -> {
+            repo.findByCommand(ctx.baseCommand()).ifPresent(cmd -> {
                 cacheStringsAsZSet(key, cmd.getOptions().keySet());
             });
             res = fetchFromRedisByPrefix(key, prefix);
         }
 
-        redis.opsForZSet().incrementScore(RedisKeys.hotOpt(ctx.baseCommand), prefix, 1);
+        redis.opsForZSet().incrementScore(RedisKeys.hotOpt(ctx.baseCommand()), prefix, 1);
 
         return res.stream()
                 .map(flag -> new Suggestion(
                         flag,
-                        flag + " " + placeholder(ctx.baseCommand, flag),
-                        cmdOptionDesc(ctx.baseCommand, flag)))
+                        flag + " " + placeholder(ctx.baseCommand(), flag),
+                        cmdOptionDesc(ctx.baseCommand(), flag)))
                 .toList();
     }
 
 
-
-    /** 인수 자동완성(현재는 placeholder 하나) */
+    /**
+     * 인수 자동완성(현재는 placeholder 하나)
+     */
     private List<Suggestion> suggestArgument(ParseCtx ctx) {
-        String ph = placeholder(ctx.baseCommand, ctx.prevFlag);
+        String ph = placeholder(ctx.baseCommand(), ctx.prevFlag());
         return List.of(new Suggestion(ph, ph, "placeholder"));
     }
 

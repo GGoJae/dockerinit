@@ -32,5 +32,12 @@ public final class ShellTokenizer {
         return out;
     }
 
+    public static Token currentToken(int cursor, List<Token> tokens) {
+        return tokens.stream()
+                .filter(t -> t.begin() <= cursor && cursor <= t.end())
+                .findFirst()
+                .orElseGet(() -> tokens.get(tokens.size() - 1));
+    }
+
     public record Token(String text, int begin, int end) {}
 }

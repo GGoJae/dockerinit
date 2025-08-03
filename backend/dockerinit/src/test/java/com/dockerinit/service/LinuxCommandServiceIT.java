@@ -4,6 +4,7 @@ import com.dockerinit.domain.LinuxCommand;
 import com.dockerinit.dto.linuxCommand.LinuxAutoCompleteRequest;
 import com.dockerinit.dto.linuxCommand.LinuxAutoCompleteResponse;
 import com.dockerinit.repository.LinuxCommandRepository;
+import com.dockerinit.service.linux.LinuxCommandService;
 import com.dockerinit.vo.Linux.AcPhase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 class LinuxCommandServiceIT {
 
-    @Autowired LinuxCommandService service;
+    @Autowired
+    LinuxCommandService service;
     @Autowired LinuxCommandRepository repo;
     @Autowired StringRedisTemplate redisTemplate;
 
