@@ -3,12 +3,15 @@ package com.dockerinit.global.validation;
 import com.dockerinit.global.exception.InternalErrorCustomException;
 import com.dockerinit.global.exception.RateLimitExceededCustomException;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,14 +22,15 @@ import static com.dockerinit.global.constants.UrlInfo.DOCKER_HUB_API;
 @Service
 public class DockerImageValidationService {
 
-    private WebClient webClient;
+    private final WebClient webClient;
     private final Map<String, Boolean> imageCache = new ConcurrentHashMap<>();
 
-    @PostConstruct
-    public void init () {
+    public DockerImageValidationService(HttpClient sharedHttpClient) {
         this.webClient = WebClient.builder()
                 .baseUrl(DOCKER_HUB_API)
+                .clientConnector(new ReactorClientHttpConnector(sharedHttpClient))
                 .build();
+
     }
 
     public boolean existsInDockerHub(String imageWithTag) {

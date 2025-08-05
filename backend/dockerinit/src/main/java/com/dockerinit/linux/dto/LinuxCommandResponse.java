@@ -11,8 +11,10 @@ public record LinuxCommandResponse(
         String command,
         String description,
         String usage,
-        String example,
+        List<String> arguments,
+        List<String> examples,
         boolean verified,
+        boolean optionRequired,
         Map<String, LinuxCommand.OptionInfo> options,
         List<String> tags
 ) {
@@ -23,8 +25,10 @@ public record LinuxCommandResponse(
                 cmd.getCommand(),
                 cmd.getDescription(),
                 cmd.getUsage(),
-                cmd.getExample(),
+                cmd.getArguments(),
+                cmd.getExamples(),
                 cmd.isVerified(),
+                cmd.isOptionRequired(),
                 cmd.getOptions(),
                 cmd.getTags()
         );

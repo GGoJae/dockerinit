@@ -38,8 +38,12 @@ public record LinuxCommandRequest(
         @NotBlank(message = "usage는 필수입니다.")
         String usage,
 
-        @Schema(description = "실행 예시", example = "ping -c 3 google.com")
-        String example,
+        @Schema(description = "주요 인자 목록", example = "[\"HOST\"]")
+        @Size(max = 10, message = "인자는 최대 10개까지만 등록 가능합니다.")
+        List<@NotBlank String> arguments,
+
+        @Schema(description = "예시 목록", example = "[\"ping -c 3 google.com\"]")
+        List<@NotBlank String> examples,
 
         @Schema(description = "검증 여부", defaultValue = "false")
         boolean verified,
@@ -109,7 +113,16 @@ public record LinuxCommandRequest(
                         )
                 );
 
-        return new LinuxCommand(category, command, description, usage, example, verified, optionRequired, optionInfoMap, tags);
-
+        return new LinuxCommand(
+                category,
+                command,
+                description,
+                usage,
+                arguments != null ? arguments : List.<String>of(),
+                examples != null ? examples : List.<String>of(),
+                optionRequired,
+                optionInfoMap,
+                tags != null ? tags : List.<String>of()
+        );
     }
 }

@@ -167,13 +167,13 @@ public class LinuxCommandService {
         return repo.findByCommand(cmd)
                 .map(c -> c.getOptions().getOrDefault(flag, null))
                 .map(o -> "<" + o.argName() + ">")
-                .orElse("<arg>");
+                .orElseGet(() -> "<arg>");
     }
 
     private String cmdOptionDesc(String cmd, String flag) {
         return repo.findByCommand(cmd)
                 .map(c -> c.getOptions().get(flag))
                 .map(LinuxCommand.OptionInfo::description)
-                .orElse("");
+                .orElseGet(() -> "");
     }
 }
