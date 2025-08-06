@@ -3,9 +3,9 @@ package com.dockerinit.service;
 import com.dockerinit.linux.domain.LinuxCommand;
 import com.dockerinit.linux.dto.LinuxAutoCompleteRequest;
 import com.dockerinit.linux.dto.LinuxAutoCompleteResponse;
+import com.dockerinit.linux.model.AcPhase;
 import com.dockerinit.linux.repository.LinuxCommandRepository;
 import com.dockerinit.linux.service.LinuxCommandService;
-import com.dockerinit.linux.model.AcPhase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 class LinuxCommandServiceIT {
@@ -93,7 +92,7 @@ class LinuxCommandServiceIT {
     private static LinuxCommand cmd(String command, Map<String, LinuxCommand.OptionInfo> opts) {
         return new LinuxCommand(
                 "기본", command, command + " 설명", command + " [옵션]",
-                null, false, !opts.isEmpty(), opts, List.of(command));
+                null, null, !opts.isEmpty(), opts, List.of(command));
     }
     private static LinuxCommand.OptionInfo opt(String arg, String required) {
         return new LinuxCommand.OptionInfo(arg, Boolean.parseBoolean(required),

@@ -1,24 +1,28 @@
-package com.dockerinit.linux.service.strategy.strategyImpl;
+package com.dockerinit.linux.service.strategy.parseStrategy.strategyImpl;
 
 import com.dockerinit.linux.model.ParseCtx;
-import com.dockerinit.linux.service.strategy.ParseStrategy;
+import com.dockerinit.linux.service.strategy.parseStrategy.ParseStrategy;
 import com.dockerinit.linux.util.ShellTokenizer;
 import com.dockerinit.linux.model.AcPhase;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
-public class TrailingSpaceStrategy implements ParseStrategy {
+/**
+ * fallback strategy
+ */
+
+public class DefaultOptionStrategy implements ParseStrategy {
     @Override
     public boolean matches(String line, int cursor, List<ShellTokenizer.Token> tokens) {
-        return cursor == line.length() && line.endsWith(" ");
+        return false;
     }
 
     @Override
     public ParseCtx apply(String line, int cursor, List<ShellTokenizer.Token> tokens) {
         String baseCommand = getBaseCommand(tokens);
-        return new ParseCtx(AcPhase.OPTION, baseCommand, "", null);
+        String currentToken = ShellTokenizer.currentToken(cursor, tokens).text();
+
+        return new ParseCtx(AcPhase.OPTION, baseCommand, currentToken, null);
     }
 
     private String getBaseCommand(List<ShellTokenizer.Token> tokens) {

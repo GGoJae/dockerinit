@@ -1,4 +1,4 @@
-package com.dockerinit.linux.service.strategy;
+package com.dockerinit.linux.service.strategy.parseStrategy;
 
 import com.dockerinit.linux.model.ParseCtx;
 import com.dockerinit.linux.util.ShellTokenizer;

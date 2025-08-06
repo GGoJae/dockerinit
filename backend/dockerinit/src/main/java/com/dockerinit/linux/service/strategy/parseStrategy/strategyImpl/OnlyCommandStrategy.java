@@ -1,7 +1,7 @@
-package com.dockerinit.linux.service.strategy.strategyImpl;
+package com.dockerinit.linux.service.strategy.parseStrategy.strategyImpl;
 
 import com.dockerinit.linux.model.ParseCtx;
-import com.dockerinit.linux.service.strategy.ParseStrategy;
+import com.dockerinit.linux.service.strategy.parseStrategy.ParseStrategy;
 import com.dockerinit.linux.util.ShellTokenizer;
 import com.dockerinit.linux.model.AcPhase;
 import org.springframework.stereotype.Component;
