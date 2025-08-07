@@ -1,6 +1,5 @@
 package com.dockerinit.linux.service.strategy.linuxCommandStrategy;
 
-import com.dockerinit.linux.model.AcPhase;
 import com.dockerinit.linux.model.ParseCtx;
 import com.dockerinit.linux.model.Suggestion;
 import com.dockerinit.linux.util.ShellTokenizer;

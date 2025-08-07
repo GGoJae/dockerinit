@@ -6,6 +6,7 @@ import com.dockerinit.linux.dto.LinuxAutoCompleteResponse;
 import com.dockerinit.linux.model.AcPhase;
 import com.dockerinit.linux.repository.LinuxCommandRepository;
 import com.dockerinit.linux.service.LinuxCommandService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 @SpringBootTest
 class LinuxCommandServiceIT {
 
@@ -50,7 +52,7 @@ class LinuxCommandServiceIT {
     void commandPhase_returnsTopMatches() {
         LinuxAutoCompleteResponse res =
                 service.autocompleteCommand(new LinuxAutoCompleteRequest("p", null));
-
+        log.debug("response is {}", res);
         assertThat(res.phase()).isEqualTo(AcPhase.COMMAND);
         assertThat(res.suggestions())
                 .extracting(s -> s.value())
@@ -63,8 +65,7 @@ class LinuxCommandServiceIT {
         LinuxAutoCompleteResponse res =
                 service.autocompleteCommand(new LinuxAutoCompleteRequest("ping -", null));
 
-        System.out.println("res = " + res);
-
+        log.debug("response is {}", res);
         assertThat(res.phase()).isEqualTo(AcPhase.OPTION);
         assertThat(res.suggestions())
                 .extracting(s -> s.value())
@@ -76,6 +77,7 @@ class LinuxCommandServiceIT {
     void argumentPhase_returnsPlaceholder() {
         LinuxAutoCompleteResponse res =
                 service.autocompleteCommand(new LinuxAutoCompleteRequest("ping -c ", null));
+        log.info("응답 내용은 이것 {}", res);
 
         assertThat(res.phase()).isEqualTo(AcPhase.ARGUMENT);
         assertThat(res.suggestions().get(0).value()).isEqualTo("<count>");
@@ -85,6 +87,7 @@ class LinuxCommandServiceIT {
     @DisplayName("이상한 명령어를 치면 빈값 나오나요?")
     void wrongCommand_throwException() {
         LinuxAutoCompleteResponse res = service.autocompleteCommand(new LinuxAutoCompleteRequest("wrongString", null));
+        log.debug("response is {}", res);
         assertThat(res.suggestions()).isEmpty();
     }
 

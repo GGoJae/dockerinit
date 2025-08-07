@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RedisKeys {
 
-    public static String autoCompleteCommand() {
-        return "ac:cmd";
+    public static String autoCompleteCommand(String prefix) {
+        return "ac:cmd" + prefix;
     }
 
     public static String authCompleteOption(String cmd) {

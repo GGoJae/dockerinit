@@ -1,4 +1,4 @@
-package com.dockerinit.linux.service.strategy.linuxCommandStrategy.linuxCommandStrategyImpl;
+package com.dockerinit.linux.service.strategy.linuxCommandStrategy.linuxCommandStrategyImpl.commonLinuxCommandStrategy;
 
 import com.dockerinit.linux.domain.LinuxCommand;
 import com.dockerinit.linux.model.AcPhase;
@@ -10,6 +10,7 @@ import com.dockerinit.linux.service.strategy.linuxCommandStrategy.LinuxCommandSt
 import com.dockerinit.linux.util.RedisKeys;
 import com.dockerinit.linux.util.ShellTokenizer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,12 +26,14 @@ import java.util.stream.Stream;
 
 import static com.dockerinit.linux.model.AcPhase.*;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CommonLinuxCommandStrategy implements LinuxCommandStrategy {
 
     private final LinuxCommandRepository repository;
     private final RedisTemplate<String, String> redis;
+    private final CommonLinuxParser parser;
 
     @Override
     public boolean supports(String command) {
@@ -40,20 +43,8 @@ public class CommonLinuxCommandStrategy implements LinuxCommandStrategy {
     // TODO 추후 parse 코드 전략 패턴으로 리팩토링 계획
     @Override
     public ParseCtx parse(String line, int cursor, List<ShellTokenizer.Token> tokens) {
-
-        if (tokens.isEmpty()) {
-            return new ParseCtx(AcPhase.COMMAND, "", "", null);
-        }
-
-        String baseCommand = tokens.get(0).text();
-
-        ShellTokenizer.Token current = tokens.get(tokens.size() - 1);
-        String currentToken = current.text();
-        String prevFlag = findPreviousFlag(tokens);
-
-        AcPhase phase = decidePhase(tokens, currentToken, prevFlag, baseCommand);
-
-        return new ParseCtx(phase, baseCommand, currentToken, prevFlag);
+        log.info("커먼리눅스커맨드 클래스의 파서 코드 진입 parser 에 진입, 위임");
+        return parser.parse(line, cursor, tokens);
     }
 
     @Override
@@ -69,14 +60,16 @@ public class CommonLinuxCommandStrategy implements LinuxCommandStrategy {
 
     private List<Suggestion> suggestCommand(ParseCtx ctx) {
         String prefix = ctx.currentToken();
-        String key = RedisKeys.autoCompleteCommand();
+        String key = RedisKeys.autoCompleteCommand(prefix);
 
+        log.info("prefix : {} , key : {}", prefix, key);
         List<String> res = fetchFromRedis(key, prefix);
         if (res.isEmpty()) {
             res = repository.findTop15ByCommandStartingWith(prefix)
                     .stream().map(c -> c.getCommand()).toList();
             cacheZSet(key, res);
         }
+        log.info("res : {}", res);
 
         redis.opsForZSet().incrementScore(RedisKeys.hotCommand(), prefix, 1);
         return res.stream().map(cmd -> new Suggestion(cmd, cmd, "", SuggestionType.COMMAND)).toList();
@@ -133,52 +126,14 @@ public class CommonLinuxCommandStrategy implements LinuxCommandStrategy {
         return repository.findByCommand(cmd)
                 .map(c -> c.getOptions().get(flag))
                 .map(opt -> "<" + opt.argName() + ">")
-                .orElse("<arg>");
+                .orElseGet(() -> "<arg>");
     }
 
     private String cmdOptionDesc(String cmd, String flag) {
         return repository.findByCommand(cmd)
                 .map(c -> c.getOptions().get(flag))
                 .map(LinuxCommand.OptionInfo::description)
-                .orElse("");
+                .orElseGet(() -> "");
     }
-
-    private AcPhase decidePhase(List<ShellTokenizer.Token> tokens, String currentToken, String prevFlag, String baseCommand) {
-
-        // 명령어만 입력된 상태
-        if (tokens.size() == 1) {
-            return AcPhase.COMMAND;
-        }
-
-        if (currentToken.startsWith("-")) {
-            // 이전 플래그가 있고, 그 플래그가 인자를 요구한다면 → currentToken은 ARGUMENT일 가능성 있음
-            if (prevFlag != null && optionRequiresArg(baseCommand, prevFlag)) {
-                return AcPhase.OPTION_OR_ARGUMENT; // - 다음에 오는 "-"는 ambiguous
-            }
-            return OPTION;
-        }
-
-        if (prevFlag != null && optionRequiresArg(baseCommand, prevFlag)) {
-            return ARGUMENT;
-        }
-
-        return TARGET; // 그 외는 파일/대상 자동완성으로 간주
-    }
-
-    private String findPreviousFlag(List<ShellTokenizer.Token> tokens) {
-        for (int i = tokens.size() - 2; i >= 1; i--) {
-            String val = tokens.get(i).text();
-            if (val.startsWith("-")) return val;
-        }
-        return null;
-    }
-
-    private boolean optionRequiresArg(String command, String flag) {
-        return repository.findByCommand(command)
-                .map(cmd -> cmd.getOptions().getOrDefault(flag, null))
-                .map(LinuxCommand.OptionInfo::argRequired)
-                .orElse(false);
-    }
-
 
 }
