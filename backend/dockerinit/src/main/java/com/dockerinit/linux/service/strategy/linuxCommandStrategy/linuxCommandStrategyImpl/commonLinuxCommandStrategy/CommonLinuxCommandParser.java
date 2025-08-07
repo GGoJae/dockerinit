@@ -4,6 +4,7 @@ import com.dockerinit.linux.domain.LinuxCommand;
 import com.dockerinit.linux.model.AcPhase;
 import com.dockerinit.linux.model.ParseCtx;
 import com.dockerinit.linux.repository.LinuxCommandRepository;
+import com.dockerinit.linux.service.strategy.linuxCommandStrategy.LinuxCommandParser;
 import com.dockerinit.linux.util.ShellTokenizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +16,11 @@ import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CommonLinuxParser {
+public class CommonLinuxCommandParser implements LinuxCommandParser {
 
     private final LinuxCommandRepository repository;
 
+    @Override
     public ParseCtx parse(String line, int cursor, List<ShellTokenizer.Token> tokens) {
 
         // 라인이 비어있으면 현재 페이즈는 커맨드
