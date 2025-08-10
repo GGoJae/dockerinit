@@ -39,5 +39,12 @@ public final class ShellTokenizer {
                 .orElseGet(() -> tokens.get(tokens.size() - 1));
     }
 
+    public static int indexOfTokenAtCursor(int cursor, List<Token> tokens) {
+        return tokens.stream()
+                .filter(t -> t.begin() <= cursor && cursor <= t.end())
+                .map(token -> tokens.indexOf(token))
+                .findFirst().orElseGet(() -> -1);
+    }
+
     public record Token(String text, int begin, int end) {}
 }

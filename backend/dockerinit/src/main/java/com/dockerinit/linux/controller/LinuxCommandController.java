@@ -1,10 +1,10 @@
 package com.dockerinit.linux.controller;
 
 import com.dockerinit.global.response.ApiResponse;
-import com.dockerinit.linux.dto.LinuxAutoCompleteRequest;
-import com.dockerinit.linux.dto.LinuxCommandGenerateRequest;
-import com.dockerinit.linux.dto.LinuxCommandRequest;
-import com.dockerinit.linux.service.LinuxCommandService;
+import com.dockerinit.linux.dto.request.LinuxAutoCompleteRequest;
+import com.dockerinit.linux.dto.request.LinuxCommandGenerateRequest;
+import com.dockerinit.linux.dto.request.LinuxCommandRequest;
+import com.dockerinit.linux.application.service.LinuxCommandService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

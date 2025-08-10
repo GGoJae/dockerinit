@@ -1,6 +1,6 @@
 package com.dockerinit.linux.repository;
 
-import com.dockerinit.linux.domain.LinuxCommand;
+import com.dockerinit.linux.domain.model.LinuxCommand;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,13 +1,12 @@
 package com.dockerinit.service;
 
-import com.dockerinit.global.constants.ErrorMessage;
-import com.dockerinit.dockerfile.service.DockerfileService;
 import com.dockerinit.dockerfile.dto.DockerfilePreset;
 import com.dockerinit.dockerfile.dto.DockerfileRequest;
+import com.dockerinit.dockerfile.service.DockerfileService;
+import com.dockerinit.global.constants.ErrorMessage;
 import com.dockerinit.global.exception.InvalidInputCustomException;
 import com.dockerinit.global.exception.NotFoundCustomException;
 import com.dockerinit.global.validation.DockerImageValidationService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static com.dockerinit.global.constants.ErrorMessage.INVALID_DOCKER_IMAGE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
 class DockerfileServiceTest {
@@ -45,8 +46,8 @@ class DockerfileServiceTest {
         String result = dockerfileService.generateDockerfile(request);
 
         //then
-        Assertions.assertThat(result).contains("FROM openjdk:17");
-        Assertions.assertThat(result).contains("WORKDIR /app");
+        assertThat(result).contains("FROM openjdk:17");
+        assertThat(result).contains("WORKDIR /app");
     }
 
     @Test
@@ -61,7 +62,7 @@ class DockerfileServiceTest {
                 .thenReturn(false);
 
         // then
-        Assertions.assertThatThrownBy(() -> dockerfileService.generateDockerfile(request))
+        assertThatThrownBy(() -> dockerfileService.generateDockerfile(request))
                 .isInstanceOf(InvalidInputCustomException.class)
                 .hasMessageContaining(INVALID_DOCKER_IMAGE);
     }
@@ -72,7 +73,7 @@ class DockerfileServiceTest {
         List<DockerfilePreset> presets = dockerfileService.getAllPresets();
 
         // then
-        Assertions.assertThat(presets)
+        assertThat(presets)
                 .hasSize(3)
                 .extracting("name")
                 .contains("Spring Boot JAR", "Node.js Express", "Python Flask");
@@ -86,15 +87,15 @@ class DockerfileServiceTest {
         DockerfilePreset preset3 = dockerfileService.getPresentByName("python-flask");
 
         // then
-        Assertions.assertThat(preset1).extracting("name").isEqualTo("Spring Boot JAR");
-        Assertions.assertThat(preset2).extracting("name").isEqualTo("Node.js Express");
-        Assertions.assertThat(preset3).extracting("name").isEqualTo("Python Flask");
+        assertThat(preset1).extracting("name").isEqualTo("Spring Boot JAR");
+        assertThat(preset2).extracting("name").isEqualTo("Node.js Express");
+        assertThat(preset3).extracting("name").isEqualTo("Python Flask");
     }
 
     @Test
     void getPresentByName_없는_이름_검색() {
         // when & then
-        Assertions.assertThatThrownBy(() -> dockerfileService.getPresentByName("no-name"))
+        assertThatThrownBy(() -> dockerfileService.getPresentByName("no-name"))
                 .isInstanceOf(NotFoundCustomException.class)
                 .hasMessageContaining(ErrorMessage.PRESET_NOT_FOUND);
     }
@@ -113,7 +114,7 @@ class DockerfileServiceTest {
         byte[] zipBytes = dockerfileService.downloadDockerfile(request);
 
         // then
-        Assertions.assertThat(zipBytes).isNotNull();
-        Assertions.assertThat(zipBytes.length).isGreaterThan(0);
+        assertThat(zipBytes).isNotNull();
+        assertThat(zipBytes.length).isGreaterThan(0);
     }
 }

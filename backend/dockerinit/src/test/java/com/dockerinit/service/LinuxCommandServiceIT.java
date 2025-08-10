@@ -1,11 +1,11 @@
 package com.dockerinit.service;
 
-import com.dockerinit.linux.domain.LinuxCommand;
-import com.dockerinit.linux.dto.LinuxAutoCompleteRequest;
-import com.dockerinit.linux.dto.LinuxAutoCompleteResponse;
-import com.dockerinit.linux.model.AcPhase;
+import com.dockerinit.linux.domain.model.LinuxCommand;
+import com.dockerinit.linux.dto.request.LinuxAutoCompleteRequest;
+import com.dockerinit.linux.dto.response.LinuxAutoCompleteResponse;
+import com.dockerinit.linux.application.autoComplete.model.AcPhase;
 import com.dockerinit.linux.repository.LinuxCommandRepository;
-import com.dockerinit.linux.service.LinuxCommandService;
+import com.dockerinit.linux.application.service.LinuxCommandService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
