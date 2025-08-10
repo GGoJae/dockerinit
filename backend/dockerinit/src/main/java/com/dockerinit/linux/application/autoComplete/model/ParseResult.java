@@ -2,7 +2,7 @@ package com.dockerinit.linux.application.autoComplete.model;
 
 import com.dockerinit.linux.domain.model.LinuxCommand;
 import com.dockerinit.linux.domain.syntax.Option;
-import com.dockerinit.linux.domain.syntax.TokenType;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -14,23 +14,22 @@ public record ParseResult(
         String currentToken,
         int tokenIndex,
         String prevFlag,
-        LinuxCommand command,
-        Map<String, Option> options,
+        @Nullable CommandView command,
         List<ExpectedToken> expected,
         int position    //  시놉시스 위치
 ) {
-    public boolean pathLikePrefix() {
-        if (currentToken == null) return false;
-        return currentToken.startsWith("/") || currentToken.startsWith("./") || currentToken.startsWith("../");
+
+    public ParseResult {
+        line = (line == null) ? "" : line;
+        baseCommand = (baseCommand == null) ? "" : baseCommand;
+        currentToken = (currentToken == null) ? "" : currentToken;
+        prevFlag = (prevFlag == null) ? "" : prevFlag;
+        expected = (expected == null) ? List.of() : List.copyOf(expected);
+        tokenIndex = Math.max(-1, tokenIndex);
+        position = Math.max(0, position);
     }
 
-    public boolean looksLikeOption() {
-        return currentToken != null && currentToken.startsWith("-");
-    }
-
-    public List<TokenType> expectedTypesOnly() {
-        return expected.stream()
-                .sorted().map(ExpectedToken::type)
-                .toList();
+    public Map<String, Option> optionOrEmpty() {
+        return command == null ? Map.of() : command.options();
     }
 }

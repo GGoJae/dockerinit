@@ -1,6 +1,7 @@
 package com.dockerinit.linux.domain.syntax;
 
 import com.dockerinit.global.exception.InvalidInputCustomException;
+import com.dockerinit.linux.util.ShellTokenizer;
 
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,7 @@ public record SynopsisPattern(List<TokenDescriptor> tokens) {
     public SynopsisPattern {
         tokens = List.copyOf(tokens);
 
-        validateToken();
+        validateToken(tokens);
     }
 
     public TokenDescriptor at(int index) {
@@ -24,7 +25,7 @@ public record SynopsisPattern(List<TokenDescriptor> tokens) {
         return position < tokens.size() ? tokens.get(position).tokenType() : null;
     }
 
-    private void validateToken() {
+    private void validateToken(List<TokenDescriptor> tokens) {
         if (tokens.isEmpty()) {
             throw new InvalidInputCustomException("synopsis pattern 이 비어있음", Map.of("tokens", tokens));
         }

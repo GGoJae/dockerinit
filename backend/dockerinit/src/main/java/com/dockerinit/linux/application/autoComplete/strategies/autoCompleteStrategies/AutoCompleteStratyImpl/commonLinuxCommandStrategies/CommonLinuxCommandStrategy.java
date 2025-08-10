@@ -1,10 +1,8 @@
 package com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.AutoCompleteStratyImpl.commonLinuxCommandStrategies;
 
 import com.dockerinit.linux.application.autoComplete.model.ParseResult;
-import com.dockerinit.linux.dto.response.v2.SuggestionV2;
-import com.dockerinit.linux.dto.vo.ParseCtx;
-import com.dockerinit.linux.dto.response.Suggestion;
 import com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.AutoCompleteCommandStrategy;
+import com.dockerinit.linux.dto.response.v2.SuggestionV2;
 import com.dockerinit.linux.util.ShellTokenizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +30,7 @@ public class CommonLinuxCommandStrategy implements AutoCompleteCommandStrategy {
 
 
     @Override
-    public List<SuggestionV2> suggest(ParseResult result) {
-        return List.of();   // TODO suggest 전략 선택해서 넣는 로직 필요
+    public List<SuggestionV2> suggest(ParseResult result, List<ShellTokenizer.Token> tokens) {
+        return suggester.suggest(result, tokens);
     }
 }

@@ -2,7 +2,6 @@ package com.dockerinit.linux.domain.model;
 
 import com.dockerinit.linux.domain.syntax.Option;
 import com.dockerinit.linux.domain.syntax.Synopsis;
-import com.dockerinit.linux.domain.syntax.TokenDescriptor;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

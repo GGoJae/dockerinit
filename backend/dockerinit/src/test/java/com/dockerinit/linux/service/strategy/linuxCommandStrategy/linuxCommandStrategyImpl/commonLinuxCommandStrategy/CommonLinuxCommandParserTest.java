@@ -1,23 +1,13 @@
 package com.dockerinit.linux.service.strategy.linuxCommandStrategy.linuxCommandStrategyImpl.commonLinuxCommandStrategy;
 
 import com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.AutoCompleteStratyImpl.commonLinuxCommandStrategies.CommonLinuxCommandParser;
-import com.dockerinit.linux.domain.model.LinuxCommand;
-import com.dockerinit.linux.application.autoComplete.model.AcPhase;
-import com.dockerinit.linux.dto.vo.ParseCtx;
 import com.dockerinit.linux.repository.LinuxCommandRepository;
-import com.dockerinit.linux.util.ShellTokenizer;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 class CommonLinuxCommandParserTest {

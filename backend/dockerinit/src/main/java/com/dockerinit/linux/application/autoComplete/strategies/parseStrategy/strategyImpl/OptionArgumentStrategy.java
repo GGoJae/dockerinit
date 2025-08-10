@@ -1,12 +1,10 @@
 package com.dockerinit.linux.application.autoComplete.strategies.parseStrategy.strategyImpl;
 
-import com.dockerinit.linux.domain.model.LinuxCommand;
 import com.dockerinit.linux.domain.syntax.Option;
 import com.dockerinit.linux.repository.LinuxCommandRepository;
 import com.dockerinit.linux.dto.vo.ParseCtx;
 import com.dockerinit.linux.application.autoComplete.strategies.parseStrategy.ParseStrategy;
 import com.dockerinit.linux.util.ShellTokenizer;
-import com.dockerinit.linux.application.autoComplete.model.AcPhase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

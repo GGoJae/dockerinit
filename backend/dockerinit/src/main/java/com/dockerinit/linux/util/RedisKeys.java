@@ -10,7 +10,7 @@ public final class RedisKeys {
         return "ac:cmd" + prefix;
     }
 
-    public static String authCompleteOption(String cmd) {
+    public static String autoCompleteOption(String cmd) {
         return "ac:opt:" + cmd;
     }
 
