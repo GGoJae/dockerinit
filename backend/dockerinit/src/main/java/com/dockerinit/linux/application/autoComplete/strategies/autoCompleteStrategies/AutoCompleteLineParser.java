@@ -1,7 +1,6 @@
 package com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies;
 
 import com.dockerinit.linux.application.autoComplete.model.ParseResult;
-import com.dockerinit.linux.dto.vo.ParseCtx;
 import com.dockerinit.linux.util.ShellTokenizer;
 
 import java.util.List;

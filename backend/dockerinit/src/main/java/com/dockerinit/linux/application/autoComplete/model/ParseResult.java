@@ -1,6 +1,5 @@
 package com.dockerinit.linux.application.autoComplete.model;
 
-import com.dockerinit.linux.domain.model.LinuxCommand;
 import com.dockerinit.linux.domain.syntax.Option;
 import org.springframework.lang.Nullable;
 

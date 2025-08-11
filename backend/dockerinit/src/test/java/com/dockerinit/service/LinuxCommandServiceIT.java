@@ -37,10 +37,11 @@ class LinuxCommandServiceIT {
 
     @Test
     @DisplayName("prefix로 pi를 치면 ping과 replace range가_나오나?")
-    void prefix_로_pi를_치면_ping과_replace_range가_나오나() {
-        LinuxAutoCompleteRequest req = new LinuxAutoCompleteRequest("pi", 2);
+    void prefix가_pi_일때_ping을_제안하고_replace_range_나오는가() {
+        String line ="pi";
+        Integer cursor = line.length();
 
-        LinuxAutoCompleteResponseV2 res = service.autocompleteCommand(req);
+        LinuxAutoCompleteResponseV2 res = getAutocompleteRes(line, cursor);
 
         assertThat(res.base().unknown()).isTrue();
 
@@ -60,11 +61,59 @@ class LinuxCommandServiceIT {
     }
 
     @Test
+    @DisplayName("커서를 입력 안했을때도 위와 같이 동작하는가")
+    void cursor가_null_이여도_똑같이_동작하나() {
+        String line ="pi";
+        Integer cursor = null;
+
+        LinuxAutoCompleteResponseV2 res = getAutocompleteRes(line, cursor);
+
+        assertThat(res.base().unknown()).isTrue();
+
+        SuggestionGroupDTO cmdGroup = res.suggestions().groups().stream()
+                .filter(g -> g.group().equals(SuggestionType.COMMAND.name()))
+                .findFirst().orElseThrow();
+
+        assertThat(cmdGroup.items().stream().map(
+                SuggestionV2::value
+        )).contains("ping");
+
+        SuggestionV2 first = cmdGroup.items().get(0);
+        assertThat(first.replaceStart()).isEqualTo(0);
+        assertThat(first.replaceEnd()).isEqualTo(2);
+
+    }
+
+
+    @Test
+    @DisplayName("'ping -c'입력 시 option만 보이고 -c 토큰 범위를 치환하나")
+    void ping_dash_c까지_입력시_option만보이고_replace_token보이나() {
+        String line ="ping -c";
+        Integer cursor = line.length();
+
+        LinuxAutoCompleteResponseV2 res = getAutocompleteRes(line, cursor);
+
+        SuggestionGroupDTO opt = res.suggestions().groups().stream()
+                .filter(g -> g.group().equals(SuggestionType.OPTION.name()))
+                .findFirst().orElseThrow();
+
+        boolean hasArg = res.suggestions().groups().stream()
+                .anyMatch(g -> g.group().equals(SuggestionType.ARGUMENT.name()));
+
+        assertThat(hasArg).isFalse();
+
+        SuggestionV2 o0 = opt.items().get(0);
+        assertThat(line.substring(o0.replaceStart(), o0.replaceEnd())).isEqualTo("-c");
+
+    }
+
+    @Test
     @DisplayName("ping -까지 치면 option 과 placeholder 가 나오나? ")
     void ping_dash_까지_치면_OPTION_PLACEHOLDER_나오나() {
-        LinuxAutoCompleteRequest req = new LinuxAutoCompleteRequest("ping -", "ping -".length());
+        String line = "ping -";
+        Integer cursor = line.length();
 
-        LinuxAutoCompleteResponseV2 res = service.autocompleteCommand(req);
+        LinuxAutoCompleteResponseV2 res = getAutocompleteRes(line, cursor);
 
         assertThat(res.base().unknown()).isFalse();
         SuggestionGroupDTO optGroup = res.suggestions().groups().stream()
@@ -78,26 +127,50 @@ class LinuxCommandServiceIT {
     }
 
     @Test
-    @DisplayName("ping -c 까지 치면 argument 가 제안되나?")
+    @DisplayName("'ping -c '까지 치면 argument 가 제안되나?")
     void ping_dash_c_space_까지_치면_argument_를_제안하나() {
-        LinuxAutoCompleteRequest req = new LinuxAutoCompleteRequest("ping -c ", "ping -c ".length());
+        String line ="ping -c ";
+        Integer cursor = line.length();
 
-        LinuxAutoCompleteResponseV2 res = service.autocompleteCommand(req);
+        LinuxAutoCompleteResponseV2 res = getAutocompleteRes(line, cursor);
 
         SuggestionGroupDTO argGroup = res.suggestions().groups().stream()
                 .filter(g -> g.group().equals(SuggestionType.ARGUMENT.name()))
                 .findFirst().orElseThrow();
+
+        assertThat(res.suggestions().groups().get(0).group()).isEqualTo(SuggestionType.ARGUMENT.name());
 
         SuggestionV2 sug = argGroup.items().get(0);
         assertThat(sug.value()).contains("<count>");
     }
 
     @Test
+    @DisplayName("ping -c 까지 입력 커서가 -c 에 있으면 option이 제안되나?")
+    void ping_dash_c_space_까지_입력_cursor_c에_있다면_option_를_제안하나() {
+        String line ="ping -c ";
+        Integer cursor = 6;
+
+        LinuxAutoCompleteResponseV2 res = getAutocompleteRes(line, cursor);
+
+        SuggestionGroupDTO optGroup = res.suggestions().groups().stream()
+                .filter(g -> g.group().equals(SuggestionType.OPTION.name()))
+                .findFirst().orElseThrow();
+
+        assertThat(optGroup).isNotNull();
+
+        SuggestionV2 sug = optGroup.items().stream().filter(s -> s.value().equals("-c"))
+                .findFirst().orElseThrow();
+        assertThat(sug.display()).contains("-c");
+    }
+
+
+    @Test
     @DisplayName("mv a.txt 를 치면 target 을 예상하는가?")
     void mv_와_하나의_소스를_입력하면_타켓이_예상되는가() {
-        LinuxAutoCompleteRequest req = new LinuxAutoCompleteRequest("mv a.txt ", "mv a.txt ".length());
+        String line ="mv a.txt ";
+        Integer cursor = line.length();
 
-        LinuxAutoCompleteResponseV2 res = service.autocompleteCommand(req);
+        LinuxAutoCompleteResponseV2 res = getAutocompleteRes(line, cursor);
 
         SynopsisDTO syn = res.synopsis();
         assertThat(syn.position()).isEqualTo(1);
@@ -116,9 +189,10 @@ class LinuxCommandServiceIT {
     @Test
     @DisplayName("ls 를 입력하면 -l이 제안되는가?")
     void ls_space_입력하면_l_제안되나() {
-        LinuxAutoCompleteRequest req = new LinuxAutoCompleteRequest("ls ", "ls ".length());
+        String line ="ls ";
+        Integer cursor = line.length();
 
-        LinuxAutoCompleteResponseV2 res = service.autocompleteCommand(req);
+        LinuxAutoCompleteResponseV2 res = getAutocompleteRes(line, cursor);
 
         SuggestionGroupDTO optGroup = res.suggestions().groups().stream()
                 .filter(g -> g.group().equals(SuggestionType.OPTION.name()))
@@ -126,7 +200,49 @@ class LinuxCommandServiceIT {
 
         assertThat(optGroup).isNotNull();
         assertThat(optGroup.items().stream().map(SuggestionV2::value)).contains("-l");
+        assertThat(optGroup.items().stream().map(SuggestionV2::display)).contains("-l");
     }
+
+    @Test
+    @DisplayName("tar 시놉시스에 반복 가능한 option 토큰이 존재하나?")
+    void tar_synopsis_옵션_반복_나오나() {
+        String line ="tar ";
+        Integer cursor = line.length();
+
+        LinuxAutoCompleteResponseV2 res = getAutocompleteRes(line, cursor);
+
+        assertThat(res.synopsis().patterns()).isNotEmpty();
+        SynopsisPatternDTO p0 = res.synopsis().patterns().get(0);
+        assertThat(p0.tokens()).isNotEmpty();
+        TokenChipDTO t0 = p0.tokens().get(0);
+
+        assertThat(t0.type().name()).isEqualTo("OPTION");
+        assertThat(t0.optional()).isTrue();
+        assertThat(t0.repeat()).isTrue();
+    }
+
+    @Test
+    @DisplayName("'tar -' 입력 시 -f 제안 display에 <file> 붙는가?")
+    void tar_dash_입력시_f_제안_file_placeholder() {
+        String line = "tar -";
+        Integer cursor = line.length();
+
+        LinuxAutoCompleteResponseV2 res = getAutocompleteRes(line, cursor);
+
+        SuggestionGroupDTO opt = res.suggestions().groups().stream()
+                .filter(g -> g.group().equals(SuggestionType.OPTION.name()))
+                .findFirst().orElseThrow();
+
+        SuggestionV2 sug = opt.items().stream()
+                .filter(s -> s.value().equals("-f"))
+                .findFirst().orElseThrow();
+
+        assertThat(sug.display()).isEqualTo("-f <file>");
+        assertThat((sug.desc())).isEqualTo("파일 지정");
+
+    }
+
+
 
     private static List<LinuxCommand> sampleCommands() {
         return List.of(
@@ -245,78 +361,10 @@ class LinuxCommandServiceIT {
         return new TokenDescriptor(t, repeat, optional, desc);
     }
 
-//
-//    @BeforeEach
-//    void seed() {
-//        repo.deleteAll();
-//
-//        repo.saveAll(List.of(
-//                cmd("ls",  Map.of("-l", opt("format","false"),
-//                        "-a", opt("all","false"))),
-//                cmd("ping",Map.of("-c", opt("count","true"),
-//                        "-i", opt("interval","false"))),
-//                cmd("grep",Map.of("-i", opt("ignore-case","false"))),
-//                cmd("cat",  Map.of()),
-//                cmd("tar",  Map.of("-xzf", opt("archive","true")))
-//        ));
-//
-//        redisTemplate.getConnectionFactory().getConnection().serverCommands().flushAll();
-//    }
-//
-//    /* ---------- 실제 테스트 ---------- */
-//
-//    @Test
-//    @DisplayName("리눅스 자동완성 레디스에 캐시한 탑 매치 잘 나와?")
-//    void commandPhase_returnsTopMatches() {
-//        LinuxAutoCompleteResponse res =
-//                service.autocompleteCommand(new LinuxAutoCompleteRequest("p", null));
-//        log.debug("response is {}", res);
-//        assertThat(res.phase()).isEqualTo(AcPhase.COMMAND);
-//        assertThat(res.suggestions())
-//                .extracting(s -> s.value())
-//                .containsExactly("ping");
-//    }
-//
-//    @Test
-//    @DisplayName("리눅스 자동완성 ping -까지 쳤을때 옵션들 잘 나와?")
-//    void optionPhase_returnsFlagList() {
-//        LinuxAutoCompleteResponse res =
-//                service.autocompleteCommand(new LinuxAutoCompleteRequest("ping -", null));
-//
-//        log.debug("response is {}", res);
-//        assertThat(res.phase()).isEqualTo(AcPhase.OPTION);
-//        assertThat(res.suggestions())
-//                .extracting(s -> s.value())
-//                .containsExactlyInAnyOrder("-c", "-i");
-//    }
-//
-//    @Test
-//    @DisplayName("리눅스 명령어에 옵션이 인수가 필수일떄 플레이스 홀더 잘 나오나?")
-//    void argumentPhase_returnsPlaceholder() {
-//        LinuxAutoCompleteResponse res =
-//                service.autocompleteCommand(new LinuxAutoCompleteRequest("ping -c ", null));
-//        log.info("응답 내용은 이것 {}", res);
-//
-//        assertThat(res.phase()).isEqualTo(AcPhase.ARGUMENT);
-//        assertThat(res.suggestions().get(0).value()).isEqualTo("<count>");
-//    }
-//
-//    @Test
-//    @DisplayName("이상한 명령어를 치면 빈값 나오나?")
-//    void wrongCommand_throwException() {
-//        LinuxAutoCompleteResponse res = service.autocompleteCommand(new LinuxAutoCompleteRequest("wrongString", null));
-//        log.debug("response is {}", res);
-//        assertThat(res.suggestions()).isEmpty();
-//    }
-//
-//
-//    private static LinuxCommand cmd(String command, Map<String, LinuxCommand.OptionInfo> opts) {
-//        return new LinuxCommand(
-//                "기본", command, command + " 설명", command + " [옵션]",
-//                null, null, !opts.isEmpty(), opts, List.of(command));
-//    }
-//    private static LinuxCommand.OptionInfo opt(String arg, String required) {
-//        return new LinuxCommand.OptionInfo(arg, Boolean.parseBoolean(required),
-//                null, null, arg + " 설명");
-//    }
+    private LinuxAutoCompleteResponseV2 getAutocompleteRes(String line, Integer cursor) {
+        LinuxAutoCompleteRequest req = new LinuxAutoCompleteRequest(line, cursor);
+
+        return service.autocompleteCommand(req);
+    }
+
 }
