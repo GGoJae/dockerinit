@@ -1,13 +1,13 @@
 package com.dockerinit.service;
 
-import com.dockerinit.linux.application.service.AutoCompleteService;
+import com.dockerinit.linux.application.service.AutocompleteService;
 import com.dockerinit.linux.domain.model.LinuxCommand;
 import com.dockerinit.linux.domain.syntax.*;
-import com.dockerinit.linux.dto.request.LinuxAutoCompleteRequest;
-import com.dockerinit.linux.dto.response.LinuxAutoCompleteResponse;
-import com.dockerinit.linux.dto.response.SuggestionType;
-import com.dockerinit.linux.dto.response.v2.*;
-import com.dockerinit.linux.repository.LinuxCommandRepository;
+import com.dockerinit.linux.dto.request.LinuxAutocompleteRequest;
+import com.dockerinit.linux.dto.response.LinuxAutocompleteResponse;
+import com.dockerinit.linux.dto.response.common.SuggestionType;
+import com.dockerinit.linux.dto.response.v1.*;
+import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class LinuxCommandServiceIT {
 
     @Autowired
-    AutoCompleteService service;
+    AutocompleteService service;
     @Autowired LinuxCommandRepository repository;
     @Autowired StringRedisTemplate redis;
 
@@ -42,7 +42,7 @@ class LinuxCommandServiceIT {
         String line ="pi";
         Integer cursor = line.length();
 
-        LinuxAutoCompleteResponse res = getAutocompleteRes(line, cursor);
+        LinuxAutocompleteResponse res = getAutocompleteRes(line, cursor);
 
         assertThat(res.base().unknown()).isTrue();
 
@@ -67,7 +67,7 @@ class LinuxCommandServiceIT {
         String line ="pi";
         Integer cursor = null;
 
-        LinuxAutoCompleteResponse res = getAutocompleteRes(line, cursor);
+        LinuxAutocompleteResponse res = getAutocompleteRes(line, cursor);
 
         assertThat(res.base().unknown()).isTrue();
 
@@ -92,7 +92,7 @@ class LinuxCommandServiceIT {
         String line ="ping -c";
         Integer cursor = line.length();
 
-        LinuxAutoCompleteResponse res = getAutocompleteRes(line, cursor);
+        LinuxAutocompleteResponse res = getAutocompleteRes(line, cursor);
 
         SuggestionGroupDTO opt = res.suggestions().groups().stream()
                 .filter(g -> g.group().equals(SuggestionType.OPTION.name()))
@@ -114,7 +114,7 @@ class LinuxCommandServiceIT {
         String line = "ping -";
         Integer cursor = line.length();
 
-        LinuxAutoCompleteResponse res = getAutocompleteRes(line, cursor);
+        LinuxAutocompleteResponse res = getAutocompleteRes(line, cursor);
 
         assertThat(res.base().unknown()).isFalse();
         SuggestionGroupDTO optGroup = res.suggestions().groups().stream()
@@ -133,7 +133,7 @@ class LinuxCommandServiceIT {
         String line ="ping -c ";
         Integer cursor = line.length();
 
-        LinuxAutoCompleteResponse res = getAutocompleteRes(line, cursor);
+        LinuxAutocompleteResponse res = getAutocompleteRes(line, cursor);
 
         SuggestionGroupDTO argGroup = res.suggestions().groups().stream()
                 .filter(g -> g.group().equals(SuggestionType.ARGUMENT.name()))
@@ -151,7 +151,7 @@ class LinuxCommandServiceIT {
         String line ="ping -c ";
         Integer cursor = 6;
 
-        LinuxAutoCompleteResponse res = getAutocompleteRes(line, cursor);
+        LinuxAutocompleteResponse res = getAutocompleteRes(line, cursor);
 
         SuggestionGroupDTO optGroup = res.suggestions().groups().stream()
                 .filter(g -> g.group().equals(SuggestionType.OPTION.name()))
@@ -171,7 +171,7 @@ class LinuxCommandServiceIT {
         String line ="mv a.txt ";
         Integer cursor = line.length();
 
-        LinuxAutoCompleteResponse res = getAutocompleteRes(line, cursor);
+        LinuxAutocompleteResponse res = getAutocompleteRes(line, cursor);
 
         SynopsisDTO syn = res.synopsis();
         assertThat(syn.position()).isEqualTo(1);
@@ -193,7 +193,7 @@ class LinuxCommandServiceIT {
         String line ="ls ";
         Integer cursor = line.length();
 
-        LinuxAutoCompleteResponse res = getAutocompleteRes(line, cursor);
+        LinuxAutocompleteResponse res = getAutocompleteRes(line, cursor);
 
         SuggestionGroupDTO optGroup = res.suggestions().groups().stream()
                 .filter(g -> g.group().equals(SuggestionType.OPTION.name()))
@@ -210,7 +210,7 @@ class LinuxCommandServiceIT {
         String line ="tar ";
         Integer cursor = line.length();
 
-        LinuxAutoCompleteResponse res = getAutocompleteRes(line, cursor);
+        LinuxAutocompleteResponse res = getAutocompleteRes(line, cursor);
 
         assertThat(res.synopsis().patterns()).isNotEmpty();
         SynopsisPatternDTO p0 = res.synopsis().patterns().get(0);
@@ -228,7 +228,7 @@ class LinuxCommandServiceIT {
         String line = "tar -";
         Integer cursor = line.length();
 
-        LinuxAutoCompleteResponse res = getAutocompleteRes(line, cursor);
+        LinuxAutocompleteResponse res = getAutocompleteRes(line, cursor);
 
         SuggestionGroupDTO opt = res.suggestions().groups().stream()
                 .filter(g -> g.group().equals(SuggestionType.OPTION.name()))
@@ -362,8 +362,8 @@ class LinuxCommandServiceIT {
         return new TokenDescriptor(t, repeat, optional, desc);
     }
 
-    private LinuxAutoCompleteResponse getAutocompleteRes(String line, Integer cursor) {
-        LinuxAutoCompleteRequest req = new LinuxAutoCompleteRequest(line, cursor);
+    private LinuxAutocompleteResponse getAutocompleteRes(String line, Integer cursor) {
+        LinuxAutocompleteRequest req = new LinuxAutocompleteRequest(line, cursor);
 
         return service.autocompleteCommand(req);
     }

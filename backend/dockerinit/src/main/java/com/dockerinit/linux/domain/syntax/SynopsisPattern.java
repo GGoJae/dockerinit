@@ -1,7 +1,6 @@
 package com.dockerinit.linux.domain.syntax;
 
 import com.dockerinit.global.exception.InvalidInputCustomException;
-import com.dockerinit.linux.util.ShellTokenizer;
 
 import java.util.List;
 import java.util.Map;

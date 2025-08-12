@@ -6,8 +6,8 @@ import com.dockerinit.linux.domain.syntax.Option;
 import com.dockerinit.linux.domain.syntax.Synopsis;
 import com.dockerinit.linux.domain.syntax.SynopsisPattern;
 import com.dockerinit.linux.domain.syntax.TokenDescriptor;
-import com.dockerinit.linux.dto.vo.LinuxCommandOptionDTO;
-import com.dockerinit.linux.dto.vo.SynopsisPatternDTO;
+import com.dockerinit.linux.dto.request.spec.OptionSpecDTO;
+import com.dockerinit.linux.dto.request.spec.SynopsisPatternSpecDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -43,7 +43,7 @@ public record LinuxCommandRequest(
         // TODO example 복잡하니.. 정리가 된 후에 작성하기
         @Schema(description = "사용법(SYNOPSIS)", example = "")
         @NotEmpty(message = "synopsis는 필수입니다.")
-        List<@Valid SynopsisPatternDTO> synopsis,
+        List<@Valid SynopsisPatternSpecDTO> synopsis,
 
         @Schema(description = "주요 인자 목록", example = "[\"HOST\"]")
         @Size(max = 10, message = "인자는 최대 10개까지만 등록 가능합니다.")
@@ -63,7 +63,7 @@ public record LinuxCommandRequest(
 
         @Schema(description = "옵션 목록")
         @Valid
-        List<LinuxCommandOptionDTO> options,
+        List<OptionSpecDTO> options,
 
         @Schema(description = "연관 태그", example = "[\"icmp\", \"연결확인\"]")
         @Size(max = 10, message = "태그는 최대 10개까지만 등록 가능합니다.")
@@ -108,7 +108,7 @@ public record LinuxCommandRequest(
     }
 
     private Map<String, Option> getOptionMap() {
-        List<LinuxCommandOptionDTO> optionList = options == null ? List.of() : options;
+        List<OptionSpecDTO> optionList = options == null ? List.of() : options;
 
         if (optionRequired && optionList.isEmpty()) {
             throw new InvalidInputCustomException(LINUX_COMMAND_REQUIRED_OPTION,
@@ -116,7 +116,7 @@ public record LinuxCommandRequest(
         }
 
         Map<String, Option> optionInfoMap = new LinkedHashMap<>();
-        for (LinuxCommandOptionDTO o : optionList) {
+        for (OptionSpecDTO o : optionList) {
             Option prev = optionInfoMap.putIfAbsent(
                     o.flag(),
                     new Option(o.argName(), o.argRequired(), o.typeHint(), o.defaultValue(), o.description())

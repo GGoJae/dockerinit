@@ -1,12 +1,12 @@
 package com.dockerinit.service;
 
-import com.dockerinit.dockerfile.dto.DockerfilePreset;
-import com.dockerinit.dockerfile.dto.DockerfileRequest;
-import com.dockerinit.dockerfile.service.DockerfileService;
+import com.dockerinit.features.dockerfile.dto.DockerfilePreset;
+import com.dockerinit.features.dockerfile.dto.DockerfileRequest;
+import com.dockerinit.features.dockerfile.service.DockerfileService;
 import com.dockerinit.global.constants.ErrorMessage;
 import com.dockerinit.global.exception.InvalidInputCustomException;
 import com.dockerinit.global.exception.NotFoundCustomException;
-import com.dockerinit.global.validation.DockerImageValidationService;
+import com.dockerinit.global.support.validation.DockerImageValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

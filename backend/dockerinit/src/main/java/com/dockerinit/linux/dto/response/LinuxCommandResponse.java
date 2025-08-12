@@ -6,6 +6,7 @@ import com.dockerinit.linux.domain.syntax.Option;
 import java.util.List;
 import java.util.Map;
 
+// TODO 현재 버전은 레거시 버전이므로 업데이트 필요
 public record LinuxCommandResponse(
         String id,
         String category,

@@ -1,29 +1,17 @@
 package com.dockerinit.linux.application.service;
 
 import com.dockerinit.global.exception.NotFoundCustomException;
-import com.dockerinit.linux.application.autoComplete.model.CommandView;
-import com.dockerinit.linux.application.autoComplete.model.ParseResult;
-import com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.AutoCompleteCommandStrategy;
+import com.dockerinit.linux.application.autocomplete.strategy.autocompleteStrategies.AutocompleteCommandStrategy;
 import com.dockerinit.linux.domain.model.LinuxCommand;
-import com.dockerinit.linux.domain.syntax.Option;
-import com.dockerinit.linux.dto.request.LinuxAutoCompleteRequest;
 import com.dockerinit.linux.dto.request.LinuxCommandGenerateRequest;
 import com.dockerinit.linux.dto.request.LinuxCommandRequest;
 import com.dockerinit.linux.dto.response.LinuxCommandResponse;
-import com.dockerinit.linux.dto.response.SuggestionType;
-import com.dockerinit.linux.dto.response.v2.*;
-import com.dockerinit.linux.repository.LinuxCommandRepository;
-import com.dockerinit.linux.util.ShellTokenizer;
+import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import static com.dockerinit.global.constants.AutoCompleteSuggest.MAX_SUGGEST;
 import static com.dockerinit.global.constants.ErrorMessage.LINUX_COMMAND_ID_NOT_FOUND;
 
 @Service
@@ -31,7 +19,7 @@ import static com.dockerinit.global.constants.ErrorMessage.LINUX_COMMAND_ID_NOT_
 public class LinuxCommandService {
 
     private final LinuxCommandRepository repository;
-    private final List<AutoCompleteCommandStrategy> strategies;
+    private final List<AutocompleteCommandStrategy> strategies;
 
 
     /* ─────────────────────────────── CRUD API ─────────────────────────────── */
