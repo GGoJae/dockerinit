@@ -3,26 +3,59 @@ package com.dockerinit.linux.infrastructure.redis;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.Locale;
+
+import static com.dockerinit.global.constants.AppInfo.*;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RedisKeys {
 
-    public static String autoCompleteCommand(String prefix) {
-        return "ac:cmd" + prefix;
+    private static final String APP = PROJECT_NAME;
+    private static final String V = CURRENT_APP_VERSION;
+
+     /*
+     Autocomplete ZSet
+      */
+    public static String acCmdZSet(String module) {
+        return APP + ":" + V + ":ac:" + module + ":cmd";
     }
 
-    public static String autoCompleteOption(String cmd) {
-        return "ac:opt:" + cmd;
+    public static String acOptZSet(String module, String cmd) {
+        return APP + ":" + V + ":ac:" + module + ":opt:" + norm(cmd);
     }
 
-    public static String autoCompleteArgument(String cmd, String flag) {
-        return "ac:arg:" + cmd + ":" + flag;
+    public static String acArgZSet(String module, String cmd, String flag) {
+        return APP + ":" + V + ":ac:" + module + ":arg:" + norm(cmd) + ":" + norm(flag);
     }
 
-    public static String hotCommand() {
-        return "hot:cmd";
+    /*
+     Hot ranking ZSet
+      */
+
+    public static String hotCmdZSet(String module) {
+        return APP + ":" + V + ":hot:" + module + ":cmd";
     }
 
-    public static String hotOption(String cmd) {
-        return "hot:opt:" + cmd;
+    public static String hotOption(String module, String cmd) {
+        return APP + ":" + V + ":hot:" + module + ":opt:" + norm(cmd);
+    }
+
+    /*
+    entity 캐시
+     */
+
+    public static String cmdCache(String module, String cmd) {
+        return APP + ":" + V + ":" + module + ":cmd:" + norm(cmd);
+    }
+
+    public static String cmdMiss(String module, String cmd) {
+        return APP + ":" + V + ":" + module + ":miss:cmd:" + norm(cmd);
+    }
+
+    /*
+    helpers
+     */
+    private static String norm(String s) {
+        return (s == null) ? "" : s.trim().toLowerCase(Locale.ROOT);
     }
 }

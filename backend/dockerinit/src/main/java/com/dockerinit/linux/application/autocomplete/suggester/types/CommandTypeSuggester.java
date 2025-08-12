@@ -19,12 +19,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.dockerinit.global.constants.Modules.LINUX;
+
 @Component
 @RequiredArgsConstructor
 public class CommandTypeSuggester implements TypeSuggester {
 
     private final LinuxCommandRepository repository;
     private final RedisTemplate<String, String> redis;
+
+    private static final String MODULE = LINUX;
 
     @Override
     public SuggestionType type() {
@@ -35,7 +39,7 @@ public class CommandTypeSuggester implements TypeSuggester {
     public List<Suggestion> collect(ParseResult ctx, List<ShellTokenizer.Token> tokens, ExpectedToken slot, Replace.Range range, int limit) {
         String prefix = ctx.currentToken();
 
-        String key = RedisKeys.autoCompleteCommand(prefix);
+        String key = RedisKeys.acCmdZSet(MODULE);
 
         if (prefix.isBlank()) {
             return List.of();

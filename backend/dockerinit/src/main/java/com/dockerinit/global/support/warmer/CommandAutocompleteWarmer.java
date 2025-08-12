@@ -27,7 +27,7 @@ public class CommandAutocompleteWarmer implements ApplicationRunner {
         for (String cmd : cmds) {
             for (int i = 1; i <= Math.min(cmd.length(), REDIS_PREFIX_LENGTH_LIMIT); i++) {
                 String prefix = cmd.substring(0, i);
-                String key = RedisKeys.autoCompleteCommand(prefix);
+                String key = RedisKeys.acCmdZSet(prefix);       //TODO prefix 가 아니라 모듈리스트나.. 예) linux, docker 리스트 넣기
                 redis.opsForZSet().add(key, cmd, 0.0);
             }
         }

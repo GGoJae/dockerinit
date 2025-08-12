@@ -5,7 +5,6 @@ import com.dockerinit.linux.application.autocomplete.model.ParseResult;
 import com.dockerinit.linux.domain.syntax.Option;
 import com.dockerinit.linux.dto.response.common.SuggestionType;
 import com.dockerinit.linux.dto.response.v1.Suggestion;
-import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
 import com.dockerinit.linux.infrastructure.redis.RedisKeys;
 import com.dockerinit.linux.application.autocomplete.replace.Replace;
 import com.dockerinit.linux.application.autocomplete.tokenizer.ShellTokenizer;
@@ -18,13 +17,15 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 import static com.dockerinit.global.constants.AutoCompleteSuggest.PLACE_HOLDER;
+import static com.dockerinit.global.constants.Modules.LINUX;
 
 @Component
 @RequiredArgsConstructor
 public class OptionTypeSuggester implements TypeSuggester {
 
-    private final LinuxCommandRepository repository;
     private final RedisTemplate<String, String> redis;
+
+    private static final String MODULE = LINUX;
 
     @Override
     public SuggestionType type() {
@@ -34,9 +35,9 @@ public class OptionTypeSuggester implements TypeSuggester {
     @Override
     public List<Suggestion> collect(ParseResult ctx, List<ShellTokenizer.Token> tokens, ExpectedToken slot, Replace.Range range, int limit) {
         String prefix = ctx.currentToken();
-        String key = RedisKeys.autoCompleteOption(ctx.baseCommand());
+        String key = RedisKeys.acOptZSet(MODULE, ctx.baseCommand());
 
-        Map<String, Option> optionMap = ctx.command() == null ? Map.of() : ctx.command().options();
+        Map<String, Option> optionMap = ctx.optionOrEmpty();
 //        if (optionMap.isEmpty()) return List.of();
 
         List<String> fromRedis = fetchFromRedis(key, prefix, limit);
