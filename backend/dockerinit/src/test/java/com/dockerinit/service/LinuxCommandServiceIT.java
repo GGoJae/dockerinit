@@ -180,11 +180,11 @@ class LinuxCommandServiceIT {
         assertThat(pat.progress().filledCount()).isGreaterThanOrEqualTo(1);
         assertThat(pat.progress().requiredRemaining()).isGreaterThanOrEqualTo(1);
 
-        SuggestionGroupDTO targ = res.suggestions().groups().stream()
+        SuggestionGroupDTO tarGroup = res.suggestions().groups().stream()
                 .filter(g -> g.group().equals(SuggestionType.TARGET.name()))
                 .findFirst().orElseThrow();
 
-        assertThat(targ).isNotNull();
+        assertThat(tarGroup).isNotNull();
     }
 
     @Test
@@ -243,7 +243,30 @@ class LinuxCommandServiceIT {
 
     }
 
+    @Test
+    @DisplayName("ping -c - : 하이픈 시작 인자여도 argRequired true 면 ARGUMENT가 최우선으로 제안되는가?")
+    void ping_dash_c_dash_까지_입력_ARGUMENT_제안() {
+        String line = "ping -c -";
+        Integer cursor = line.length();
 
+        LinuxAutocompleteResponse res = getAutocompleteRes(line, cursor);
+
+        SuggestionGroupDTO argGroup = res.suggestions().groups().stream()
+                .filter(g -> g.group().equals(SuggestionType.ARGUMENT.name()))
+                .findFirst().orElseThrow();
+
+        assertThat(argGroup.items().get(0).value()).contains("<count>");
+
+        res.suggestions().groups().stream()
+                .filter(g -> g.group().equals(SuggestionType.OPTION.name()))
+                .findFirst()
+                .ifPresent(opt -> {
+                    Suggestion s = opt.items().get(0);
+                    assertThat(line.substring(s.replaceStart(), s.replaceEnd())).isEqualTo("-");
+                });
+    }
+
+// =========================== 샘플 데이터 넣기 ================================================ //
 
     private static List<LinuxCommand> sampleCommands() {
         return List.of(
