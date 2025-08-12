@@ -3,7 +3,7 @@ package com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStr
 import com.dockerinit.linux.application.autoComplete.model.ExpectedToken;
 import com.dockerinit.linux.application.autoComplete.model.ParseResult;
 import com.dockerinit.linux.dto.response.SuggestionType;
-import com.dockerinit.linux.dto.response.v2.SuggestionV2;
+import com.dockerinit.linux.dto.response.v2.Suggestion;
 import com.dockerinit.linux.util.Replace;
 import com.dockerinit.linux.util.ShellTokenizer;
 
@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface TypeSuggester {
     SuggestionType type();
-    List<SuggestionV2> collect(
+    List<Suggestion> collect(
             ParseResult ctx,
             List<ShellTokenizer.Token> tokens,
             ExpectedToken slot,

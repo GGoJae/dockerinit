@@ -1,6 +1,6 @@
 package com.dockerinit.linux.service.strategy.linuxCommandStrategy.linuxCommandStrategyImpl.commonLinuxCommandStrategy;
 
-import com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.AutoCompleteStratyImpl.commonLinuxCommandStrategyImpl.CommonLinuxCommandParser;
+import com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.AutoCompleteStrategyImpl.commonLinuxCommandStrategyImpl.CommonLinuxCommandParser;
 import com.dockerinit.linux.repository.LinuxCommandRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -4,7 +4,7 @@ import com.dockerinit.linux.application.autoComplete.model.ExpectedToken;
 import com.dockerinit.linux.application.autoComplete.model.ParseResult;
 import com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.TypeSuggester;
 import com.dockerinit.linux.dto.response.SuggestionType;
-import com.dockerinit.linux.dto.response.v2.SuggestionV2;
+import com.dockerinit.linux.dto.response.v2.Suggestion;
 import com.dockerinit.linux.repository.LinuxCommandRepository;
 import com.dockerinit.linux.util.RedisKeys;
 import com.dockerinit.linux.util.Replace;
@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.dockerinit.global.constants.AutoCompleteSuggest.MAX_SUGGEST;
-
 @Component
 @RequiredArgsConstructor
 public class CommandTypeSuggester implements TypeSuggester {
@@ -35,7 +33,7 @@ public class CommandTypeSuggester implements TypeSuggester {
     }
 
     @Override
-    public List<SuggestionV2> collect(ParseResult ctx, List<ShellTokenizer.Token> tokens, ExpectedToken slot, Replace.Range range, int limit) {
+    public List<Suggestion> collect(ParseResult ctx, List<ShellTokenizer.Token> tokens, ExpectedToken slot, Replace.Range range, int limit) {
         String prefix = ctx.currentToken();
 
         String key = RedisKeys.autoCompleteCommand(prefix);
@@ -47,7 +45,7 @@ public class CommandTypeSuggester implements TypeSuggester {
 
         List<String> res = fetchFromRedisOrRep(key, prefix, limit);
 
-        return res.stream().map(cmd -> new SuggestionV2(cmd, cmd, "", SuggestionType.COMMAND, 0.9, range.start(), range.end())).toList();
+        return res.stream().map(cmd -> new Suggestion(cmd, cmd, "", SuggestionType.COMMAND, 0.9, range.start(), range.end())).toList();
     }
 
     private List<String> fetchFromRedisOrRep(String key, String prefix, int limit) {

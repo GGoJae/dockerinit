@@ -5,7 +5,7 @@ import com.dockerinit.linux.application.autoComplete.model.ParseResult;
 import com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.TypeSuggester;
 import com.dockerinit.linux.domain.syntax.Option;
 import com.dockerinit.linux.dto.response.SuggestionType;
-import com.dockerinit.linux.dto.response.v2.SuggestionV2;
+import com.dockerinit.linux.dto.response.v2.Suggestion;
 import com.dockerinit.linux.repository.LinuxCommandRepository;
 import com.dockerinit.linux.util.RedisKeys;
 import com.dockerinit.linux.util.Replace;
@@ -33,7 +33,7 @@ public class OptionTypeSuggester implements TypeSuggester {
     }
 
     @Override
-    public List<SuggestionV2> collect(ParseResult ctx, List<ShellTokenizer.Token> tokens, ExpectedToken slot, Replace.Range range, int limit) {
+    public List<Suggestion> collect(ParseResult ctx, List<ShellTokenizer.Token> tokens, ExpectedToken slot, Replace.Range range, int limit) {
         String prefix = ctx.currentToken();
         String key = RedisKeys.autoCompleteOption(ctx.baseCommand());
 
@@ -53,7 +53,7 @@ public class OptionTypeSuggester implements TypeSuggester {
             String ph = (o != null && o.argName() != null) ? "<" + o.argName() + ">" : PLACE_HOLDER;
             String disp = flag + (PLACE_HOLDER.equals(ph) ? "" : " " + ph);
             String desc = (o == null || o.description() == null) ? "" : o.description();
-            return new SuggestionV2(flag, disp, desc, SuggestionType.OPTION, 0.85, range.start(), range.end());
+            return new Suggestion(flag, disp, desc, SuggestionType.OPTION, 0.85, range.start(), range.end());
         }).toList();
     }
 

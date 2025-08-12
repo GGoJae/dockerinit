@@ -1,4 +1,4 @@
-package com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.AutoCompleteStratyImpl.commonLinuxCommandStrategyImpl;
+package com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.AutoCompleteStrategyImpl.commonLinuxCommandStrategyImpl;
 
 import com.dockerinit.linux.application.autoComplete.model.CommandView;
 import com.dockerinit.linux.application.autoComplete.model.ExpectedToken;

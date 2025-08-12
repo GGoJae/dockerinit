@@ -1,4 +1,4 @@
-package com.dockerinit.linux.application.autoComplete;
+package com.dockerinit.linux.application.autoComplete.model;
 
 import com.dockerinit.linux.domain.syntax.TokenType;
 import com.dockerinit.linux.dto.response.SuggestionType;

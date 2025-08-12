@@ -1,14 +1,39 @@
 package com.dockerinit.linux.dto.response;
 
-import com.dockerinit.linux.application.autoComplete.model.AcPhase;
+import com.dockerinit.linux.dto.response.v2.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
+import java.util.Map;
 
-@Schema(description = "자동완성 응답")
+@Schema(description = "자동완성 응답 v2")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+
 public record LinuxAutoCompleteResponse(
-        AcPhase phase,
-        String  base,         // 확정된 명령어
-        String  current,      // 커서가 위치한 토큰
-        List<Suggestion> suggestions
-) {}
+        @Schema(description = "API 버전", example = "autocomplete.v2")
+        String apiVersion,
+
+        @Schema(description = "명령어 기본 정보")
+        BaseInfo base,
+
+        @Schema(description = "커서/토큰 정보")
+        CursorInfo cursor,
+
+        @Schema(description = "현재 위치에서 예상되는 토큰 타입 목록(우선순위 포함)")
+        List<ExpectedTokenDTO> expected,
+
+        @Schema(description = "SYNOPSIS(패턴/진행상태 포함)")
+        SynopsisDTO synopsis,
+
+        @Schema(description = "옵션 메타 정보 (flag -> info)")
+        Map<String, OptionDTO> options,
+
+        @Schema(description = "예시 목록")
+        List<String> examples,
+
+        @Schema(description = "제안(그룹 단위)")
+        SuggestionsBlockDTO suggestions
+
+) {
+}

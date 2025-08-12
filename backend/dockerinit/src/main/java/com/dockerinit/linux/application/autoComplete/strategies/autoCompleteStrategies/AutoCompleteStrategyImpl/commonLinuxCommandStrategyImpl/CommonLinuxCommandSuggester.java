@@ -1,13 +1,13 @@
-package com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.AutoCompleteStratyImpl.commonLinuxCommandStrategyImpl;
+package com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.AutoCompleteStrategyImpl.commonLinuxCommandStrategyImpl;
 
-import com.dockerinit.linux.application.autoComplete.SuggestionMapping;
+import com.dockerinit.linux.application.autoComplete.model.SuggestionMapping;
 import com.dockerinit.linux.application.autoComplete.model.ExpectedToken;
 import com.dockerinit.linux.application.autoComplete.model.ParseResult;
 import com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.AutoCompleteSuggester;
 import com.dockerinit.linux.application.autoComplete.strategies.autoCompleteStrategies.TypeSuggester;
 import com.dockerinit.linux.domain.syntax.TokenType;
 import com.dockerinit.linux.dto.response.SuggestionType;
-import com.dockerinit.linux.dto.response.v2.SuggestionV2;
+import com.dockerinit.linux.dto.response.v2.Suggestion;
 import com.dockerinit.linux.util.Replace;
 import com.dockerinit.linux.util.ShellTokenizer;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +34,11 @@ public class CommonLinuxCommandSuggester implements AutoCompleteSuggester {
     }
 
     @Override
-    public List<SuggestionV2> suggest(ParseResult result, List<ShellTokenizer.Token> tokens) {
+    public List<Suggestion> suggest(ParseResult result, List<ShellTokenizer.Token> tokens) {
         Objects.requireNonNull(result, "Parse Result is Non null");
 
         List<ExpectedToken> slots = result.expected().stream().sorted().toList();
-        LinkedHashMap<DedupKey, SuggestionV2> out = new LinkedHashMap<>();
+        LinkedHashMap<DedupKey, Suggestion> out = new LinkedHashMap<>();
 
         if (slots.isEmpty() && result.command() == null && result.tokenIndex() <= 0) {
             log.debug("슬롯이 비어있어서 COMMAND 를 주입했습니다. slot for prefix='{}'", result.currentToken());
@@ -54,8 +54,8 @@ public class CommonLinuxCommandSuggester implements AutoCompleteSuggester {
 
             if (typeSuggester == null) continue;
 
-            List<SuggestionV2> collect = typeSuggester.collect(result, tokens, slot, range, MAX_SUGGEST - out.size());
-            for (SuggestionV2 s : collect) {
+            List<Suggestion> collect = typeSuggester.collect(result, tokens, slot, range, MAX_SUGGEST - out.size());
+            for (Suggestion s : collect) {
                 out.putIfAbsent(new DedupKey(s.type(), s.value()), s);
                 if (out.size() >= MAX_SUGGEST) {
                     break outer;
@@ -99,7 +99,7 @@ public class CommonLinuxCommandSuggester implements AutoCompleteSuggester {
 //        return option == null ? "" : option.description();
 //    }
 //
-//    private List<SuggestionV2> suggestCommand(ParseResult ctx, List<ShellTokenizer.Token> tokens) {
+//    private List<Suggestion> suggestCommand(ParseResult ctx, List<ShellTokenizer.Token> tokens) {
 //        String prefix = ctx.currentToken();
 //        Replace.Range range = Replace.forCurrentToken(ctx.cursor(), tokens);
 //
@@ -115,10 +115,10 @@ public class CommonLinuxCommandSuggester implements AutoCompleteSuggester {
 //            cacheZSet(key, res);
 //        }
 //
-//        return res.stream().map(cmd -> new SuggestionV2(cmd, cmd, "", SuggestionType.COMMAND, 0.9, range.start(), range.end())).toList();
+//        return res.stream().map(cmd -> new Suggestion(cmd, cmd, "", SuggestionType.COMMAND, 0.9, range.start(), range.end())).toList();
 //    }
 //
-//    private List<SuggestionV2> suggestOption(ParseResult ctx, List<ShellTokenizer.Token> tokens) {
+//    private List<Suggestion> suggestOption(ParseResult ctx, List<ShellTokenizer.Token> tokens) {
 //        String prefix = ctx.currentToken();
 //        String key = RedisKeys.autoCompleteOption(ctx.baseCommand());
 //
@@ -148,23 +148,23 @@ public class CommonLinuxCommandSuggester implements AutoCompleteSuggester {
 //            String ph = (o != null && o.argName() != null) ? "<" + o.argName() + ">" : PLACE_HOLDER;
 //            String disp = flag + (PLACE_HOLDER.equals(ph) ? "" : " " + ph);
 //            String desc = (o == null || o.description() == null) ? "" : o.description();
-//            return new SuggestionV2(flag, disp, desc, SuggestionType.OPTION, 0.85, range.start(), range.end());
+//            return new Suggestion(flag, disp, desc, SuggestionType.OPTION, 0.85, range.start(), range.end());
 //        }).toList();
 //    }
 //
-//    private List<SuggestionV2> suggestArgument(ParseResult ctx, List<ShellTokenizer.Token> tokens) {
+//    private List<Suggestion> suggestArgument(ParseResult ctx, List<ShellTokenizer.Token> tokens) {
 //        String ph = placeholder(ctx.command(), ctx.prevFlag());
 //        Replace.Range range = Replace.forCurrentToken(ctx.cursor(), tokens);
-//        return List.of(new SuggestionV2(ph, ph, "인자 placeholder", SuggestionType.ARGUMENT, 0.8, range.start(), range.end()));
+//        return List.of(new Suggestion(ph, ph, "인자 placeholder", SuggestionType.ARGUMENT, 0.8, range.start(), range.end()));
 //    }
 //
-//    private List<SuggestionV2> suggestTarget(ParseResult ctx, List<ShellTokenizer.Token> tokens) {
+//    private List<Suggestion> suggestTarget(ParseResult ctx, List<ShellTokenizer.Token> tokens) {
 //        String cur = ctx.currentToken();
-//        List<SuggestionV2> out = new ArrayList<SuggestionV2>();
+//        List<Suggestion> out = new ArrayList<Suggestion>();
 //        Replace.Range range = Replace.forCurrentToken(ctx.cursor(), tokens);
 //        for (String v : List.of("./", "../")) {
 //            if (cur.isEmpty() || v.startsWith(cur) || cur.startsWith(v)) {
-//                out.add(new SuggestionV2(v, v, PATH_DESC, SuggestionType.TARGET, 0.7, range.start(), range.end()));
+//                out.add(new Suggestion(v, v, PATH_DESC, SuggestionType.TARGET, 0.7, range.start(), range.end()));
 //            }
 //            if (out.size() >= 10) break;
 //        }

@@ -1,6 +1,7 @@
 package com.dockerinit.linux.controller;
 
 import com.dockerinit.global.response.ApiResponse;
+import com.dockerinit.linux.application.service.AutoCompleteService;
 import com.dockerinit.linux.dto.request.LinuxAutoCompleteRequest;
 import com.dockerinit.linux.dto.request.LinuxCommandGenerateRequest;
 import com.dockerinit.linux.dto.request.LinuxCommandRequest;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class LinuxCommandController {
 
     private final LinuxCommandService service;
+    private final AutoCompleteService autoCompleteService;
 
     @Operation(summary = "리눅스 명령어 설명 제공",
             description = "요청한 명령어에 대한 설명과 옵션에 대한 정보를 제공합니다.")
@@ -31,7 +33,7 @@ public class LinuxCommandController {
             description = "입력한 문자열을 포함하는 리눅스 명령어, 옵션, 인수를 자동완성 형태로 제공합니다.")
     @GetMapping("/autocomplete")
     public ResponseEntity<?> autocomplete(@Valid LinuxAutoCompleteRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(service.autocompleteCommand(request)));
+        return ResponseEntity.ok(ApiResponse.success(autoCompleteService.autocompleteCommand(request)));
     }
 
     @GetMapping("/commands")
