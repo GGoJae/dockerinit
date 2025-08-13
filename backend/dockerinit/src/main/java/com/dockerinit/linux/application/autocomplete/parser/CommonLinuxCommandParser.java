@@ -42,7 +42,8 @@ public class CommonLinuxCommandParser implements AutocompleteLineParser {
         String currentTokenText = (idx >= 0 && idx < tokens.size()) ? tokens.get(idx).text() : "";
 
         int position = Math.max(0, idx - 1);
-        String prevFlag = computePrevFlag(tokens, idx, currentTokenText);
+        Map<String, Option> options = (view != null) ? view.options() :Map.of();
+        String prevFlag = computePrevFlag(tokens, idx, currentTokenText, options);
 
         if (view == null) {
             List<ExpectedToken> expected = ifNotFoundCommandGetET(currentTokenText);
@@ -52,8 +53,6 @@ public class CommonLinuxCommandParser implements AutocompleteLineParser {
                     prevFlag, null, expected, position
             );
         }
-
-        Map<String, Option> options = view.options();
 
         List<TokenType> types = view.synopsis().expectedTypeAt(position);
 
@@ -133,7 +132,7 @@ public class CommonLinuxCommandParser implements AutocompleteLineParser {
 
         try {
             return mapper.readValue(json, CommandView.class);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             log.warn("CommandView json parse 실패  error = {}", e.toString());
             return null;
         }
@@ -183,15 +182,35 @@ public class CommonLinuxCommandParser implements AutocompleteLineParser {
         return true;
     }
 
-    private String computePrevFlag(List<ShellTokenizer.Token> tokens, int idx, String cur) {
-        // 현재 토큰이 옵션이면 prevFlag는 비어있어야 함
-//        if (cur != null && cur.startsWith("-")) return "";
+    private String computePrevFlag(List<ShellTokenizer.Token> tokens, int idx, String cur, Map<String, Option> options) {
+
         for (int i = idx - 1; i >= 0; i--) {
             String t = tokens.get(i).text();
-            if (t.startsWith("-")) return t;
-            if (t.equals("|") || t.equals(">") || t.equals(">>") || t.equals("<<") || t.equals("<")) {
+            if ("|".equals(t) || ">".equals(t) || ">>".equals(t) || "<<".equals(t) || "<".equals(t)) break;
+            if (t.startsWith("--")) return "";
+            if (t.startsWith("-")) {
+                String pending = pendingArgFlagFromCluster(t, options);
+                if (!pending.isBlank()) return pending;
                 break;
             }
+        }
+        return "";
+    }
+
+    private static String pendingArgFlagFromCluster(String token, Map<String, Option> options) {
+        if (token.length() < 2 || token.equals("--")) return "";
+        if (!token.startsWith("-") || token.startsWith("--")) return "";
+
+        String letters = token.substring(1); // 예: "-xvf" -> "xvf"
+        for (int i = 0; i < letters.length(); i++) {
+            String flag = "-" + letters.charAt(i);
+            Option o = options.get(flag);
+            if (o != null && o.argRequired()) {
+                boolean hasRemainderInSameToken = (i < letters.length() - 1);
+                // 같은 토큰에 남은 글자가 있으면 이미 인자를 붙여쓴 상태 -> 미결 아님
+                return hasRemainderInSameToken ? "" : flag; // 남은 글자가 없으면 다음 토큰이 인자
+            }
+            // TODO -- 옵션 해결 로직 구현 / 붙어있는 글자를 한글자씩 option 에 대입했는데 없으면 붙어있는 arg 처리
         }
         return "";
     }

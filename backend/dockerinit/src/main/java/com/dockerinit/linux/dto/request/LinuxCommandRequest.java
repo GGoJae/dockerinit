@@ -14,10 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.dockerinit.global.constants.ErrorMessage.LINUX_COMMAND_DUPLICATE_FLAG;
 import static com.dockerinit.global.constants.ErrorMessage.LINUX_COMMAND_REQUIRED_OPTION;
@@ -79,7 +76,7 @@ public record LinuxCommandRequest(
 
         return new LinuxCommand(
                 category,
-                command,
+                command.toLowerCase(Locale.ROOT),
                 description,
                 synopsis,
                 arguments != null ? arguments : List.<String>of(),

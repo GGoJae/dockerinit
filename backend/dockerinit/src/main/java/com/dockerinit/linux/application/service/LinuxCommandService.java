@@ -19,8 +19,6 @@ import static com.dockerinit.global.constants.ErrorMessage.LINUX_COMMAND_ID_NOT_
 public class LinuxCommandService {
 
     private final LinuxCommandRepository repository;
-    private final List<AutocompleteCommandStrategy> strategies;
-
 
     /* ─────────────────────────────── CRUD API ─────────────────────────────── */
 
