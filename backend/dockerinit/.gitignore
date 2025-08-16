@@ -43,3 +43,6 @@ out/
 *.zip
 .env
 .idea/
+
+## prod yml 파일 ##
+application-prod.yml
