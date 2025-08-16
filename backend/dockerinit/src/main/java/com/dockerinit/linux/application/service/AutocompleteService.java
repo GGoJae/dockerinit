@@ -2,40 +2,47 @@ package com.dockerinit.linux.application.service;
 
 import com.dockerinit.linux.application.autocomplete.model.CommandView;
 import com.dockerinit.linux.application.autocomplete.model.ParseResult;
-import com.dockerinit.linux.application.autocomplete.strategy.autocompleteStrategies.AutocompleteCommandStrategy;
+import com.dockerinit.linux.application.autocomplete.strategy.autocompleteStrategies.AutocompleteStrategy;
+import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
+import com.dockerinit.linux.application.shared.model.ModuleType;
+import com.dockerinit.linux.application.shared.model.ModuleTypeMapper;
 import com.dockerinit.linux.domain.syntax.Option;
-import com.dockerinit.linux.dto.request.LinuxAutocompleteRequest;
+import com.dockerinit.linux.dto.request.CommandAutocompleteRequest;
 import com.dockerinit.linux.dto.response.LinuxAutocompleteResponse;
 import com.dockerinit.linux.dto.response.common.SuggestionType;
-import com.dockerinit.linux.dto.response.v1.*;
-import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
-import com.dockerinit.linux.application.autocomplete.tokenizer.ShellTokenizer;
-import lombok.RequiredArgsConstructor;
+import com.dockerinit.linux.dto.response.autocompleteV1.*;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.dockerinit.global.constants.AppInfo.CURRENT_AUTOCOMPLETE_VERSION;
 import static com.dockerinit.global.constants.AutoCompleteSuggest.MAX_SUGGEST;
 
 @Service
-@RequiredArgsConstructor
 public class AutocompleteService {
 
-    private final LinuxCommandRepository repository;
-    private final List<AutocompleteCommandStrategy> strategies;
+    private final RedisTemplate<String, String> redis;
+    private final Map<ModuleType, AutocompleteStrategy> strategyMap;
 
-    public LinuxAutocompleteResponse autocompleteCommand(LinuxAutocompleteRequest req) {
+    public AutocompleteService(RedisTemplate<String, String> redis, List<AutocompleteStrategy> strategies) {
+        this.redis = redis;
+        this.strategyMap = strategies.stream().collect(Collectors.toMap(
+                AutocompleteStrategy::moduleType,
+                s -> s,
+                (a, b) -> a,
+                () -> new EnumMap<>(ModuleType.class)
+        ));
+    }
+
+    public LinuxAutocompleteResponse autocompleteCommand(CommandAutocompleteRequest req) {
         List<ShellTokenizer.Token> tokens = ShellTokenizer.tokenize(req.line());
-        String baseCmd = tokens.isEmpty() ? "" : tokens.get(0).text();
+        String base = tokens.isEmpty() ? "" : tokens.get(0).text().toLowerCase(Locale.ROOT);
 
-        AutocompleteCommandStrategy strategy = strategies.stream()
-                .filter(s -> s.supports(baseCmd))
-                .findFirst()
-                .orElseThrow();     // TODO 전략 못 찾았을때는 추후 fallback 비슷한 명령어 추천해주는 전략이면 좋을듯
+        ModuleType moduleType = ModuleTypeMapper.fromCommand(base);
+
+        AutocompleteStrategy strategy = strategyMap.get(moduleType);
 
         ParseResult parsed = strategy.parse(req.line(), req.cursor(), tokens);
 
@@ -74,7 +81,7 @@ public class AutocompleteService {
         SuggestionsBlockDTO suggestions = new SuggestionsBlockDTO(groups, MAX_SUGGEST);
 
         return new LinuxAutocompleteResponse(
-                "autocomplete.v2",
+                CURRENT_AUTOCOMPLETE_VERSION,
                 baseInfo,
                 cursorInfo,
                 expected,

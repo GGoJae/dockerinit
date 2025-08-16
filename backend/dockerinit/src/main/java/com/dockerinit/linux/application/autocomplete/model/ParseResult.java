@@ -31,4 +31,5 @@ public record ParseResult(
     public Map<String, Option> optionOrEmpty() {
         return command == null ? Map.of() : command.options();
     }
+
 }

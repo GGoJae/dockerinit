@@ -1,6 +1,6 @@
 package com.dockerinit.linux.application.autocomplete.replace;
 
-import com.dockerinit.linux.application.autocomplete.tokenizer.ShellTokenizer;
+import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

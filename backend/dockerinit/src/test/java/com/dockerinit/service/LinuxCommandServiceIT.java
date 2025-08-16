@@ -3,10 +3,10 @@ package com.dockerinit.service;
 import com.dockerinit.linux.application.service.AutocompleteService;
 import com.dockerinit.linux.domain.model.LinuxCommand;
 import com.dockerinit.linux.domain.syntax.*;
-import com.dockerinit.linux.dto.request.LinuxAutocompleteRequest;
+import com.dockerinit.linux.dto.request.CommandAutocompleteRequest;
 import com.dockerinit.linux.dto.response.LinuxAutocompleteResponse;
 import com.dockerinit.linux.dto.response.common.SuggestionType;
-import com.dockerinit.linux.dto.response.v1.*;
+import com.dockerinit.linux.dto.response.autocompleteV1.*;
 import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -386,7 +386,7 @@ class LinuxCommandServiceIT {
     }
 
     private LinuxAutocompleteResponse getAutocompleteRes(String line, Integer cursor) {
-        LinuxAutocompleteRequest req = new LinuxAutocompleteRequest(line, cursor);
+        CommandAutocompleteRequest req = new CommandAutocompleteRequest(line, cursor);
 
         return service.autocompleteCommand(req);
     }

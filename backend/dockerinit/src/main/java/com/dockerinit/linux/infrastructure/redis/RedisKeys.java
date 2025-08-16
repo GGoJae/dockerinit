@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.Locale;
+import java.util.Objects;
 
 import static com.dockerinit.global.constants.AppInfo.*;
 
@@ -57,5 +58,10 @@ public final class RedisKeys {
      */
     private static String norm(String s) {
         return (s == null) ? "" : s.trim().toLowerCase(Locale.ROOT);
+    }
+
+    public static String explainKey(String module, String cmd, Locale loc, String sigHash) {
+        String locale = Objects.isNull(loc) ? "ko_KR" : loc.toString();
+        return APP + ":" + V + ":explain:" + module + ":" + cmd.toLowerCase() + ":" + locale + ":" + sigHash;
     }
 }

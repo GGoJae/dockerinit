@@ -5,9 +5,9 @@ import com.dockerinit.linux.application.autocomplete.model.ExpectedToken;
 import com.dockerinit.linux.application.autocomplete.model.ParseResult;
 import com.dockerinit.linux.domain.syntax.Option;
 import com.dockerinit.linux.dto.response.common.SuggestionType;
-import com.dockerinit.linux.dto.response.v1.Suggestion;
+import com.dockerinit.linux.dto.response.autocompleteV1.Suggestion;
 import com.dockerinit.linux.application.autocomplete.replace.Replace;
-import com.dockerinit.linux.application.autocomplete.tokenizer.ShellTokenizer;
+import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

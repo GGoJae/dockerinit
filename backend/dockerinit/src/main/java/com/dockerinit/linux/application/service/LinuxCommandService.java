@@ -1,10 +1,8 @@
 package com.dockerinit.linux.application.service;
 
 import com.dockerinit.global.exception.NotFoundCustomException;
-import com.dockerinit.linux.application.autocomplete.strategy.autocompleteStrategies.AutocompleteCommandStrategy;
 import com.dockerinit.linux.domain.model.LinuxCommand;
-import com.dockerinit.linux.dto.request.LinuxCommandGenerateRequest;
-import com.dockerinit.linux.dto.request.LinuxCommandRequest;
+import com.dockerinit.linux.dto.request.AddLinuxCommandRequest;
 import com.dockerinit.linux.dto.response.LinuxCommandResponse;
 import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,15 +30,9 @@ public class LinuxCommandService {
         return repository.findAll().stream().map(LinuxCommandResponse::of).toList();
     }
 
-    public LinuxCommandResponse createCommand(LinuxCommandRequest req) {
+    public LinuxCommandResponse createCommand(AddLinuxCommandRequest req) {
         LinuxCommand saved = repository.save(req.toEntity());
         return LinuxCommandResponse.of(saved);
-    }
-
-    /* ────────────────────────────── 리눅스 커맨드 분석 API ───────────────────────────── */
-
-    public LinuxCommandResponse generate(LinuxCommandGenerateRequest request) {
-        return null; // TODO 명령어 분석 하는 로직 작성
     }
 
 }
