@@ -24,7 +24,7 @@ public class LinuxExplainController {
     private final CommandExplainService service;
 
     @PostMapping()
-    public ResponseEntity<? extends ApiResponse<ExplainResponse>> explain(@RequestBody @Valid ExplainLineRequest request, Locale locale) {
+    public ResponseEntity<ApiResponse<ExplainResponse>> explain(@RequestBody @Valid ExplainLineRequest request, Locale locale) {
         Locale loc = Objects.isNull(locale) ? Locale.KOREA : locale;
         return ResponseEntity.ok(ApiResponse.success(service.explain(request.line(), loc)));
     }

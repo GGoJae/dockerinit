@@ -1,5 +1,6 @@
 package com.dockerinit.features.dockercompose.controller;
 
+import com.dockerinit.features.dockercompose.dto.DockerComposePreset;
 import com.dockerinit.features.dockercompose.dto.DockerComposeRequest;
 import com.dockerinit.global.response.ApiResponse;
 import com.dockerinit.features.dockercompose.service.DockerComposeService;
@@ -12,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/dockercompose")
 @RequiredArgsConstructor
@@ -22,7 +25,7 @@ public class DockerComposeController {
     @Operation(summary = "Docker Compose 프리셋 전체 조회",
             description = "자주 사용하는 Docker Compose 프리셋 목록을 조회합니다.")
     @GetMapping("/presets")
-    public ResponseEntity<?> getAllPresets() {
+    public ResponseEntity<ApiResponse<List<DockerComposePreset>>> getAllPresets() {
         return ResponseEntity.ok(ApiResponse.success(service.getAllPresets()));
     }
 
@@ -30,7 +33,7 @@ public class DockerComposeController {
     @Operation(summary = "Docker Compose 프리셋 단건 조회 (문자열)",
             description = "지정한 이름의 Docker Compose 프리셋을 문자열로 반환합니다.")
     @GetMapping("/presets/{name}")
-    public ResponseEntity<?> getPreset(@PathVariable String name) {
+    public ResponseEntity<ApiResponse<DockerComposePreset>> getPreset(@PathVariable String name) {
         return ResponseEntity.ok(ApiResponse.success(service.getPreset(name)));
     }
 
@@ -49,7 +52,7 @@ public class DockerComposeController {
     @Operation(summary = "사용자 정의 Docker Compose 생성 (문자열)",
             description = "사용자가 입력한 설정에 따라 Docker Compose 파일을 문자열로 생성해 반환합니다.")
     @PostMapping("/generate")
-    public ResponseEntity<?> generateCustomCompose(@Valid @RequestBody DockerComposeRequest request) {
+    public ResponseEntity<ApiResponse<String>> generateCustomCompose(@Valid @RequestBody DockerComposeRequest request) {
         return ResponseEntity.ok(ApiResponse.success(service.generateCustomComposeYml(request)));
     }
 
