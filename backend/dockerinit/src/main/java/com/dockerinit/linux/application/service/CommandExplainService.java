@@ -8,6 +8,7 @@ import com.dockerinit.linux.application.shared.model.ModuleTypeMapper;
 import com.dockerinit.linux.dto.response.ExplainResponse;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;
@@ -19,11 +20,9 @@ import java.util.stream.Collectors;
 @Service
 public class CommandExplainService {
 
-    private final RedisTemplate<String, String> redis;
     private final Map<ModuleType, ExplainStrategy> strategyMap;
 
-    public CommandExplainService(RedisTemplate<String, String> redis,List<ExplainStrategy> strategies) {
-        this.redis = redis;
+    public CommandExplainService(List<ExplainStrategy> strategies) {
         this.strategyMap = strategies.stream().collect(Collectors.toMap(
                 ExplainStrategy::type,
                 s -> s,

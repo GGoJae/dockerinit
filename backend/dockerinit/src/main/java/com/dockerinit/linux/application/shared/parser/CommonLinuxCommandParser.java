@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -29,7 +30,7 @@ import static com.dockerinit.global.constants.Modules.LINUX;
 public class CommonLinuxCommandParser implements CommandLineParser {
 
     private final LinuxCommandRepository repository;
-    private final RedisTemplate<String, String> redis;
+    private final StringRedisTemplate redis;
     private final ObjectMapper mapper;
 
     private static final String MODULE = LINUX;

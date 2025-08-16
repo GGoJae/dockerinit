@@ -3,6 +3,7 @@ package com.dockerinit.linux.application.service;
 import com.dockerinit.linux.application.autocomplete.model.CommandView;
 import com.dockerinit.linux.application.autocomplete.model.ParseResult;
 import com.dockerinit.linux.application.autocomplete.strategy.autocompleteStrategies.AutocompleteStrategy;
+import com.dockerinit.linux.application.autocomplete.strategy.autocompleteStrategies.impl.CommonLinuxAutocompleteStrategy;
 import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import com.dockerinit.linux.application.shared.model.ModuleType;
 import com.dockerinit.linux.application.shared.model.ModuleTypeMapper;
@@ -12,6 +13,7 @@ import com.dockerinit.linux.dto.response.LinuxAutocompleteResponse;
 import com.dockerinit.linux.dto.response.common.SuggestionType;
 import com.dockerinit.linux.dto.response.autocompleteV1.*;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,10 +25,12 @@ import static com.dockerinit.global.constants.AutoCompleteSuggest.MAX_SUGGEST;
 @Service
 public class AutocompleteService {
 
-    private final RedisTemplate<String, String> redis;
+    private final StringRedisTemplate redis;
     private final Map<ModuleType, AutocompleteStrategy> strategyMap;
+    // TODO fallback 전략은 나중에 unknown 만들어서 넣기
+    private final CommonLinuxAutocompleteStrategy defaultStrategy;
 
-    public AutocompleteService(RedisTemplate<String, String> redis, List<AutocompleteStrategy> strategies) {
+    public AutocompleteService(StringRedisTemplate redis, List<AutocompleteStrategy> strategies, CommonLinuxAutocompleteStrategy defaultStrategy) {
         this.redis = redis;
         this.strategyMap = strategies.stream().collect(Collectors.toMap(
                 AutocompleteStrategy::moduleType,
@@ -34,6 +38,7 @@ public class AutocompleteService {
                 (a, b) -> a,
                 () -> new EnumMap<>(ModuleType.class)
         ));
+        this.defaultStrategy = defaultStrategy;
     }
 
     public LinuxAutocompleteResponse autocompleteCommand(CommandAutocompleteRequest req) {
@@ -42,7 +47,7 @@ public class AutocompleteService {
 
         ModuleType moduleType = ModuleTypeMapper.fromCommand(base);
 
-        AutocompleteStrategy strategy = strategyMap.get(moduleType);
+        AutocompleteStrategy strategy = strategyMap.getOrDefault(moduleType, defaultStrategy);
 
         ParseResult parsed = strategy.parse(req.line(), req.cursor(), tokens);
 
