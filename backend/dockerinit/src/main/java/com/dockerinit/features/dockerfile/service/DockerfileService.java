@@ -1,12 +1,16 @@
 package com.dockerinit.features.dockerfile.service;
 
+import com.dockerinit.features.support.FileResult;
 import com.dockerinit.features.dockerfile.util.DockerfileGenerator;
 import com.dockerinit.global.constants.ErrorMessage;
 import com.dockerinit.features.dockerfile.dto.DockerfilePreset;
 import com.dockerinit.features.dockerfile.dto.DockerfileRequest;
+import com.dockerinit.global.exception.InternalErrorCustomException;
 import com.dockerinit.global.exception.InvalidInputCustomException;
 import com.dockerinit.global.exception.NotFoundCustomException;
 import com.dockerinit.global.support.validation.DockerImageValidationService;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -18,6 +22,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static com.dockerinit.global.constants.HttpInfo.APPLICATION_ZIP_VALUE;
 
 @Service
 public class DockerfileService {
@@ -56,24 +62,37 @@ public class DockerfileService {
     }
 
 
-    public byte[] downloadDockerfile(DockerfileRequest request) {
+    public FileResult downloadDockerfile(DockerfileRequest request) {
         String baseImage = request.getBaseImage();
         if (!dockerImageValidationService.existsInDockerHub(baseImage)) {
             throw new InvalidInputCustomException(ErrorMessage.INVALID_DOCKER_IMAGE, Map.of("image", baseImage));
         };
+
         String dockerfileContent = DockerfileGenerator.generate(request);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-            ZipEntry entry = new ZipEntry("Dockerfile");
-            zos.putNextEntry(entry);
+        byte[] zipBytes;
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ZipOutputStream zos = new ZipOutputStream(baos)) {
+
+            zos.putNextEntry(new ZipEntry("Dockerfile"));
             zos.write(dockerfileContent.getBytes(StandardCharsets.UTF_8));
             zos.closeEntry();
+            zos.finish();
+            zipBytes = baos.toByteArray();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new InternalErrorCustomException("도커 컴포즈 zip byte 민드는 도중 예외", e);
         }
 
-        return baos.toByteArray();
+        ByteArrayResource resource = new ByteArrayResource(zipBytes);
+
+        return new FileResult(
+                resource,
+                zipBytes.length,
+                "dockerfile-template.zip",
+                MediaType.parseMediaType(APPLICATION_ZIP_VALUE),
+                null        // TODO eTag 넣는 로직 작성
+        );
     }
 
 

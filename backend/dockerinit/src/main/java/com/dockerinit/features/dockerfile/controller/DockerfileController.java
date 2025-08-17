@@ -1,14 +1,18 @@
 package com.dockerinit.features.dockerfile.controller;
 
-import com.dockerinit.global.response.ApiResponse;
+import com.dockerinit.features.support.FileResult;
 import com.dockerinit.features.dockerfile.dto.DockerfileRequest;
 import com.dockerinit.features.dockerfile.dto.DockerfileResponse;
 import com.dockerinit.features.dockerfile.service.DockerfileService;
+import com.dockerinit.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/api/dockerfile")
@@ -44,15 +48,24 @@ public class DockerfileController {
 
     @Operation(summary = "Dockerfile 다운로드 (ZIP)",
             description = "요청 형식에 따라 생성된 Dockerfile을 ZIP 파일 형태로 다운로드합니다.")
-    @PostMapping("/download")
-    public ResponseEntity<byte[]> downloadDockerfileZip(@RequestBody DockerfileRequest request) {
-        byte[] zipBytes = service.downloadDockerfile(request);
+    @PostMapping(value = "/download", produces = "application/zip")
+    public ResponseEntity<Resource> downloadDockerfileZip(@RequestBody DockerfileRequest request) {
+        FileResult fileResult = service.downloadDockerfile(request);
+
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDisposition(ContentDisposition.attachment().filename("dockerfile-template.zip").build());
+        headers.setContentDisposition(
+                ContentDisposition.attachment()
+                        .filename(fileResult.filename(), StandardCharsets.UTF_8)
+                        .build()
+        );
+        headers.set("X-Content-type-Options", "nosniff");
 
-        return new ResponseEntity<>(zipBytes, headers, HttpStatus.OK);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(fileResult.contentType())
+                .contentLength(fileResult.contentLength())
+                .body(fileResult.resource());
     }
 
 

@@ -1,5 +1,6 @@
 package com.dockerinit.service;
 
+import com.dockerinit.features.support.FileResult;
 import com.dockerinit.features.dockerfile.dto.DockerfilePreset;
 import com.dockerinit.features.dockerfile.dto.DockerfileRequest;
 import com.dockerinit.features.dockerfile.service.DockerfileService;
@@ -111,10 +112,10 @@ class DockerfileServiceTest {
                 .thenReturn(true);
 
         // when
-        byte[] zipBytes = dockerfileService.downloadDockerfile(request);
+        FileResult fileResult = dockerfileService.downloadDockerfile(request);
 
         // then
-        assertThat(zipBytes).isNotNull();
-        assertThat(zipBytes.length).isGreaterThan(0);
+        assertThat(fileResult.resource()).isNotNull();
+        assertThat(fileResult.contentLength()).isGreaterThan(0);
     }
 }
