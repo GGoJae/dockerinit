@@ -1,4 +1,4 @@
-package com.dockerinit.features.dockercompose.controller;
+package com.dockerinit.features.dockercompose.api;
 
 import com.dockerinit.features.dockercompose.dto.DockerComposePreset;
 import com.dockerinit.features.dockercompose.dto.DockerComposeRequest;

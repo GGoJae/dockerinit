@@ -1,4 +1,4 @@
-package com.dockerinit.global.support.validation;
+package com.dockerinit.features.support.validation;
 
 import com.dockerinit.global.exception.InternalErrorCustomException;
 import com.dockerinit.global.exception.RateLimitExceededCustomException;

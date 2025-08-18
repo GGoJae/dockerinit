@@ -1,5 +1,6 @@
 package com.dockerinit.features.dockerfile.service;
 
+import com.dockerinit.features.dockerfile.dto.DockerfileResponse;
 import com.dockerinit.features.support.FileResult;
 import com.dockerinit.features.dockerfile.util.DockerfileGenerator;
 import com.dockerinit.global.constants.ErrorMessage;
@@ -8,7 +9,7 @@ import com.dockerinit.features.dockerfile.dto.DockerfileRequest;
 import com.dockerinit.global.exception.InternalErrorCustomException;
 import com.dockerinit.global.exception.InvalidInputCustomException;
 import com.dockerinit.global.exception.NotFoundCustomException;
-import com.dockerinit.global.support.validation.DockerImageValidationService;
+import com.dockerinit.features.support.validation.DockerImageValidationService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,6 @@ public class DockerfileService {
 
     private final DockerImageValidationService dockerImageValidationService;
 
-
     private final Map<String, DockerfilePreset> dockerfilePresets = new HashMap<>();
 
     public DockerfileService(DockerImageValidationService dockerImageValidationService) {
@@ -40,20 +40,22 @@ public class DockerfileService {
         dockerfilePresets.put("python-flask", pythonFlask());
     }
 
-    public String generateDockerfile(DockerfileRequest request) {
-        String baseImage = request.getBaseImage();
+    public DockerfileResponse renderContent(DockerfileRequest request) {
+        String baseImage = request.baseImage();
         if (!dockerImageValidationService.existsInDockerHub(baseImage)) {
             throw new InvalidInputCustomException(ErrorMessage.INVALID_DOCKER_IMAGE, Map.of("image", baseImage));
         };
 
-        return DockerfileGenerator.generate(request);
+        String generate = DockerfileGenerator.generate(request);
+
+        return new DockerfileResponse(generate);
     }
 
     public List<DockerfilePreset> getAllPresets() {
         return dockerfilePresets.values().stream().toList();
     }
 
-    public DockerfilePreset getPresentByName(String name) {
+    public DockerfilePreset getPreset(String name) {
         return Optional.ofNullable(dockerfilePresets.get(name))
                 .orElseThrow(() -> new NotFoundCustomException(
                         ErrorMessage.PRESET_NOT_FOUND,
@@ -62,8 +64,8 @@ public class DockerfileService {
     }
 
 
-    public FileResult downloadDockerfile(DockerfileRequest request) {
-        String baseImage = request.getBaseImage();
+    public FileResult buildZip(DockerfileRequest request) {
+        String baseImage = request.baseImage();
         if (!dockerImageValidationService.existsInDockerHub(baseImage)) {
             throw new InvalidInputCustomException(ErrorMessage.INVALID_DOCKER_IMAGE, Map.of("image", baseImage));
         };
@@ -97,41 +99,57 @@ public class DockerfileService {
 
 
     private DockerfilePreset springBootJar() {
-        DockerfileRequest req = new DockerfileRequest();
-        req.setBaseImage("openjdk:17");
-        req.setWorkdir("/app");
-        req.setCopy(List.of(new DockerfileRequest.CopyDirective(".", ".")));
-        req.setEnvMode("prod");
-        req.setEnvVars(Map.of("SPRING_PROFILES_ACTIVE", "prod"));
-        req.setExpose(List.of(8080));
-        req.setCmd(List.of("java", "-jar", "app.jar"));
+        DockerfileRequest req = new DockerfileRequest(
+                "openjdk:17",
+                "/app",
+                List.of(new DockerfileRequest.CopyDirective(".", ".")),
+                null,
+                DockerfileRequest.EnvMode.prod,
+                Map.of("SPRING_PROFILES_ACTIVE", "prod"),
+                List.of(8080),
+                List.of("java", "-jar", "app.jar"),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
         return new DockerfilePreset("Spring Boot JAR", DockerfileGenerator.generate(req));
     }
-
+        // TODO 프리셋 어떻게 할지 정하기. 리소스에 파일 만들어놓고 맵?
     private DockerfilePreset nodeJsExpress() {
-        DockerfileRequest req = new DockerfileRequest();
-        req.setBaseImage("node:20");
-        req.setWorkdir("/app");
-        req.setCopy(List.of(new DockerfileRequest.CopyDirective(".", ".")));
-        req.setRun(List.of("npm install"));
-        req.setEnvMode("prod");
-        req.setEnvVars(Map.of("NODE_ENV", "production"));
-        req.setExpose(List.of(3000));
-        req.setCmd(List.of("node", "app.js"));
+        DockerfileRequest req = new DockerfileRequest(
+                "node:20",
+                "/app",
+                List.of(new DockerfileRequest.CopyDirective(".", ".")),
+                null,
+                DockerfileRequest.EnvMode.prod,
+                Map.of("NODE_ENV", "production"),
+                List.of(3000),
+                List.of("node", "app.js"),
+                List.of("npm install"),
+                null, null, null, null, null, null
+        );
+
         return new DockerfilePreset("Node.js Express", DockerfileGenerator.generate(req));
     }
 
     private DockerfilePreset pythonFlask() {
-        DockerfileRequest req = new DockerfileRequest();
-        req.setBaseImage("python:3.11");
-        req.setWorkdir("/app");
-        req.setAdd(List.of(new DockerfileRequest.CopyDirective("requirements.txt", ".")));
-        req.setCopy(List.of(new DockerfileRequest.CopyDirective(".", ".")));
-        req.setRun(List.of("pip install -r requirements.txt"));
-        req.setEnvMode("prod");
-        req.setEnvVars(Map.of("FLASK_ENV", "production"));
-        req.setExpose(List.of(5000));
-        req.setCmd(List.of("python", "app.py"));
+        DockerfileRequest req = new DockerfileRequest(
+                "python:3.11",
+                "/app",
+                List.of(new DockerfileRequest.CopyDirective(".", ".")),
+                List.of(new DockerfileRequest.CopyDirective("requirements.txt", ".")),
+                DockerfileRequest.EnvMode.prod,
+                Map.of("FLASK_ENV", "production"),
+                List.of(5000),
+                List.of("python", "app.py"),
+                null, null, null, null, null, null, null
+        );
+
         return new DockerfilePreset("Python Flask", DockerfileGenerator.generate(req));
     }
 

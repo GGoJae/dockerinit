@@ -9,7 +9,7 @@ import com.dockerinit.features.dockercompose.dto.DockerComposePreset;
 import com.dockerinit.global.exception.InternalErrorCustomException;
 import com.dockerinit.global.exception.InvalidInputCustomException;
 import com.dockerinit.global.exception.NotFoundCustomException;
-import com.dockerinit.global.support.validation.DockerImageValidationService;
+import com.dockerinit.features.support.validation.DockerImageValidationService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.io.ByteArrayResource;
