@@ -1,6 +1,8 @@
 package com.dockerinit.features.dockerfile.service;
 
 import com.dockerinit.features.dockerfile.dto.DockerfileResponse;
+import com.dockerinit.features.dockerfile.mapper.DockerfileSpecMapper;
+import com.dockerinit.features.dockerfile.model.DockerfileSpec;
 import com.dockerinit.features.support.FileResult;
 import com.dockerinit.features.dockerfile.util.DockerfileGenerator;
 import com.dockerinit.global.constants.ErrorMessage;
@@ -46,9 +48,11 @@ public class DockerfileService {
             throw new InvalidInputCustomException(ErrorMessage.INVALID_DOCKER_IMAGE, Map.of("image", baseImage));
         };
 
-        String generate = DockerfileGenerator.generate(request);
+        DockerfileSpec spec = DockerfileSpecMapper.toSpec(request);
 
-        return new DockerfileResponse(generate);
+        String content = DockerfileGenerator.generate(spec);
+
+        return new DockerfileResponse(content);
     }
 
     public List<DockerfilePreset> getAllPresets() {
@@ -70,7 +74,9 @@ public class DockerfileService {
             throw new InvalidInputCustomException(ErrorMessage.INVALID_DOCKER_IMAGE, Map.of("image", baseImage));
         };
 
-        String dockerfileContent = DockerfileGenerator.generate(request);
+        DockerfileSpec spec = DockerfileSpecMapper.toSpec(request);
+
+        String dockerfileContent = DockerfileGenerator.generate(spec);
 
         byte[] zipBytes;
 
@@ -117,7 +123,11 @@ public class DockerfileService {
                 null
         );
 
-        return new DockerfilePreset("Spring Boot JAR", DockerfileGenerator.generate(req));
+        DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
+        String content = DockerfileGenerator.generate(spec);
+
+
+        return new DockerfilePreset("Spring Boot JAR", content);
     }
         // TODO 프리셋 어떻게 할지 정하기. 리소스에 파일 만들어놓고 맵?
     private DockerfilePreset nodeJsExpress() {
@@ -134,7 +144,9 @@ public class DockerfileService {
                 null, null, null, null, null, null
         );
 
-        return new DockerfilePreset("Node.js Express", DockerfileGenerator.generate(req));
+        DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
+        String content = DockerfileGenerator.generate(spec);
+        return new DockerfilePreset("Node.js Express", content);
     }
 
     private DockerfilePreset pythonFlask() {
@@ -150,7 +162,10 @@ public class DockerfileService {
                 null, null, null, null, null, null, null
         );
 
-        return new DockerfilePreset("Python Flask", DockerfileGenerator.generate(req));
+        DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
+        String content = DockerfileGenerator.generate(spec);
+
+        return new DockerfilePreset("Python Flask", content);
     }
 
 
