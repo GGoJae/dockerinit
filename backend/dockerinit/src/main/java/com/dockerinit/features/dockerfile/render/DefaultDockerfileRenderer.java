@@ -1,28 +1,56 @@
 package com.dockerinit.features.dockerfile.render;
 
-import com.dockerinit.features.dockerfile.model.CopyEntry;
-import com.dockerinit.features.dockerfile.model.DockerfileSpec;
-import com.dockerinit.features.dockerfile.model.EnvMode;
-import com.dockerinit.features.dockerfile.model.HealthcheckSpec;
+import com.dockerinit.features.dockerfile.model.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
 public class DefaultDockerfileRenderer implements DockerfileRenderer {
 
     private static final int DEFAULT_CAPACITY = 512;
-    private static final Function<String, String> PLACEHOLDER = (s) -> {
-        return "${" + s + "}";
-    };
+    private static final Function<String, String> PLACEHOLDER =
+            (s) -> {return "${" + s + "}";};
+    private static final Pattern SECRET_KEY_PATTERN = Pattern.compile("(?i)(secret|password|passwd|token|apikey|api_key|credential)");
 
     @Override
-    public String render(DockerfileSpec spec) {
+    public RenderResult render(DockerfileSpec spec) {
+        ArrayList<String> warnings = new ArrayList<>();
+        boolean prodLike = spec.envMode() != EnvMode.DEV;
+
+        String dockerfile = buildDockerfile(spec, prodLike, warnings);
+
+        boolean hasSecret = looksSensitive(spec.envVars());
+        boolean hasEnvFile = prodLike && spec.envVars() != null && !spec.envVars().isEmpty();   // TODO 요청에 envFile 필요한지 추가
+
+        Map<String, String> envForEnvFile = hasEnvFile ? spec.envVars().keySet().stream().sorted()
+                .collect(Collectors.toMap(k -> k, k -> "나를_바꿔주세요",
+                        (a, b) -> a, LinkedHashMap::new)) : Map.of();
+
+        ArrayList<GeneratedFile> extras = new ArrayList<>();
+        // TODO README 나 .dockerignore 같은 파일 넣기
+
+        return new RenderResult(
+                dockerfile,
+                spec.envMode(),
+                hasEnvFile,
+                Map.copyOf(envForEnvFile),
+                List.copyOf(extras),
+                List.copyOf(warnings),
+                hasSecret);
+    }
+
+    private boolean looksSensitive(Map<String, String> envs) {
+        if (Objects.isNull(envs)) return false;
+
+        return envs.keySet().stream().anyMatch(k -> SECRET_KEY_PATTERN.matcher(k).find());
+    }
+
+    private static String buildDockerfile(DockerfileSpec spec, boolean prodLike, List<String> warnings) {
+        // TODO warnings 에 위험부분 추가하는 로직 작성
         StringBuilder sb = new StringBuilder(DEFAULT_CAPACITY);
 
         // 1) FROM
@@ -35,7 +63,7 @@ public class DefaultDockerfileRenderer implements DockerfileRenderer {
         appendArgs(sb, spec.args());
 
         // 4) ENV (모드 기반 정책)
-        appendEnvs(sb, spec.envVars(), spec.envMode());
+        appendEnvs(sb, spec.envVars(), prodLike);
 
         // 5) WORKDIR
         if (notBlank(spec.workdir())) {
@@ -101,13 +129,11 @@ public class DefaultDockerfileRenderer implements DockerfileRenderer {
                 });
     }
 
-    private static void appendEnvs(StringBuilder sb, Map<String, String> envs, EnvMode mode) {
+    private static void appendEnvs(StringBuilder sb, Map<String, String> envs, boolean prodLike) {
         if (envs == null || envs.isEmpty()) return;
 
-        // dev => 인라인, 그 외(staging/prod/null) => 런타임 주입 패턴
-        boolean inline = (mode == EnvMode.DEV);
 
-        if (!inline) {
+        if (prodLike) {
             sb.append("# Prefer runtime-injected environment variables\n");
         }
 
@@ -117,10 +143,10 @@ public class DefaultDockerfileRenderer implements DockerfileRenderer {
                     String k = e.getKey();
                     String v = e.getValue();
 
-                    if (inline) {
-                        sb.append("ENV ").append(k).append('=').append(jsonQuote(v)).append('\n');
+                    if (prodLike) {
+                        sb.append("ENV ").append(k).append("=").append(PLACEHOLDER.apply(k)).append('\n');
                     } else {
-                        sb.append("ENV ").append("=").append(k).append(PLACEHOLDER.apply(k)).append('\n');
+                        sb.append("ENV ").append(k).append('=').append(jsonQuote(v)).append('\n');
                     }
                 });
     }

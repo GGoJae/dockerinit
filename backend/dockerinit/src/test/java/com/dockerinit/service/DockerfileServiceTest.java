@@ -1,5 +1,6 @@
 package com.dockerinit.service;
 
+import com.dockerinit.features.dockerfile.packager.ArtifactPackager;
 import com.dockerinit.features.dockerfile.render.DockerfileRenderer;
 import com.dockerinit.features.dockerfile.service.DockerfileService;
 import com.dockerinit.features.support.validation.DockerImageValidationService;
@@ -15,10 +16,12 @@ class DockerfileServiceTest {
     private DockerImageValidationService dockerImageValidationService;
     @Mock
     private DockerfileRenderer dockerfileRenderer;
+    @Mock
+    private ArtifactPackager packager;
     private DockerfileService dockerfileService;
 
     @BeforeEach
     void setUp() {
-        dockerfileService = new DockerfileService(dockerImageValidationService, dockerfileRenderer);
+        dockerfileService = new DockerfileService(dockerImageValidationService, dockerfileRenderer, packager);
     }
 }

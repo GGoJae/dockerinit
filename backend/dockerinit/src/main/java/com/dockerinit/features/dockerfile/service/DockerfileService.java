@@ -5,6 +5,8 @@ import com.dockerinit.features.dockerfile.dto.DockerfileRequest;
 import com.dockerinit.features.dockerfile.dto.DockerfileResponse;
 import com.dockerinit.features.dockerfile.mapper.DockerfileSpecMapper;
 import com.dockerinit.features.dockerfile.model.DockerfileSpec;
+import com.dockerinit.features.dockerfile.model.RenderResult;
+import com.dockerinit.features.dockerfile.packager.ArtifactPackager;
 import com.dockerinit.features.dockerfile.render.DockerfileRenderer;
 import com.dockerinit.features.support.FileResult;
 import com.dockerinit.features.support.validation.DockerImageValidationService;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,12 +37,15 @@ public class DockerfileService {
 
     private final DockerImageValidationService dockerImageValidationService;
     private final DockerfileRenderer renderer;
+    private final ArtifactPackager packager;
 
     private final Map<String, DockerfilePreset> dockerfilePresets = new HashMap<>();
 
-    public DockerfileService(DockerImageValidationService dockerImageValidationService, DockerfileRenderer renderer) {
+    public DockerfileService(DockerImageValidationService dockerImageValidationService, DockerfileRenderer renderer, ArtifactPackager packager) {
         this.dockerImageValidationService = dockerImageValidationService;
         this.renderer = renderer;
+        this.packager = packager;
+
         dockerfilePresets.put("spring-boot-jar", springBootJar());
         dockerfilePresets.put("node-js-express", nodeJsExpress());
         dockerfilePresets.put("python-flask", pythonFlask());
@@ -52,9 +59,9 @@ public class DockerfileService {
 
         DockerfileSpec spec = DockerfileSpecMapper.toSpec(request);
 
-        String content = renderer.render(spec);
+        RenderResult render = renderer.render(spec);
 
-        return new DockerfileResponse(content);
+        return new DockerfileResponse(render.dockerfile()); // TODO renderResult 로 리턴값 더 추가하기
     }
 
     public List<DockerfilePreset> getAllPresets() {
@@ -78,9 +85,10 @@ public class DockerfileService {
 
         DockerfileSpec spec = DockerfileSpecMapper.toSpec(request);
 
-        String dockerfileContent = renderer.render(spec);
+        RenderResult render = renderer.render(spec);
 
-        byte[] zipBytes = buildDeterministicZip(dockerfileContent);
+//        byte[] zipBytes = buildDeterministicZip(dockerfileContent);
+        byte[] zipBytes = packager.toZip(render.dockerfile(), render.extras());
 
         ByteArrayResource resource = new ByteArrayResource(zipBytes);
 
@@ -99,7 +107,14 @@ public class DockerfileService {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ZipOutputStream zos = new ZipOutputStream(baos)) {
 
-            zos.putNextEntry(new ZipEntry("Dockerfile"));
+            FileTime epoch = FileTime.from(Instant.EPOCH);
+            ZipEntry entry = new ZipEntry("Dockerfile");
+
+            entry.setCreationTime(epoch);
+            entry.setLastModifiedTime(epoch);
+            entry.setLastAccessTime(epoch);
+
+            zos.putNextEntry(entry);
             zos.write(dockerfileContent.getBytes(StandardCharsets.UTF_8));
             zos.closeEntry();
             zos.finish();
@@ -131,10 +146,10 @@ public class DockerfileService {
         );
 
         DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
-        String content = renderer.render(spec);
+        RenderResult render = renderer.render(spec);
 
 
-        return new DockerfilePreset("Spring Boot JAR", content);
+        return new DockerfilePreset("Spring Boot JAR", render.dockerfile());
     }
         // TODO 프리셋 어떻게 할지 정하기. 리소스에 파일 만들어놓고 맵?
     private DockerfilePreset nodeJsExpress() {
@@ -152,8 +167,8 @@ public class DockerfileService {
         );
 
         DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
-        String content = renderer.render(spec);
-        return new DockerfilePreset("Node.js Express", content);
+        RenderResult render = renderer.render(spec);
+        return new DockerfilePreset("Node.js Express", render.dockerfile());
     }
 
     private DockerfilePreset pythonFlask() {
@@ -170,9 +185,9 @@ public class DockerfileService {
         );
 
         DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
-        String content = renderer.render(spec);
+        RenderResult render = renderer.render(spec);
 
-        return new DockerfilePreset("Python Flask", content);
+        return new DockerfilePreset("Python Flask", render.dockerfile());
     }
 
 
