@@ -1,17 +1,17 @@
 package com.dockerinit.features.dockerfile.service;
 
+import com.dockerinit.features.dockerfile.dto.DockerfilePreset;
+import com.dockerinit.features.dockerfile.dto.DockerfileRequest;
 import com.dockerinit.features.dockerfile.dto.DockerfileResponse;
 import com.dockerinit.features.dockerfile.mapper.DockerfileSpecMapper;
 import com.dockerinit.features.dockerfile.model.DockerfileSpec;
+import com.dockerinit.features.dockerfile.render.DockerfileRenderer;
 import com.dockerinit.features.support.FileResult;
-import com.dockerinit.features.dockerfile.util.DockerfileGenerator;
+import com.dockerinit.features.support.validation.DockerImageValidationService;
 import com.dockerinit.global.constants.ErrorMessage;
-import com.dockerinit.features.dockerfile.dto.DockerfilePreset;
-import com.dockerinit.features.dockerfile.dto.DockerfileRequest;
 import com.dockerinit.global.exception.InternalErrorCustomException;
 import com.dockerinit.global.exception.InvalidInputCustomException;
 import com.dockerinit.global.exception.NotFoundCustomException;
-import com.dockerinit.features.support.validation.DockerImageValidationService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -32,11 +32,13 @@ import static com.dockerinit.global.constants.HttpInfo.APPLICATION_ZIP_VALUE;
 public class DockerfileService {
 
     private final DockerImageValidationService dockerImageValidationService;
+    private final DockerfileRenderer renderer;
 
     private final Map<String, DockerfilePreset> dockerfilePresets = new HashMap<>();
 
-    public DockerfileService(DockerImageValidationService dockerImageValidationService) {
+    public DockerfileService(DockerImageValidationService dockerImageValidationService, DockerfileRenderer renderer) {
         this.dockerImageValidationService = dockerImageValidationService;
+        this.renderer = renderer;
         dockerfilePresets.put("spring-boot-jar", springBootJar());
         dockerfilePresets.put("node-js-express", nodeJsExpress());
         dockerfilePresets.put("python-flask", pythonFlask());
@@ -50,7 +52,7 @@ public class DockerfileService {
 
         DockerfileSpec spec = DockerfileSpecMapper.toSpec(request);
 
-        String content = DockerfileGenerator.generate(spec);
+        String content = renderer.render(spec);
 
         return new DockerfileResponse(content);
     }
@@ -76,21 +78,9 @@ public class DockerfileService {
 
         DockerfileSpec spec = DockerfileSpecMapper.toSpec(request);
 
-        String dockerfileContent = DockerfileGenerator.generate(spec);
+        String dockerfileContent = renderer.render(spec);
 
-        byte[] zipBytes;
-
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ZipOutputStream zos = new ZipOutputStream(baos)) {
-
-            zos.putNextEntry(new ZipEntry("Dockerfile"));
-            zos.write(dockerfileContent.getBytes(StandardCharsets.UTF_8));
-            zos.closeEntry();
-            zos.finish();
-            zipBytes = baos.toByteArray();
-        } catch (IOException e) {
-            throw new InternalErrorCustomException("도커 컴포즈 zip byte 민드는 도중 예외", e);
-        }
+        byte[] zipBytes = buildDeterministicZip(dockerfileContent);
 
         ByteArrayResource resource = new ByteArrayResource(zipBytes);
 
@@ -103,6 +93,23 @@ public class DockerfileService {
         );
     }
 
+    private byte[] buildDeterministicZip(String dockerfileContent) {
+        byte[] zipBytes;
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ZipOutputStream zos = new ZipOutputStream(baos)) {
+
+            zos.putNextEntry(new ZipEntry("Dockerfile"));
+            zos.write(dockerfileContent.getBytes(StandardCharsets.UTF_8));
+            zos.closeEntry();
+            zos.finish();
+            zipBytes = baos.toByteArray();
+        } catch (IOException e) {
+            throw new InternalErrorCustomException("도커 파일 zip byte 민드는 도중 예외", e);
+        }
+        return zipBytes;
+    }
+
 
     private DockerfilePreset springBootJar() {
         DockerfileRequest req = new DockerfileRequest(
@@ -110,7 +117,7 @@ public class DockerfileService {
                 "/app",
                 List.of(new DockerfileRequest.CopyDirective(".", ".")),
                 null,
-                DockerfileRequest.EnvMode.prod,
+                DockerfileRequest.EnvModeDTO.prod,
                 Map.of("SPRING_PROFILES_ACTIVE", "prod"),
                 List.of(8080),
                 List.of("java", "-jar", "app.jar"),
@@ -124,7 +131,7 @@ public class DockerfileService {
         );
 
         DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
-        String content = DockerfileGenerator.generate(spec);
+        String content = renderer.render(spec);
 
 
         return new DockerfilePreset("Spring Boot JAR", content);
@@ -136,7 +143,7 @@ public class DockerfileService {
                 "/app",
                 List.of(new DockerfileRequest.CopyDirective(".", ".")),
                 null,
-                DockerfileRequest.EnvMode.prod,
+                DockerfileRequest.EnvModeDTO.prod,
                 Map.of("NODE_ENV", "production"),
                 List.of(3000),
                 List.of("node", "app.js"),
@@ -145,7 +152,7 @@ public class DockerfileService {
         );
 
         DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
-        String content = DockerfileGenerator.generate(spec);
+        String content = renderer.render(spec);
         return new DockerfilePreset("Node.js Express", content);
     }
 
@@ -155,7 +162,7 @@ public class DockerfileService {
                 "/app",
                 List.of(new DockerfileRequest.CopyDirective(".", ".")),
                 List.of(new DockerfileRequest.CopyDirective("requirements.txt", ".")),
-                DockerfileRequest.EnvMode.prod,
+                DockerfileRequest.EnvModeDTO.prod,
                 Map.of("FLASK_ENV", "production"),
                 List.of(5000),
                 List.of("python", "app.py"),
@@ -163,7 +170,7 @@ public class DockerfileService {
         );
 
         DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
-        String content = DockerfileGenerator.generate(spec);
+        String content = renderer.render(spec);
 
         return new DockerfilePreset("Python Flask", content);
     }

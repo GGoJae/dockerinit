@@ -1,22 +1,29 @@
-package com.dockerinit.features.dockerfile.util;
+package com.dockerinit.features.dockerfile.render;
 
 import com.dockerinit.features.dockerfile.model.CopyEntry;
 import com.dockerinit.features.dockerfile.model.DockerfileSpec;
+import com.dockerinit.features.dockerfile.model.EnvMode;
 import com.dockerinit.features.dockerfile.model.HealthcheckSpec;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DockerfileGenerator {
+@Component
+public class DefaultDockerfileRenderer implements DockerfileRenderer {
 
-    public static String generate(DockerfileSpec spec) {
-        StringBuilder sb = new StringBuilder(512);
+    private static final int DEFAULT_CAPACITY = 512;
+    private static final Function<String, String> PLACEHOLDER = (s) -> {
+        return "${" + s + "}";
+    };
+
+    @Override
+    public String render(DockerfileSpec spec) {
+        StringBuilder sb = new StringBuilder(DEFAULT_CAPACITY);
 
         // 1) FROM
         sb.append("FROM ").append(spec.baseImage()).append('\n');
@@ -94,11 +101,11 @@ public final class DockerfileGenerator {
                 });
     }
 
-    private static void appendEnvs(StringBuilder sb, Map<String, String> envs, DockerfileSpec.EnvMode mode) {
+    private static void appendEnvs(StringBuilder sb, Map<String, String> envs, EnvMode mode) {
         if (envs == null || envs.isEmpty()) return;
 
         // dev => 인라인, 그 외(staging/prod/null) => 런타임 주입 패턴
-        boolean inline = (mode == DockerfileSpec.EnvMode.dev);
+        boolean inline = (mode == EnvMode.DEV);
 
         if (!inline) {
             sb.append("# Prefer runtime-injected environment variables\n");
@@ -111,10 +118,9 @@ public final class DockerfileGenerator {
                     String v = e.getValue();
 
                     if (inline) {
-                        sb.append("ENV ").append(k).append('=').append(v).append('\n');
+                        sb.append("ENV ").append(k).append('=').append(jsonQuote(v)).append('\n');
                     } else {
-                        sb.append("# export ").append(k).append('=').append(v).append('\n');
-                        sb.append("ENV ").append(k).append("=${").append(k).append('}').append('\n');
+                        sb.append("ENV ").append("=").append(k).append(PLACEHOLDER.apply(k)).append('\n');
                     }
                 });
     }
@@ -190,7 +196,7 @@ public final class DockerfileGenerator {
 
     private static String jsonArray(List<String> parts) {
         if (parts == null || parts.isEmpty()) return "[]";
-        return parts.stream().map(DockerfileGenerator::jsonQuote)
+        return parts.stream().map(DefaultDockerfileRenderer::jsonQuote)
                 .collect(Collectors.joining(",", "[", "]"));
     }
 

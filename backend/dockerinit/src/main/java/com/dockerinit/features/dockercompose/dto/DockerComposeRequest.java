@@ -12,7 +12,7 @@ public record DockerComposeRequest(
         String language,
 
         @Schema(description = "사용할 데이터베이스", example = "postgres")
-                @NotBlank(message = "DB 타입은 피수입니다.")
+                @NotBlank(message = "DB 타입은 필수입니다.")
         String database,
 
         @Schema(description = "사용할 캐시 시스템", example = "redis")

@@ -29,7 +29,7 @@ public record DockerfileRequest(
         List<@Valid CopyDirective> add,
 
         @Schema(description = "환경 설정 모드", example = "prod")
-        EnvMode envMode,
+        EnvModeDTO envMode,
 
         @Schema(description = "환경변수 설정", example = "{\"SPRING_PROFILES_ACTIVE\":\"prod\"}")
         @Size(max = 100, message = "envVars는 최대 100개까지 허용됩니다.")
@@ -83,7 +83,7 @@ public record DockerfileRequest(
                 > volume
 ) {
 
-    public enum EnvMode { dev, staging, prod }
+    public enum EnvModeDTO { dev, staging, prod }
 
     @Schema(description = "파일 복사 지시자 (COPY/ADD 용)")
     public record CopyDirective(

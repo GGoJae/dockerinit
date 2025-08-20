@@ -3,6 +3,7 @@ package com.dockerinit.features.dockerfile.mapper;
 import com.dockerinit.features.dockerfile.dto.DockerfileRequest;
 import com.dockerinit.features.dockerfile.model.CopyEntry;
 import com.dockerinit.features.dockerfile.model.DockerfileSpec;
+import com.dockerinit.features.dockerfile.model.EnvMode;
 import com.dockerinit.features.dockerfile.model.HealthcheckSpec;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -49,12 +50,12 @@ public final class DockerfileSpecMapper {
     private static <T> List<T> safeList(List<T> l) { return l == null ? List.of() : List.copyOf(l); }
     private static <K,V> Map<K,V> safeMap(Map<K,V> m) { return m == null ? Map.of() : Map.copyOf(m); }
 
-    private static DockerfileSpec.EnvMode mapEnvMode(DockerfileRequest.EnvMode m) {
+    private static EnvMode mapEnvMode(DockerfileRequest.EnvModeDTO m) {
         if (m == null) return null;
         return switch (m) {
-            case dev -> DockerfileSpec.EnvMode.dev;
-            case staging -> DockerfileSpec.EnvMode.staging;
-            case prod -> DockerfileSpec.EnvMode.prod;
+            case dev -> EnvMode.DEV;
+            case staging -> EnvMode.STAGING;
+            case prod -> EnvMode.PROD;
         };
     }
 

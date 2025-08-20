@@ -27,6 +27,8 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.dockerinit.global.constants.HttpInfo.APPLICATION_ZIP_VALUE;
+
 @Service
 public class DockerComposeService {
 
@@ -75,7 +77,7 @@ public class DockerComposeService {
                 resource,
                 zipBytes.length,
                 name + ".zip",
-                MediaType.parseMediaType("application/zip"),
+                MediaType.parseMediaType(APPLICATION_ZIP_VALUE),
                 eTag);
     }
 
