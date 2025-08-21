@@ -3,9 +3,9 @@ package com.dockerinit.features.dockerfile.model;
 import java.util.List;
 import java.util.Map;
 
-public record DockerfileSpec(
+public record DockerfilePlan(
         String baseImage,
-        String workdir,                          // null 허용 -> generator에서 처리
+        String workdir,
         List<CopyEntry> copy,
         List<CopyEntry> add,
         EnvMode envMode,
@@ -21,7 +21,7 @@ public record DockerfileSpec(
         List<String> volume
 ) {
 
-    public DockerfileSpec {
+    public DockerfilePlan {
         // 도메인 불변식(필수 최소 보장)
         if ((cmd == null || cmd.isEmpty()) && (entrypoint == null || entrypoint.isEmpty())) {
             throw new IllegalArgumentException("CMD 또는 ENTRYPOINT 중 하나는 필수");

@@ -31,7 +31,7 @@ public class DefaultDockerfileRenderer implements DockerfileRenderer {
                         (a, b) -> a, LinkedHashMap::new)) : Map.of();
 
         ArrayList<GeneratedFile> extras = new ArrayList<>();
-        // TODO README 나 .dockerignore 같은 파일 넣기
+        // TODO README 나 .dockerignore 같은 파일 넣기 혹은 빈 객체 내보내고 다른 클래스에 위임하기 또는 아예 책임 없애기..
 
         return new RenderResult(
                 dockerfile,
