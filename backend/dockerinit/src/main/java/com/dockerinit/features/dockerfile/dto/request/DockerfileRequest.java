@@ -1,13 +1,17 @@
-package com.dockerinit.features.dockerfile.dto;
+package com.dockerinit.features.dockerfile.dto.request;
 
+import com.dockerinit.features.dockerfile.dto.request.spec.AdditionalFile;
+import com.dockerinit.features.dockerfile.dto.request.spec.CopyDirective;
+import com.dockerinit.features.dockerfile.dto.request.spec.Healthcheck;
+import com.dockerinit.features.dockerfile.dto.request.spec.Mode;
 import com.dockerinit.features.support.validation.DockerfileCrossCheck;
-import com.dockerinit.features.support.validation.SafeRelPath;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Schema(description = "Dockerfile 생성을 위한 요청 객체")
 @DockerfileCrossCheck // CMD/ENTRYPOINT, WORKDIR 등 교차검증
@@ -29,7 +33,7 @@ public record DockerfileRequest(
         List<@Valid CopyDirective> add,
 
         @Schema(description = "환경 설정 모드", example = "prod")
-        EnvModeDTO envMode,
+        Mode envMode,
 
         @Schema(description = "환경변수 설정", example = "{\"SPRING_PROFILES_ACTIVE\":\"prod\"}")
         @Size(max = 100, message = "envVars는 최대 100개까지 허용됩니다.")
@@ -80,43 +84,10 @@ public record DockerfileRequest(
         List<
                 @Pattern(regexp = "^/.*$", message = "볼륨은 절대경로여야 합니다.")
                         String
-                > volume
+                > volume,
+
+        @Schema(description="원하는 부가 산출 파일들", example = "[\"ENV\",\"README\"]")
+        @Size(max = 10)
+        Set<AdditionalFile> additionalFiles
 ) {
-
-    public enum EnvModeDTO { dev, staging, prod }
-
-    @Schema(description = "파일 복사 지시자 (COPY/ADD 용)")
-    public record CopyDirective(
-            @Schema(description = "소스 경로(상대경로 권장)", example = "src/")
-            @NotBlank(message = "source는 필수입니다.")
-            @SafeRelPath // 상대경로만 허용, '..' / URL 금지
-            String source,
-
-            @Schema(description = "타겟 경로(절대경로)", example = "/app")
-            @NotBlank(message = "target은 필수입니다.")
-            @Pattern(regexp = "^/.*$", message = "target은 절대경로여야 합니다.")
-            String target
-    ) {}
-
-    @Schema(description = "Healthcheck 구조")
-    public record Healthcheck(
-            @Schema(description = "헬스체크 명령 전체", example = "CMD curl --fail http://localhost:8080 || exit 1")
-            @NotBlank String cmd,
-
-            @Schema(description = "체크 간격", example = "30s") // 필요하면 정규식 강화
-            @Pattern(regexp = "^[0-9]+(ms|s|m|h)$", message = "interval 형식: 10ms|10s|10m|10h")
-            String interval,
-
-            @Schema(description = "타임아웃", example = "3s")
-            @Pattern(regexp = "^[0-9]+(ms|s|m|h)$", message = "timeout 형식: 10ms|10s|10m|10h")
-            String timeout,
-
-            @Schema(description = "재시도 횟수", example = "3")
-            @Min(1) @Max(100)
-            Integer retries,
-
-            @Schema(description = "시작 유예기간", example = "10s")
-            @Pattern(regexp = "^[0-9]+(ms|s|m|h)$", message = "startPeriod 형식: 10ms|10s|10m|10h")
-            String startPeriod
-    ) {}
 }

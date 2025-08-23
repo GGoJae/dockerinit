@@ -1,9 +1,9 @@
-package com.dockerinit.features.dockerfile.dto;
+package com.dockerinit.features.dockerfile.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Dockerfile 프리셋 정보")
-public record DockerfilePreset(
+public record DockerfilePresetRequest(
 
         @Schema(description = "프리셋 이름", example = "springboot-java17")
         String name,

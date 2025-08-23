@@ -1,5 +1,5 @@
 package com.dockerinit.features.dockerfile.dto.request.spec;
 
-public enum EnvModeDTO {
+public enum Mode {
     dev, staging, prod
 }

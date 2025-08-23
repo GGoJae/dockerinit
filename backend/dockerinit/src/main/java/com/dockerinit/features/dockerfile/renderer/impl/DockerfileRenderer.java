@@ -1,107 +1,107 @@
-package com.dockerinit.features.dockerfile.render;
+package com.dockerinit.features.dockerfile.renderer.impl;
 
-import com.dockerinit.features.dockerfile.model.*;
+import com.dockerinit.features.dockerfile.model.CopyEntry;
+import com.dockerinit.features.dockerfile.model.EnvMode;
+import com.dockerinit.features.dockerfile.model.HealthcheckSpec;
+import com.dockerinit.features.dockerfile.model.RenderContext;
+import com.dockerinit.features.dockerfile.model.DockerfilePlan;
+import com.dockerinit.features.dockerfile.renderer.ArtifactRenderer;
+import com.dockerinit.features.dockerfile.model.FileType;
+import com.dockerinit.features.dockerfile.model.GeneratedFile;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
-public class DefaultDockerfileRenderer implements DockerfileRenderer {
+@Order(1)
+public class DockerfileRenderer implements ArtifactRenderer {
 
     private static final int DEFAULT_CAPACITY = 512;
     private static final Function<String, String> PLACEHOLDER =
-            (s) -> {return "${" + s + "}";};
-    private static final Pattern SECRET_KEY_PATTERN = Pattern.compile("(?i)(secret|password|passwd|token|apikey|api_key|credential)");
+            (s) -> {
+                return "${" + s + "}";
+            };
+    public static final String DOCKERFILE = "Dockerfile";
 
     @Override
-    public RenderResult render(DockerfileSpec spec) {
-        ArrayList<String> warnings = new ArrayList<>();
-        boolean prodLike = spec.envMode() != EnvMode.DEV;
-
-        String dockerfile = buildDockerfile(spec, prodLike, warnings);
-
-        boolean hasSecret = looksSensitive(spec.envVars());
-        boolean hasEnvFile = prodLike && spec.envVars() != null && !spec.envVars().isEmpty();   // TODO 요청에 envFile 필요한지 추가
-
-        Map<String, String> envForEnvFile = hasEnvFile ? spec.envVars().keySet().stream().sorted()
-                .collect(Collectors.toMap(k -> k, k -> "나를_바꿔주세요",
-                        (a, b) -> a, LinkedHashMap::new)) : Map.of();
-
-        ArrayList<GeneratedFile> extras = new ArrayList<>();
-        // TODO README 나 .dockerignore 같은 파일 넣기 혹은 빈 객체 내보내고 다른 클래스에 위임하기 또는 아예 책임 없애기..
-
-        return new RenderResult(
-                dockerfile,
-                spec.envMode(),
-                hasEnvFile,
-                Map.copyOf(envForEnvFile),
-                List.copyOf(extras),
-                List.copyOf(warnings),
-                hasSecret);
+    public boolean supports(RenderContext ctx) {
+        return true;
     }
 
-    private boolean looksSensitive(Map<String, String> envs) {
-        if (Objects.isNull(envs)) return false;
-
-        return envs.keySet().stream().anyMatch(k -> SECRET_KEY_PATTERN.matcher(k).find());
+    @Override
+    public FileType fileType() {
+        return FileType.DOCKERFILE;
     }
 
-    private static String buildDockerfile(DockerfileSpec spec, boolean prodLike, List<String> warnings) {
-        // TODO warnings 에 위험부분 추가하는 로직 작성
+
+    @Override
+    public List<GeneratedFile> render(RenderContext ctx, List<String> warnings) {
+        DockerfilePlan plan = ctx.plan();
+        boolean prodLike = plan.envMode() == EnvMode.PROD_LIKE;
         StringBuilder sb = new StringBuilder(DEFAULT_CAPACITY);
 
         // 1) FROM
-        sb.append("FROM ").append(spec.baseImage()).append('\n');
+        sb.append("FROM ").append(plan.baseImage()).append('\n');
 
         // 2) LABEL (키 정렬)
-        appendLabels(sb, spec.label());
+        appendLabels(sb, plan.label());
 
         // 3) ARG (키 정렬)
-        appendArgs(sb, spec.args());
+        appendArgs(sb, plan.args());
 
         // 4) ENV (모드 기반 정책)
-        appendEnvs(sb, spec.envVars(), prodLike);
+        appendEnvs(sb, plan.envVars(), prodLike);
 
         // 5) WORKDIR
-        if (notBlank(spec.workdir())) {
-            sb.append("WORKDIR ").append(spec.workdir()).append('\n');
+        if (notBlank(plan.workdir())) {
+            sb.append("WORKDIR ").append(plan.workdir()).append('\n');
         }
 
         // 6) ADD (JSON array 형식)
-        appendCopyLike(sb, "ADD", spec.add());
+        appendCopyLike(sb, "ADD", plan.add());
 
         // 7) COPY (JSON array 형식)
-        appendCopyLike(sb, "COPY", spec.copy());
+        appendCopyLike(sb, "COPY", plan.copy());
 
         // 8) RUN (한 줄 하나씩)
-        appendRun(sb, spec.run());
+        appendRun(sb, plan.run());
 
         // 9) USER
-        if (notBlank(spec.user())) {
-            sb.append("USER ").append(spec.user()).append('\n');
+        if (notBlank(plan.user())) {
+            sb.append("USER ").append(plan.user()).append('\n');
         }
 
         // 10) VOLUME (JSON array)
-        appendVolume(sb, spec.volume());
+        appendVolume(sb, plan.volume());
 
         // 11) EXPOSE
-        appendExpose(sb, spec.expose());
+        appendExpose(sb, plan.expose());
 
         // 12) HEALTHCHECK
-        appendHealthcheck(sb, spec.healthcheck());
+        appendHealthcheck(sb, plan.healthcheck());
 
         // 13) ENTRYPOINT (JSON array)
-        appendJsonArrayInstr(sb, "ENTRYPOINT", spec.entrypoint());
+        appendJsonArrayInstr(sb, "ENTRYPOINT", plan.entrypoint());
 
         // 14) CMD (JSON array)
-        appendJsonArrayInstr(sb, "CMD", spec.cmd());
+        appendJsonArrayInstr(sb, "CMD", plan.cmd());
 
         // 마지막 개행/공백 정리
-        return trimTrailingNewlines(sb.toString());
+        String dockerfile = trimTrailingNewlines(sb.toString());
+        byte[] bytes = dockerfile.getBytes(StandardCharsets.UTF_8);
+        GeneratedFile file = new GeneratedFile(DOCKERFILE, bytes, MediaType.TEXT_PLAIN, false, FileType.DOCKERFILE);
+
+        return List.of(file);
     }
+
 
     /* -------------------- helpers -------------------- */
 
@@ -134,7 +134,7 @@ public class DefaultDockerfileRenderer implements DockerfileRenderer {
 
 
         if (prodLike) {
-            sb.append("# Prefer runtime-injected environment variables\n");
+            sb.append("# 환경 변수는 런타임시에 주입해주세요\n");
         }
 
         envs.entrySet().stream()
@@ -185,10 +185,10 @@ public class DefaultDockerfileRenderer implements DockerfileRenderer {
         if (h == null || !notBlank(h.cmd())) return;
 
         List<String> opts = new ArrayList<>();
-        if (notBlank(h.interval()))     opts.add("--interval=" + h.interval());
-        if (notBlank(h.timeout()))      opts.add("--timeout=" + h.timeout());
-        if (h.retries() != null)        opts.add("--retries=" + h.retries());
-        if (notBlank(h.startPeriod()))  opts.add("--start-period=" + h.startPeriod());
+        if (notBlank(h.interval())) opts.add("--interval=" + h.interval());
+        if (notBlank(h.timeout())) opts.add("--timeout=" + h.timeout());
+        if (h.retries() != null) opts.add("--retries=" + h.retries());
+        if (notBlank(h.startPeriod())) opts.add("--start-period=" + h.startPeriod());
 
         sb.append("HEALTHCHECK ");
         if (!opts.isEmpty()) {
@@ -208,7 +208,7 @@ public class DefaultDockerfileRenderer implements DockerfileRenderer {
         sb.append(instr).append(' ').append(jsonArray(items)).append('\n');
     }
 
-    /* -------------------- tiny utils -------------------- */
+    /* -------------------- utils -------------------- */
 
     private static boolean notBlank(String s) {
         return s != null && !s.isBlank();
@@ -222,7 +222,7 @@ public class DefaultDockerfileRenderer implements DockerfileRenderer {
 
     private static String jsonArray(List<String> parts) {
         if (parts == null || parts.isEmpty()) return "[]";
-        return parts.stream().map(DefaultDockerfileRenderer::jsonQuote)
+        return parts.stream().map(DockerfileRenderer::jsonQuote)
                 .collect(Collectors.joining(",", "[", "]"));
     }
 
@@ -232,4 +232,5 @@ public class DefaultDockerfileRenderer implements DockerfileRenderer {
         String esc = s.replace("\\", "\\\\").replace("\"", "\\\"");
         return "\"" + esc + "\"";
     }
+
 }

@@ -10,4 +10,6 @@ public final class HttpInfo {
     public static final String NOSNIFF = "nosniff";
     public static final String APPLICATION_ZIP_VALUE = "application/zip";
     public static final String NO_CACHE = "no-cache";
+    public static final String NO_STORE = "no-store";
+    public static final String PRIVATE = "private";
 }

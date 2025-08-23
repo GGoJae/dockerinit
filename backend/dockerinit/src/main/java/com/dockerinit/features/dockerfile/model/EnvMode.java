@@ -1,5 +1,5 @@
 package com.dockerinit.features.dockerfile.model;
 
 public enum EnvMode {
-    DEV, STAGING, PROD
+    DEV, PROD_LIKE
 }

@@ -5,5 +5,7 @@ import org.springframework.http.MediaType;
 public record GeneratedFile(
         String filename,
         byte[] content,
-        MediaType contentType
+        MediaType contentType,
+        boolean sensitive,
+        FileType fileType
 ) {}

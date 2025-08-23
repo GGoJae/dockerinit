@@ -2,6 +2,7 @@ package com.dockerinit.features.dockerfile.model;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public record DockerfilePlan(
         String baseImage,
@@ -18,10 +19,11 @@ public record DockerfilePlan(
         String user,
         Map<String, String> args,
         HealthcheckSpec healthcheck,
-        List<String> volume
+        List<String> volume,
+        List<String> warnings,
+        Set<FileType> targets
 ) {
-
-    public DockerfilePlan {
+    public DockerfilePlan{
         // 도메인 불변식(필수 최소 보장)
         if ((cmd == null || cmd.isEmpty()) && (entrypoint == null || entrypoint.isEmpty())) {
             throw new IllegalArgumentException("CMD 또는 ENTRYPOINT 중 하나는 필수");
@@ -29,4 +31,3 @@ public record DockerfilePlan(
         // TODO  그 외 도메인 레벨의 가벼운 체크들 추가 사항있으면 추가하기
     }
 }
-

@@ -1,7 +1,7 @@
 package com.dockerinit.service;
 
-import com.dockerinit.features.dockerfile.packager.ArtifactPackager;
-import com.dockerinit.features.dockerfile.render.DockerfileRenderer;
+import com.dockerinit.features.dockerfile.packager.Packager;
+import com.dockerinit.features.dockerfile.renderer.ArtifactRenderer;
 import com.dockerinit.features.dockerfile.service.DockerfileService;
 import com.dockerinit.features.support.validation.DockerImageValidationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,9 +15,9 @@ class DockerfileServiceTest {
     @Mock
     private DockerImageValidationService dockerImageValidationService;
     @Mock
-    private DockerfileRenderer dockerfileRenderer;
+    private ArtifactRenderer dockerfileRenderer;
     @Mock
-    private ArtifactPackager packager;
+    private Packager packager;
     private DockerfileService dockerfileService;
 
     @BeforeEach

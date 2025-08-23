@@ -1,20 +1,28 @@
 package com.dockerinit.features.dockerfile.api;
 
-import com.dockerinit.features.dockerfile.dto.DockerfilePreset;
-import com.dockerinit.features.support.FileResult;
-import com.dockerinit.features.dockerfile.dto.DockerfileRequest;
-import com.dockerinit.features.dockerfile.dto.DockerfileResponse;
+import com.dockerinit.features.dockerfile.dto.request.DockerfilePresetRequest;
+import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
+import com.dockerinit.features.dockerfile.dto.response.DockerfileResponse;
+import com.dockerinit.features.dockerfile.model.ByteArrayPayload;
+import com.dockerinit.features.dockerfile.model.PackagePayload;
+import com.dockerinit.features.dockerfile.model.PackageResult;
+import com.dockerinit.features.dockerfile.model.StreamingPayload;
 import com.dockerinit.features.dockerfile.service.DockerfileService;
 import com.dockerinit.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dockerinit.global.constants.HttpInfo.*;
 
@@ -36,7 +44,7 @@ public class DockerfileController {
     @Operation(summary = "Dockerfile 프리셋 전체 조회",
             description = "자주 사용하는 Dockerfile 프리셋 전체 목록을 제공합니다.")
     @GetMapping("/presets")
-    public ResponseEntity<ApiResponse<List<DockerfilePreset>>> listPresets() {
+    public ResponseEntity<ApiResponse<List<DockerfilePresetRequest>>> listPresets() {
         return ResponseEntity.ok(ApiResponse.success(service.getAllPresets()));
     }
 
@@ -44,34 +52,56 @@ public class DockerfileController {
     @Operation(summary = "Dockerfile 프리셋 단건 조회",
             description = "지정한 이름의 Dockerfile 프리셋을 반환합니다.")
     @GetMapping("/presets/{name}")
-    public ResponseEntity<ApiResponse<DockerfilePreset>> getPreset(@PathVariable String name) {
+    public ResponseEntity<ApiResponse<DockerfilePresetRequest>> getPreset(@PathVariable String name) {
         return ResponseEntity.ok(ApiResponse.success(service.getPreset(name)));
     }
 
 
-    @Operation(summary = "Dockerfile 다운로드 (ZIP)",
-            description = "요청 형식에 따라 생성된 Dockerfile을 ZIP 파일 형태로 다운로드합니다.")
-    @PostMapping(value = "/download", produces = APPLICATION_ZIP_VALUE)
-    public ResponseEntity<Resource> downloadAsZip(@RequestBody DockerfileRequest request) {
-        FileResult fileResult = service.buildZip(request);
+    @Operation(summary = "Dockerfile, env 등 패키지 다운로드 (ZIP)",
+            description = "요청 형식에 따라 생성된 패키지를 ZIP 파일 형태로 다운로드합니다.")
+    @PostMapping(value = "/package", produces = APPLICATION_ZIP_VALUE)
+    public ResponseEntity<Resource> downloadAsZip(@Valid @RequestBody DockerfileRequest request, WebRequest webRequest) {
+        PackageResult pkg = service.downloadPackageAsZip(request);
 
+        if (Objects.nonNull(pkg.getETag()) && webRequest.checkNotModified(pkg.getETag())) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                    .eTag(pkg.getETag())
+                    .header(X_CONTENT_TYPE_OPTIONS, NOSNIFF)
+                    .build();
+        }
+
+        ContentDisposition cd = ContentDisposition.attachment().filename(pkg.getFilename(), StandardCharsets.UTF_8)
+                .build();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentDisposition(
-                ContentDisposition.attachment()
-                        .filename(fileResult.filename(), StandardCharsets.UTF_8)
-                        .build()
-        );
+        if (Objects.nonNull(pkg.getETag())) headers.setETag(pkg.getETag());
+        headers.setContentType(MediaType.parseMediaType(pkg.getContentType().value()));
+        headers.setContentDisposition(cd);
         headers.set(X_CONTENT_TYPE_OPTIONS, NOSNIFF);
-        headers.set(HttpHeaders.PRAGMA, NO_CACHE);
-        headers.set(HttpHeaders.EXPIRES, "0");
         headers.set(HttpHeaders.VARY, HttpHeaders.AUTHORIZATION);
+
+        if (pkg.isSensitive()) {
+            headers.setCacheControl(NO_STORE);
+            headers.setPragma(NO_CACHE);
+            headers.set(HttpHeaders.EXPIRES, "0");
+        } else {
+            headers.setCacheControl("private, max-age=3600");
+        }
+
+        Resource body = pkg.fold(
+                b -> {
+                    headers.setContentLength(b.length);
+                    return new ByteArrayResource(b);
+                },
+                (s, l) -> {
+                    if (l >= 0) headers.setContentLength(l);
+                    return new InputStreamResource(s.get());
+                }
+        );
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentType(fileResult.contentType())
-                .contentLength(fileResult.contentLength())
-                .body(fileResult.resource());
+                .body(body);
     }
 
 

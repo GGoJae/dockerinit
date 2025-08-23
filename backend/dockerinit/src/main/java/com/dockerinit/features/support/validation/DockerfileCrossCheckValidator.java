@@ -1,6 +1,6 @@
 package com.dockerinit.features.support.validation;
 
-import com.dockerinit.features.dockerfile.dto.DockerfileRequest;
+import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

@@ -1,4 +1,5 @@
 package com.dockerinit.features.dockerfile.model;
 
-public enum AdditionalFileType {
+public enum FileType {
+    DOCKERFILE, ENV, README
 }
