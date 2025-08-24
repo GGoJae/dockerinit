@@ -1,11 +1,11 @@
 package com.dockerinit.features.dockerfile.renderer.impl;
 
-import com.dockerinit.features.dockerfile.model.RenderContext;
-import com.dockerinit.features.dockerfile.renderer.ArtifactRenderer;
+import com.dockerinit.features.dockerfile.model.ContentType;
 import com.dockerinit.features.dockerfile.model.FileType;
 import com.dockerinit.features.dockerfile.model.GeneratedFile;
+import com.dockerinit.features.dockerfile.model.RenderContext;
+import com.dockerinit.features.dockerfile.renderer.ArtifactRenderer;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -45,7 +45,7 @@ public class EnvFIleRenderer implements ArtifactRenderer {
         warnings.add("주의: .env는 이미지에 포함하지 말고 `--env-file .env` 또는 compose의 `env_file:`로 사용하세요.");
 
         GeneratedFile file = new GeneratedFile(DOT_ENV_DOT_EXAMPLE, builder.toString().getBytes(StandardCharsets.UTF_8),
-                MediaType.TEXT_PLAIN, true, FileType.ENV);
+                ContentType.TEXT, true, FileType.ENV);
 
         return List.of(file);
     }

@@ -9,19 +9,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 @ExtendWith(MockitoExtension.class)
 class DockerfileServiceTest {
 
     @Mock
     private DockerImageValidationService dockerImageValidationService;
     @Mock
-    private ArtifactRenderer dockerfileRenderer;
+    private List<ArtifactRenderer> artifactRenderers;
     @Mock
     private Packager packager;
     private DockerfileService dockerfileService;
 
     @BeforeEach
     void setUp() {
-        dockerfileService = new DockerfileService(dockerImageValidationService, dockerfileRenderer, packager);
+        dockerfileService = new DockerfileService(dockerImageValidationService, artifactRenderers, packager);
     }
 }

@@ -1,15 +1,8 @@
 package com.dockerinit.features.dockerfile.renderer.impl;
 
-import com.dockerinit.features.dockerfile.model.CopyEntry;
-import com.dockerinit.features.dockerfile.model.EnvMode;
-import com.dockerinit.features.dockerfile.model.HealthcheckSpec;
-import com.dockerinit.features.dockerfile.model.RenderContext;
-import com.dockerinit.features.dockerfile.model.DockerfilePlan;
+import com.dockerinit.features.dockerfile.model.*;
 import com.dockerinit.features.dockerfile.renderer.ArtifactRenderer;
-import com.dockerinit.features.dockerfile.model.FileType;
-import com.dockerinit.features.dockerfile.model.GeneratedFile;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -97,7 +90,7 @@ public class DockerfileRenderer implements ArtifactRenderer {
         // 마지막 개행/공백 정리
         String dockerfile = trimTrailingNewlines(sb.toString());
         byte[] bytes = dockerfile.getBytes(StandardCharsets.UTF_8);
-        GeneratedFile file = new GeneratedFile(DOCKERFILE, bytes, MediaType.TEXT_PLAIN, false, FileType.DOCKERFILE);
+        GeneratedFile file = new GeneratedFile(DOCKERFILE, bytes, ContentType.TEXT, false, FileType.DOCKERFILE);
 
         return List.of(file);
     }

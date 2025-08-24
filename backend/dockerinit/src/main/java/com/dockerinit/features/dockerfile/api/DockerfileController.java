@@ -3,10 +3,7 @@ package com.dockerinit.features.dockerfile.api;
 import com.dockerinit.features.dockerfile.dto.request.DockerfilePresetRequest;
 import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
 import com.dockerinit.features.dockerfile.dto.response.DockerfileResponse;
-import com.dockerinit.features.dockerfile.model.ByteArrayPayload;
-import com.dockerinit.features.dockerfile.model.PackagePayload;
 import com.dockerinit.features.dockerfile.model.PackageResult;
-import com.dockerinit.features.dockerfile.model.StreamingPayload;
 import com.dockerinit.features.dockerfile.service.DockerfileService;
 import com.dockerinit.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +16,6 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -63,9 +59,9 @@ public class DockerfileController {
     public ResponseEntity<Resource> downloadAsZip(@Valid @RequestBody DockerfileRequest request, WebRequest webRequest) {
         PackageResult pkg = service.downloadPackageAsZip(request);
 
-        if (Objects.nonNull(pkg.getETag()) && webRequest.checkNotModified(pkg.getETag())) {
+        if (Objects.nonNull(pkg.getEtag()) && webRequest.checkNotModified(pkg.getEtag())) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
-                    .eTag(pkg.getETag())
+                    .eTag(pkg.getEtag())
                     .header(X_CONTENT_TYPE_OPTIONS, NOSNIFF)
                     .build();
         }
@@ -74,8 +70,8 @@ public class DockerfileController {
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
-        if (Objects.nonNull(pkg.getETag())) headers.setETag(pkg.getETag());
-        headers.setContentType(MediaType.parseMediaType(pkg.getContentType().value()));
+        if (Objects.nonNull(pkg.getEtag())) headers.setETag(pkg.getEtag());
+        headers.setContentType(MediaType.parseMediaType(pkg.getContentTypeValue()));
         headers.setContentDisposition(cd);
         headers.set(X_CONTENT_TYPE_OPTIONS, NOSNIFF);
         headers.set(HttpHeaders.VARY, HttpHeaders.AUTHORIZATION);
@@ -87,16 +83,11 @@ public class DockerfileController {
         } else {
             headers.setCacheControl("private, max-age=3600");
         }
+        pkg.contentLength().ifPresent(cl -> headers.setContentLength(cl));
 
         Resource body = pkg.fold(
-                b -> {
-                    headers.setContentLength(b.length);
-                    return new ByteArrayResource(b);
-                },
-                (s, l) -> {
-                    if (l >= 0) headers.setContentLength(l);
-                    return new InputStreamResource(s.get());
-                }
+                ByteArrayResource::new,
+                s ->  new InputStreamResource(s.get())
         );
 
         return ResponseEntity.ok()

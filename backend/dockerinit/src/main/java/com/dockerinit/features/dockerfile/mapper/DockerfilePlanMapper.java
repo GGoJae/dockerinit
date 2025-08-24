@@ -27,6 +27,7 @@ public final class DockerfilePlanMapper {
                 switch (af) {
                     case ENV -> targets.add(FileType.ENV);
                     case README -> targets.add(FileType.README);
+                    case MANIFEST -> targets.add(FileType.MANIFEST);
                 }
             }
         }

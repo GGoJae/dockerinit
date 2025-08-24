@@ -16,5 +16,6 @@ public record ContentType(String value) {
     public static final ContentType OCTET = new ContentType("applcation/octet-stream");
     public static final ContentType TEXT = new ContentType("text/plain; charset=utf-8");
     public static final ContentType MD = new ContentType("text/markdown; charset=utf-8");
+    public static final ContentType JSON = new ContentType("application/json");
 
 }

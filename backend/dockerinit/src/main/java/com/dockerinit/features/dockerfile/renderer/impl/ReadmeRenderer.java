@@ -1,12 +1,8 @@
 package com.dockerinit.features.dockerfile.renderer.impl;
 
-import com.dockerinit.features.dockerfile.model.RenderContext;
-import com.dockerinit.features.dockerfile.model.DockerfilePlan;
+import com.dockerinit.features.dockerfile.model.*;
 import com.dockerinit.features.dockerfile.renderer.ArtifactRenderer;
-import com.dockerinit.features.dockerfile.model.FileType;
-import com.dockerinit.features.dockerfile.model.GeneratedFile;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -63,7 +59,7 @@ public class ReadmeRenderer implements ArtifactRenderer {
 
 
         GeneratedFile file = new GeneratedFile(README, md.getBytes(StandardCharsets.UTF_8),
-                MediaType.TEXT_MARKDOWN, false, FileType.README);
+                ContentType.MD, false, FileType.README);
         return List.of(file);
     }
 }
