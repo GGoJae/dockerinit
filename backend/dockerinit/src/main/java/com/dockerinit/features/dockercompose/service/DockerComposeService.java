@@ -1,6 +1,6 @@
 package com.dockerinit.features.dockercompose.service;
 
-import com.dockerinit.features.dockercompose.dto.DockerComposeRequest;
+import com.dockerinit.features.dockercompose.dto.request.DockerComposeRequest;
 import com.dockerinit.features.support.FileResult;
 import com.dockerinit.features.dockercompose.util.DockerComposeGenerator;
 import com.dockerinit.features.support.Hash;

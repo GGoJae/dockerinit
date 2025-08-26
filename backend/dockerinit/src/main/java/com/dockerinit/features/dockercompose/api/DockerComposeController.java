@@ -1,7 +1,7 @@
 package com.dockerinit.features.dockercompose.api;
 
 import com.dockerinit.features.dockercompose.dto.DockerComposePreset;
-import com.dockerinit.features.dockercompose.dto.DockerComposeRequest;
+import com.dockerinit.features.dockercompose.dto.request.DockerComposeRequest;
 import com.dockerinit.features.support.FileResult;
 import com.dockerinit.global.response.ApiResponse;
 import com.dockerinit.features.dockercompose.service.DockerComposeService;

@@ -5,6 +5,7 @@ import com.dockerinit.features.dockerfile.model.GeneratedFile;
 import com.dockerinit.features.dockerfile.model.PackageResult;
 import com.dockerinit.features.dockerfile.packager.Packager;
 import com.dockerinit.global.exception.InternalErrorCustomException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -20,6 +21,7 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+@Slf4j
 @Component
 public class ZipPackager implements Packager {
 
@@ -108,27 +110,38 @@ public class ZipPackager implements Packager {
             String raw = (Objects.isNull(f.filename()) || f.filename().isBlank()) ? "file" : f.filename();
             String sane = sanitizeZipPath(raw);
             String unique = makeUniqueName(sane, seen);
-            if (!unique.equals(sane)) {
-                f = new GeneratedFile(unique, f.content(), f.contentType(), f.sensitive(), f.fileType());
-            }
-            normalized.add(f);
+
+            normalized.add(new GeneratedFile(unique, f.content(), f.contentType(), f.sensitive(), f.fileType()));
         }
 
         normalized.sort(Comparator.comparing(GeneratedFile::filename));
         return normalized;
     }
 
-    private static String sanitizeZipPath(String name) {
-        String n = name.replace('\\', '/');
+private static String sanitizeZipPath(String name) {
+    if (name == null || name.isBlank()) return "file";
 
-        while (n.startsWith("/")) {
-            n = n.substring(1);
-        }
+    String n = name.replace('\\', '/');
 
-        n = n.replace("../", "").replace("..\\", "");
-        if (n.isBlank()) n = "file";
-        return n;
+    //   "C:/foo" -> "/foo" 처리되도록 앞의 "C:" 제거
+    if (n.matches("^[A-Za-z]:/.*")) n = n.substring(2);
+    while (n.startsWith("//")) n = n.substring(1);
+
+    while (n.startsWith("/")) n = n.substring(1);
+
+    //  경로 세그먼트 정규화: ".", ".." 처리
+    String[] parts = n.split("/+");
+    Deque<String> stack = new ArrayDeque<>();
+    for (String part : parts) {
+        if (part.isEmpty() || ".".equals(part)) continue;
+        if ("..".equals(part)) { if (!stack.isEmpty()) stack.removeLast(); continue; }
+        stack.addLast(part);
     }
+
+    String sanitized = String.join("/", stack);
+    return sanitized.isBlank() ? "file" : sanitized;
+}
+
 
     private static String makeUniqueName(String base, Map<String, Integer> seen) {
         String candidate = base;

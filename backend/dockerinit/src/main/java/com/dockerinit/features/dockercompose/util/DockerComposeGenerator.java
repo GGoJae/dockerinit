@@ -1,6 +1,6 @@
 package com.dockerinit.features.dockercompose.util;
 
-import com.dockerinit.features.dockercompose.dto.DockerComposeRequest;
+import com.dockerinit.features.dockercompose.dto.request.DockerComposeRequest;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

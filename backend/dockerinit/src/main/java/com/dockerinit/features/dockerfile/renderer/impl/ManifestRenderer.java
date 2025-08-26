@@ -15,7 +15,7 @@ import java.util.List;
 
 @Component
 @Order(999) //  가장 마지막
-public class ManifestArtifactRenderer implements ArtifactRenderer {
+public class ManifestRenderer implements ArtifactRenderer {
 
     private static final String FILE_NAME = "manifest.json";
 
