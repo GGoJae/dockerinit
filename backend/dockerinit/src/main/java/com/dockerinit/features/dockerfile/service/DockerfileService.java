@@ -14,6 +14,7 @@ import com.dockerinit.global.exception.NotFoundCustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Slf4j
@@ -59,7 +60,21 @@ public class DockerfileService {
     }
 
     public DockerfileResponse renderContent(DockerfileRequest request) {
-        return null;    // TODO 도커파일만 문자열 타입으로 내보낼 로직 작성
+
+        String baseImage = request.baseImage();
+        if (!dockerImageValidationService.existsInDockerHub(baseImage)) {
+            throw new InvalidInputCustomException(ErrorMessage.INVALID_DOCKER_IMAGE, Map.of("image", baseImage));
+        }
+
+        DockerfilePlan plan = DockerfilePlanMapper.toPlan(request);
+        List<String> warnings = new ArrayList<>(plan.warnings());
+
+        GeneratedFile dockerfile = renderSingleFile(request, plan, FileType.DOCKERFILE, warnings)
+                .orElseThrow(() -> new IllegalArgumentException("도커 파일 렌더 실패"));
+
+        String content = new String(dockerfile.content(), StandardCharsets.UTF_8);
+
+        return new DockerfileResponse(content, List.copyOf(warnings));
     }
 
     public List<DockerfilePresetRequest> getAllPresets() {
@@ -72,6 +87,26 @@ public class DockerfileService {
                         ErrorMessage.PRESET_NOT_FOUND,
                         Map.of("presetName", name)
                 ));
+    }
+
+    private Optional<GeneratedFile> renderSingleFile(DockerfileRequest request, DockerfilePlan plan, FileType type ,List<String> warnings) {
+        Set<FileType> targets = EnumSet.of(type);
+        RenderContext ctx = new RenderContext(request, plan, targets, List.of());
+
+        for (ArtifactRenderer r : renderers) {
+            if (r.fileType() != type) continue;
+            if (!r.supports(ctx)) continue;
+            try {
+                List<GeneratedFile> out = r.render(ctx, warnings);
+                return out.stream().findFirst();
+            } catch (Exception e) {
+                log.warn("렌더 에러: {}", r.id(), e);
+                warnings.add("Renderer '" + r.id() + "' failed");
+                return Optional.empty();
+            }
+        }
+
+        return Optional.empty();
     }
 
 
