@@ -61,8 +61,16 @@ public record DockerfilePlan(
     private static <K, V> Map<K, V> immutableOrEmpty(Map<K, V> target) {
         if (target == null) return Map.of();
 
-        if (target.containsKey(null)) throw new IllegalArgumentException("envVars/label/args: null key");
-        if (target.containsValue(null)) throw new IllegalArgumentException("envVars/label/args: null value");
+        for (Map.Entry<K, V> e : target.entrySet()) {
+            if (e.getKey() == null) {
+                throw new IllegalArgumentException("envVars/label/args: null key");
+            }
+            if (e.getValue() == null) {
+                throw new IllegalArgumentException(
+                        "envVars/label/args: null value for key '" + e.getKey() + "'"
+                );
+            }
+        }
         return Map.copyOf(target);
     }
 }
