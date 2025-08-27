@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @Order(10)
-public class EnvFIleRenderer implements ArtifactRenderer {
+public class EnvFileRenderer implements ArtifactRenderer {
 
     private static final String DOT_ENV_DOT_EXAMPLE = ".env.example";
 
