@@ -4,9 +4,13 @@ import com.dockerinit.features.dockerfile.dto.request.DockerfilePresetRequest;
 import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
 import com.dockerinit.features.dockerfile.dto.response.DockerfileResponse;
 import com.dockerinit.features.dockerfile.mapper.DockerfilePlanMapper;
-import com.dockerinit.features.dockerfile.model.*;
-import com.dockerinit.features.dockerfile.packager.Packager;
-import com.dockerinit.features.dockerfile.renderer.ArtifactRenderer;
+import com.dockerinit.features.dockerfile.domain.*;
+import com.dockerinit.features.model.PackageResult;
+import com.dockerinit.features.model.RenderContext;
+import com.dockerinit.features.packager.Packager;
+import com.dockerinit.features.renderer.ArtifactRenderer;
+import com.dockerinit.features.dockerfile.domain.DockerFileType;
+import com.dockerinit.features.model.GeneratedFile;
 import com.dockerinit.features.support.validation.DockerImageValidationService;
 import com.dockerinit.global.constants.ErrorMessage;
 import com.dockerinit.global.exception.InvalidInputCustomException;
@@ -22,10 +26,10 @@ import java.util.*;
 public class DockerfileService {
 
     private final DockerImageValidationService dockerImageValidationService;
-    private final List<ArtifactRenderer> renderers;
+    private final List<ArtifactRenderer<DockerfileRequest, DockerfilePlan, DockerFileType>> renderers;
     private final Packager packager;
 
-    public DockerfileService(DockerImageValidationService dockerImageValidationService, List<ArtifactRenderer> renderers, Packager packager) {
+    public DockerfileService(DockerImageValidationService dockerImageValidationService, List<ArtifactRenderer<DockerfileRequest, DockerfilePlan, DockerFileType>> renderers, Packager packager) {
         this.dockerImageValidationService = dockerImageValidationService;
         this.renderers = renderers.stream().sorted(Comparator.comparingInt(ArtifactRenderer::order)).toList();
         this.packager = packager;
@@ -42,10 +46,10 @@ public class DockerfileService {
         List<String> warnings = new ArrayList<>(plan.warnings());
 
         List<GeneratedFile> artifacts = new ArrayList<>();
-        Set<FileType> targets = plan.targets();
+        Set<DockerFileType> targets = plan.targets();
 
-        for (ArtifactRenderer r : renderers) {
-            RenderContext ctx = new RenderContext(request, plan, targets, List.copyOf(artifacts));
+        for (ArtifactRenderer<DockerfileRequest, DockerfilePlan, DockerFileType> r : renderers) {
+            RenderContext<DockerfileRequest, DockerfilePlan, DockerFileType> ctx = new RenderContext<>(request, plan, targets, List.copyOf(artifacts));
             if (r.supports(ctx)) {
                 try {
                     artifacts.addAll(r.render(ctx, warnings));
@@ -59,6 +63,7 @@ public class DockerfileService {
         return packager.packageFiles(artifacts, "docker-artifacts");
     }
 
+
     public DockerfileResponse renderContent(DockerfileRequest request) {
 
         String baseImage = request.baseImage();
@@ -69,7 +74,7 @@ public class DockerfileService {
         DockerfilePlan plan = DockerfilePlanMapper.toPlan(request);
         List<String> warnings = new ArrayList<>(plan.warnings());
 
-        GeneratedFile dockerfile = renderSingleFile(request, plan, FileType.DOCKERFILE, warnings)
+        GeneratedFile dockerfile = renderSingleFile(request, plan, DockerFileType.DOCKERFILE, warnings)
                 .orElseThrow(() -> new IllegalArgumentException("도커 파일 렌더 실패"));
 
         String content = new String(dockerfile.content(), StandardCharsets.UTF_8);
@@ -77,9 +82,11 @@ public class DockerfileService {
         return new DockerfileResponse(content, List.copyOf(warnings));
     }
 
+
     public List<DockerfilePresetRequest> getAllPresets() {
         return dockerfilePresets.values().stream().toList();
     }
+
 
     public DockerfilePresetRequest getPreset(String name) {
         return Optional.ofNullable(dockerfilePresets.get(name))
@@ -89,11 +96,12 @@ public class DockerfileService {
                 ));
     }
 
-    private Optional<GeneratedFile> renderSingleFile(DockerfileRequest request, DockerfilePlan plan, FileType type ,List<String> warnings) {
-        Set<FileType> targets = EnumSet.of(type);
-        RenderContext ctx = new RenderContext(request, plan, targets, List.of());
 
-        for (ArtifactRenderer r : renderers) {
+    private Optional<GeneratedFile> renderSingleFile(DockerfileRequest request, DockerfilePlan plan, DockerFileType type , List<String> warnings) {
+        Set<DockerFileType> targets = EnumSet.of(type);
+        RenderContext<DockerfileRequest, DockerfilePlan, DockerFileType> ctx = new RenderContext(request, plan, targets, List.of());
+
+        for (ArtifactRenderer<DockerfileRequest, DockerfilePlan, DockerFileType> r : renderers) {
             if (r.fileType() != type) continue;
             if (!r.supports(ctx)) continue;
             try {

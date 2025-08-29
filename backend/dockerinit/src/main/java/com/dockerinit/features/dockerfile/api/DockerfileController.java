@@ -3,7 +3,7 @@ package com.dockerinit.features.dockerfile.api;
 import com.dockerinit.features.dockerfile.dto.request.DockerfilePresetRequest;
 import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
 import com.dockerinit.features.dockerfile.dto.response.DockerfileResponse;
-import com.dockerinit.features.dockerfile.model.PackageResult;
+import com.dockerinit.features.model.PackageResult;
 import com.dockerinit.features.dockerfile.service.DockerfileService;
 import com.dockerinit.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,9 +1,11 @@
 package com.dockerinit.features.dockercompose.dto.request;
 
+import com.dockerinit.features.support.validation.composeService.ExactlyOneOfImageOrBuild;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,7 @@ public record ComposeRequestV1(
 ) {
 
     @Schema(description = "서비스 정의")
+    @ExactlyOneOfImageOrBuild
     public record Service(
             @Schema(description = "서비스 이름", example = "app")
             @NotBlank String name,

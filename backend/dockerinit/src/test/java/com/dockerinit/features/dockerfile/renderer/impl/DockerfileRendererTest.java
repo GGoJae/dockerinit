@@ -1,6 +1,8 @@
 package com.dockerinit.features.dockerfile.renderer.impl;
 
-import com.dockerinit.features.dockerfile.model.*;
+import com.dockerinit.features.dockerfile.domain.*;
+import com.dockerinit.features.model.*;
+import com.dockerinit.features.dockerfile.renderer.DockerfileRenderer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +16,7 @@ class DockerfileRendererTest {
     private final DockerfileRenderer renderer = new DockerfileRenderer();
 
     private static String render(DockerfilePlan plan) {
-        RenderContext ctx = new RenderContext(null, plan, EnumSet.of(FileType.DOCKERFILE), List.of());
+        RenderContext ctx = new RenderContext(null, plan, EnumSet.of(DockerFileType.DOCKERFILE), List.of());
         List<GeneratedFile> out = new DockerfileRenderer().render(ctx, new ArrayList<>());
         return new String(out.get(0).content(), StandardCharsets.UTF_8);
     }
@@ -63,10 +65,10 @@ class DockerfileRendererTest {
                 Map.of("maintainer","me","app","demo"), // label
                 "1000:1000",                      // user
                 Map.of("Z", "", "A", "x"),        // args
-                new HealthcheckSpec("CMD curl -f http://localhost:8080/actuator/health || exit 1", "30s","3s",3,"10s"), // health
+                new Healthcheck("CMD curl -f http://localhost:8080/actuator/health || exit 1", "30s","3s",3,"10s"), // health
                 List.of("/data"),                 // volume
                 List.of(),                        // warnings
-                EnumSet.of(FileType.DOCKERFILE)   // targets
+                EnumSet.of(DockerFileType.DOCKERFILE)   // targets
         );
 
         String text = render(plan);
@@ -118,7 +120,7 @@ class DockerfileRendererTest {
                 null,
                 List.of(),
                 List.of(),
-                EnumSet.of(FileType.DOCKERFILE)
+                EnumSet.of(DockerFileType.DOCKERFILE)
         );
 
         String text = render(plan);
@@ -147,7 +149,7 @@ class DockerfileRendererTest {
                 null,
                 List.of(),
                 List.of(),
-                EnumSet.of(FileType.DOCKERFILE)
+                EnumSet.of(DockerFileType.DOCKERFILE)
         );
 
         String text = render(plan);
@@ -176,7 +178,7 @@ class DockerfileRendererTest {
                 Map.of(), null, Map.of(), null,
                 List.of(),
                 List.of(),
-                EnumSet.of(FileType.DOCKERFILE)
+                EnumSet.of(DockerFileType.DOCKERFILE)
         );
 
         String text = render(plan);
@@ -195,10 +197,10 @@ class DockerfileRendererTest {
                 List.of("sh","-c"), // cmd(최소)
                 List.of(), List.of(),
                 Map.of(), null, Map.of(),
-                new HealthcheckSpec("curl -f http://localhost || exit 1", "10s","2s",2,"5s"),
+                new Healthcheck("curl -f http://localhost || exit 1", "10s","2s",2,"5s"),
                 List.of(),
                 List.of(),
-                EnumSet.of(FileType.DOCKERFILE)
+                EnumSet.of(DockerFileType.DOCKERFILE)
         );
 
         String text = render(plan);
@@ -220,7 +222,7 @@ class DockerfileRendererTest {
                 Map.of(), null, Map.of(), null,
                 List.of(),
                 List.of(),
-                EnumSet.of(FileType.DOCKERFILE)
+                EnumSet.of(DockerFileType.DOCKERFILE)
         );
 
         String text = render(plan);
@@ -244,12 +246,12 @@ class DockerfileRendererTest {
                 Map.of(), null, Map.of(), null,
                 List.of(),
                 List.of(),
-                EnumSet.of(FileType.DOCKERFILE)
+                EnumSet.of(DockerFileType.DOCKERFILE)
         );
 
-        RenderContext ctx = new RenderContext(null, plan, EnumSet.of(FileType.DOCKERFILE), List.of());
+        RenderContext ctx = new RenderContext(null, plan, EnumSet.of(DockerFileType.DOCKERFILE), List.of());
         assertThat(renderer.supports(ctx)).isTrue();
-        assertThat(renderer.fileType()).isEqualTo(FileType.DOCKERFILE);
+        assertThat(renderer.fileType()).isEqualTo(DockerFileType.DOCKERFILE);
     }
 
     @Test
@@ -267,7 +269,7 @@ class DockerfileRendererTest {
                 Map.of(), null, Map.of(), null,
                 List.of(),
                 new ArrayList<>(),
-                EnumSet.of(FileType.DOCKERFILE)
+                EnumSet.of(DockerFileType.DOCKERFILE)
         );
 
         assertThat(plan.warnings()).hasSize(1);

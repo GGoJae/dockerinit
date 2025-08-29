@@ -1,6 +1,6 @@
 package com.dockerinit.features.dockerfile.dto.request.spec;
 
-import com.dockerinit.features.support.validation.SafeRelPath;
+import com.dockerinit.features.support.validation.safeRefPath.SafeRelPath;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
