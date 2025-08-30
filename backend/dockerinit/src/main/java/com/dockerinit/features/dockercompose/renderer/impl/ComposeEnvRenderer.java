@@ -1,8 +1,8 @@
-package com.dockerinit.features.dockercompose.randerer.impl;
+package com.dockerinit.features.dockercompose.renderer.impl;
 
 import com.dockerinit.features.dockercompose.domain.ComposePlan;
 import com.dockerinit.features.dockercompose.dto.request.ComposeRequestV1;
-import com.dockerinit.features.dockercompose.randerer.ComposeArtifactRenderer;
+import com.dockerinit.features.dockercompose.renderer.ComposeArtifactRenderer;
 import com.dockerinit.features.model.FileType;
 import com.dockerinit.features.model.GeneratedFile;
 import com.dockerinit.features.model.RenderContext;

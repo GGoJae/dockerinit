@@ -33,10 +33,10 @@ public abstract class AbstractManifestRenderer<RQ, PL> implements ArtifactRender
     @Override
     public List<GeneratedFile> render(RenderContext<RQ, PL> ctx, List<String> warnings) {
         List<GeneratedFile> files = new ArrayList<>(ctx.untilNowArtifacts());
-
         files.sort(Comparator.comparing(GeneratedFile::filename));
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(256 + files.size() * 128);
+        sb.append("{\"files\":[");
         for (int i = 0; i < files.size(); i++) {
             GeneratedFile f = files.get(i);
             String sha = sha256Hex(f.content());
@@ -45,7 +45,7 @@ public abstract class AbstractManifestRenderer<RQ, PL> implements ArtifactRender
                     .append("\"size\":").append(f.content().length).append(",")
                     .append("\"sha256\":\"").append(sha).append("\",")
                     .append("\"contentType\":\"").append(escapeJson(
-                            f.contentType() != null ? f.contentType().toString() : "application/octet-stream")).append("\",")
+                            f.contentType() != null ? f.contentType().value() : "application/octet-stream")).append("\",")
                     .append("\"fileType\":\"").append(f.fileType().name()).append("\",")
                     .append("\"sensitive\":").append(f.sensitive())
                     .append("}");

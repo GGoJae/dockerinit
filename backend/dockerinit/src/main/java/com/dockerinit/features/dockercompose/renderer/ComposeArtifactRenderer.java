@@ -1,4 +1,4 @@
-package com.dockerinit.features.dockercompose.randerer;
+package com.dockerinit.features.dockercompose.renderer;
 
 import com.dockerinit.features.dockercompose.domain.ComposePlan;
 import com.dockerinit.features.dockercompose.dto.request.ComposeRequestV1;
