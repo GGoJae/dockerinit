@@ -15,7 +15,6 @@ public class DockerInitApplication {
 	 * - 프리셋 겟 하는 api
 	 * - api 캐시 처리
 	 * - 레디스에 저장해놓은 검색횟수 db 에 반영하는 스케쥴 로직
-	 * - == null -> Objects.isNull 로 일관되게 고치기
 	 * - 전체 로그찍기 AOP ?
 	 * - man 페이지 크롤링 -> 번역 api -> db에 저장하는 로직 장성
 	 * - 스프링 시큐리티 설정

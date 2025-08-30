@@ -150,7 +150,7 @@ public class DockerComposeService {
 
     private static String getETag(byte[] zipBytes) {
         String rawETag = Hash.sha256Hex(zipBytes);
-        return Objects.nonNull(rawETag) ? "\"" + rawETag + "\"" : null;
+        return (rawETag != null) ? "\"" + rawETag + "\"" : null;
     }
 
     private static byte[] buildDeterministicZip(String entryName, byte[] content) {
@@ -182,7 +182,7 @@ public class DockerComposeService {
         Map<String, Object> invalidImages = new HashMap<>();
 
         target.forEach((type, image) -> {
-            if (image != null && !dockerImageValidationService.existsInDockerHub(image)) {
+            if ( image != null && !dockerImageValidationService.existsInDockerHub(image)) {
                 invalidImages.put(type, image);
             }
         });

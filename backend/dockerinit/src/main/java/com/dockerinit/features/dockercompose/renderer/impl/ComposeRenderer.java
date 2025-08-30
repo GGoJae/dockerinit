@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 @Order(1)
@@ -89,7 +90,7 @@ public class ComposeRenderer implements ComposeArtifactRenderer {
             if (s.restart() != null && !s.restart().isBlank()) {
                 indent(sb, 4).append("restart: ").append(quoteIfNeeded(s.restart())).append('\n');
             }
-            if (s.healthcheck() != null && s.healthcheck().test() != null && !s.healthcheck().test().isBlank()) {
+            if (s.healthcheck() != null &&  s.healthcheck().test() != null && !s.healthcheck().test().isBlank()) {
                 indent(sb, 4).append("healthcheck:\n");
                 indent(sb, 6).append("test: ").append(quoteIfNeeded(s.healthcheck().test())).append('\n');
                 if (s.healthcheck().interval() != null)
@@ -108,7 +109,7 @@ public class ComposeRenderer implements ComposeArtifactRenderer {
             sb.append("networks:\n");
             p.networks().forEach((name, net) -> {
                 indent(sb, 2).append(name).append(":\n");
-                if (net.driver() != null && !net.driver().isBlank()) {
+                if ( net.driver() != null && !net.driver().isBlank()) {
                     indent(sb, 4).append("driver: ").append(quoteIfNeeded(net.driver())).append('\n');
                 }
             });
@@ -119,7 +120,7 @@ public class ComposeRenderer implements ComposeArtifactRenderer {
             sb.append("volumes:\n");
             p.volumes().forEach((name, vol) -> {
                 indent(sb, 2).append(name).append(":\n");
-                if (vol.driver() != null && !vol.driver().isBlank()) {
+                if ( vol.driver() != null && !vol.driver().isBlank()) {
                     indent(sb, 4).append("driver: ").append(quoteIfNeeded(vol.driver())).append('\n');
                 }
             });

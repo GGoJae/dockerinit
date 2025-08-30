@@ -10,8 +10,8 @@ public class ExactlyOneOfImageOrBuildValidator implements ConstraintValidator<Ex
 
     @Override
     public boolean isValid(ComposeRequestV1.Service service, ConstraintValidatorContext constraintValidatorContext) {
-        boolean hasImage = Objects.nonNull(service.image()) && !service.image().isBlank();
-        boolean hasBuild = Objects.nonNull(service.build());
+        boolean hasImage = service.image() != null && !service.image().isBlank();
+        boolean hasBuild = service.build() != null;
         return hasImage ^ hasBuild;
     }
 }

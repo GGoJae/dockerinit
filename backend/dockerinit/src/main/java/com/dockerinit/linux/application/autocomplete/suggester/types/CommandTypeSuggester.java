@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.dockerinit.global.constants.Modules.LINUX;
@@ -65,6 +66,6 @@ public class CommandTypeSuggester implements TypeSuggester {
         Limit limit = Limit.limit().count(limitCount);
         Set<String> strings = redis.opsForZSet().rangeByLex(key, range, limit);
 
-        return strings == null ? List.of() : new ArrayList<>(strings);
+        return (strings == null) ? List.of() : new ArrayList<>(strings);
     }
 }

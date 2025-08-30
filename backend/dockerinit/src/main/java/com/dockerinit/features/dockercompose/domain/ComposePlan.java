@@ -16,12 +16,12 @@ public record ComposePlan(
         List<String> warnings
 ) {
     public ComposePlan {
-        projectName = (Objects.isNull(projectName) || projectName.isBlank()) ? "app" : projectName.trim();
-        services = Objects.isNull(services) ? List.of() : List.copyOf(services);
-        networks = Objects.isNull(networks) ? Map.of() : Map.copyOf(networks);
-        volumes = Objects.isNull(volumes) ? Map.of() : Map.copyOf(volumes);
+        projectName = (projectName == null || projectName.isBlank()) ? "app" : projectName.trim();
+        services = (services == null) ? List.of() : List.copyOf(services);
+        networks = (networks == null) ? Map.of() : Map.copyOf(networks);
+        volumes = (volumes == null) ? Map.of() : Map.copyOf(volumes);
 
-        List<String> w = Objects.isNull(warnings) ? new ArrayList<>() : new ArrayList<>(warnings);
+        List<String> w = (warnings == null) ? new ArrayList<>() : new ArrayList<>(warnings);
         if (services.isEmpty()) w.add("서비스가 존재하지 않습니다");
 
         warnings = List.copyOf(w);

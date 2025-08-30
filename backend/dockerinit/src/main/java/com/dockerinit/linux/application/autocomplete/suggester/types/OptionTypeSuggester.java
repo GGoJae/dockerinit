@@ -62,6 +62,6 @@ public class OptionTypeSuggester implements TypeSuggester {
         Limit limit = Limit.limit().count(limitCount);
         Set<String> strings = redis.opsForZSet().rangeByLex(key, range, limit);
 
-        return strings == null ? List.of() : new ArrayList<>(strings);
+        return (strings == null) ? List.of() : new ArrayList<>(strings);
     }
 }

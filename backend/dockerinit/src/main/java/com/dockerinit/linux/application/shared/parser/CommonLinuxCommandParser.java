@@ -17,10 +17,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.dockerinit.global.constants.Modules.LINUX;
 
@@ -45,7 +42,7 @@ public class CommonLinuxCommandParser implements CommandLineParser {
         String currentTokenText = (idx >= 0 && idx < tokens.size()) ? tokens.get(idx).text() : "";
 
         int position = Math.max(0, idx - 1);
-        Map<String, Option> options = (view != null) ? view.options() :Map.of();
+        Map<String, Option> options = (view == null) ? Map.of() : Map.copyOf(view.options());
         String prevFlag = computePrevFlag(tokens, idx, currentTokenText, options);
 
         if (view == null) {
@@ -147,7 +144,7 @@ public class CommonLinuxCommandParser implements CommandLineParser {
         int p = 10;
         for (TokenType t : types) out.add(new ExpectedToken(t, p++, 1.0, Map.of()));
 
-        boolean hasPrev = prevFlag != null && !prevFlag.isBlank();
+        boolean hasPrev = (prevFlag!= null && !prevFlag.isBlank());
         boolean requiresArg = hasPrev && options.containsKey(prevFlag) && options.get(prevFlag).argRequired();
 
         // prevFlag가 인자 필수라면 ARGUMENT 최우선

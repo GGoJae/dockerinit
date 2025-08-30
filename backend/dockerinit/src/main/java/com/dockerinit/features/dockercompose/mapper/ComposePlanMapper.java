@@ -14,7 +14,7 @@ public final class ComposePlanMapper {
 
     public static ComposePlan toPlan(ComposeRequestV1 request) {
         List<String> warnings = new ArrayList<>();
-        String project = (Objects.isNull(request.projectName()) || request.projectName().isBlank())
+        String project = (request.projectName() == null || request.projectName().isBlank())
                 ? "app" : request.projectName();
 
         List<Service> services = mapToServices(request);
@@ -35,12 +35,12 @@ public final class ComposePlanMapper {
                 .stream().map(
                         s -> {
                             ComposeRequestV1.Build rb = s.build();
-                            Build build = Objects.isNull(rb)
+                            Build build = (rb == null)
                                     ? null : new Build(rb.context(), rb.dockerfile(), rb.args());
 
 
                             ComposeRequestV1.Healthcheck rhc = s.healthcheck();
-                            Healthcheck healthcheck = Objects.isNull(rhc)
+                            Healthcheck healthcheck = (rhc == null)
                                     ? null :
                                     Healthcheck.builder()
                                             .test(rhc.test()).interval(rhc.interval()).timeout(rhc.timeout())
@@ -67,7 +67,7 @@ public final class ComposePlanMapper {
     }
 
     private static <V, D> Map<String, D> sortedMapOptional(Map<String, V> src, Function<V, D> mapper) {
-        if (Objects.isNull(src) || src.isEmpty()) return Map.of();
+        if (src == null || src.isEmpty()) return Map.of();
 
         return src.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())

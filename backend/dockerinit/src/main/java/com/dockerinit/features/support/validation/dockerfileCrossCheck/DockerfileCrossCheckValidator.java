@@ -11,7 +11,7 @@ public class DockerfileCrossCheckValidator implements ConstraintValidator<Docker
 
     @Override
     public boolean isValid(DockerfileRequest r, ConstraintValidatorContext c) {
-        if (Objects.isNull(r)) return true;
+        if (r == null) return true;
 
         boolean hasCmd = hasValues(r.cmd());
         boolean hasEntry = hasValues(r.entrypoint());
@@ -35,7 +35,7 @@ public class DockerfileCrossCheckValidator implements ConstraintValidator<Docker
     }
 
     private static boolean whenWorkdirIsNotAbsolutePath(DockerfileRequest r) {
-        return Objects.nonNull(r.workdir()) && !r.workdir().isBlank() && !r.workdir().startsWith("/");
+        return r.workdir() != null && !r.workdir().isBlank() && !r.workdir().startsWith("/");
     }
 
     private static boolean neitherExists(boolean hasCmd, boolean hasEntry) {
@@ -44,6 +44,6 @@ public class DockerfileCrossCheckValidator implements ConstraintValidator<Docker
 
     private boolean hasValues(List<String> list) {
         if (list == null || list.isEmpty()) return false;
-        return list.stream().anyMatch(s -> Objects.nonNull(s) && !s.isBlank());
+        return list.stream().anyMatch(s -> s != null && !s.isBlank());
     }
 }

@@ -21,7 +21,7 @@ public record Service(
         Healthcheck healthcheck
 ) {
     public Service {
-        if (Objects.isNull(name) || name.isBlank()) throw new IllegalArgumentException("서비스 이름은 필수입니다");
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("서비스 이름은 필수입니다");
         command = immutableOrEmpty(command);
         environment = immutableOrEmpty(environment);
         envFile = immutableOrEmpty(envFile);

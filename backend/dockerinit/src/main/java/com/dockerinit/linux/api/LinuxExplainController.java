@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/linux/explain")
@@ -25,7 +26,7 @@ public class LinuxExplainController {
 
     @PostMapping()
     public ResponseEntity<ApiResponse<ExplainResponse>> explain(@RequestBody @Valid ExplainLineRequest request, Locale locale) {
-        Locale loc = Objects.isNull(locale) ? Locale.KOREA : locale;
+        Locale loc = locale == null ? Locale.KOREA : locale;
         return ResponseEntity.ok(ApiResponse.success(service.explain(request.line(), loc)));
     }
 }

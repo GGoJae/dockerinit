@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class AbstractManifestRenderer<RQ, PL> implements ArtifactRenderer<RQ, PL>{
 
@@ -45,7 +46,7 @@ public abstract class AbstractManifestRenderer<RQ, PL> implements ArtifactRender
                     .append("\"size\":").append(f.content().length).append(",")
                     .append("\"sha256\":\"").append(sha).append("\",")
                     .append("\"contentType\":\"").append(escapeJson(
-                            f.contentType() != null ? f.contentType().value() : "application/octet-stream")).append("\",")
+                        f.contentType() != null ? f.contentType().value() : "application/octet-stream")).append("\",")
                     .append("\"fileType\":\"").append(f.fileType().name()).append("\",")
                     .append("\"sensitive\":").append(f.sensitive())
                     .append("}");

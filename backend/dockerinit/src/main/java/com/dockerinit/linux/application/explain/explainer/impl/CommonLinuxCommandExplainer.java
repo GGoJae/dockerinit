@@ -24,7 +24,7 @@ public class CommonLinuxCommandExplainer implements CommandExplainer {
     @Override
     public ExplainResponse explain(ParseResult result, Locale locale) {
         CommandView view = result.command();
-        if (Objects.isNull(view)) {
+        if (view == null) {
             return new ExplainResponse(
                     CURRENT_EXPLAIN_VERSION,
                     new Header("", "해당 명령를 찾을 수 없습니다.", of()),
@@ -37,18 +37,18 @@ public class CommonLinuxCommandExplainer implements CommandExplainer {
 
         Invocation inv = InvocationFactory.from(result, ShellTokenizer.tokenize(result.line()), locale);
 
-        String summary = Objects.isNull(view.description()) ? "설명 없음" : view.description();
-        List<String> tags = Objects.isNull(view.tags()) ? of() : view.tags();
+        String summary = (view.description() == null) ? "설명 없음" : view.description();
+        List<String> tags = (view.tags() == null) ? of() : view.tags();
 
         Header header = new Header(view.command(), summary, tags);
 
         ArrayList<OptionUse> optionUses = new ArrayList<>();
-        Map<String, Option> meta = Objects.isNull(view.options()) ? Map.<String, Option>of() : view.options();
+        Map<String, Option> meta = (view.options() == null) ? Map.<String, Option>of() : view.options();
         inv.opts().forEach((flag, val) -> {
             Option o = meta.get(flag);
-            String argName = Objects.isNull(o) ? null : o.argName();
-            boolean argRequired = Objects.nonNull(o) && o.argRequired();
-            String description = Objects.isNull(o) ? "" : Objects.isNull(o.description()) ? "" : o.description();
+            String argName = (o == null) ? null : o.argName();
+            boolean argRequired = (o != null) && o.argRequired();
+            String description = (o == null) ? "" : (o.description() == null) ? "" : o.description();
             optionUses.add(new OptionUse(
                     flag,
                     argName,
@@ -69,7 +69,7 @@ public class CommonLinuxCommandExplainer implements CommandExplainer {
 
         Details details = new Details(optionUses, operands, notes);
 
-        List<ExampleItem> examples = Objects.isNull(view.examples()) ? List.of() : view.examples().stream().map(
+        List<ExampleItem> examples = (view.examples() == null) ? List.of() : view.examples().stream().map(
                 e -> new ExampleItem(e, null)
         ).toList();
 
@@ -82,7 +82,7 @@ public class CommonLinuxCommandExplainer implements CommandExplainer {
     }
 
     private OperandType guessType(String v) {
-        if (Objects.isNull(v)) return OperandType.RAW;
+        if (v == null) return OperandType.RAW;
         if (v.contains("/") || v.startsWith("./") || v.startsWith("../")) return OperandType.PATH;
         if (v.endsWith("/")) return OperandType.DIRECTORY;
         if (v.contains(".")) return OperandType.HOST;   // TODO Host 조건 더 생각해보기....

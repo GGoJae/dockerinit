@@ -33,7 +33,7 @@ public class ZipPackager implements Packager {
     @Override
     public PackageResult packageFiles(List<GeneratedFile> files, String packageName) {
         Objects.requireNonNull(files, "files");
-        if (Objects.isNull(packageName) || packageName.isBlank()) packageName = DEFAULT_PACKAGE_NAME;
+        if (packageName == null || packageName.isBlank()) packageName = DEFAULT_PACKAGE_NAME;
 
         // 현재는 민감 파일이 하나라도 있으면 패키지 전체 민감
         boolean sensitive = files.stream().anyMatch(g -> g.sensitive());
@@ -107,7 +107,7 @@ public class ZipPackager implements Packager {
         List<GeneratedFile> normalized = new ArrayList<>(files.size());
 
         for (GeneratedFile f : files) {
-            String raw = (Objects.isNull(f.filename()) || f.filename().isBlank()) ? "file" : f.filename();
+            String raw = (f.filename() == null || f.filename().isBlank()) ? "file" : f.filename();
             String sane = sanitizeZipPath(raw);
             String unique = makeUniqueName(sane, seen);
 

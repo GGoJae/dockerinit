@@ -57,7 +57,7 @@ public class DockerComposeController {
                 .cachePublic()
                 .mustRevalidate();
 
-        if (Objects.nonNull(file.eTag()) && request.checkNotModified(file.eTag())) {
+        if (file.eTag() != null && request.checkNotModified(file.eTag())) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
                     .eTag(file.eTag())
                     .cacheControl(cache)
@@ -98,7 +98,7 @@ public class DockerComposeController {
         PackageResult pkg = service.downloadComposePackage(request);
 
 
-        if (Objects.nonNull(pkg.getEtag()) && webRequest.checkNotModified(pkg.getEtag())) {
+        if (pkg.getEtag() != null && webRequest.checkNotModified(pkg.getEtag())) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
                     .eTag(pkg.getEtag())
                     .header(X_CONTENT_TYPE_OPTIONS, NOSNIFF)
@@ -109,7 +109,7 @@ public class DockerComposeController {
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
-        if (Objects.nonNull(pkg.getEtag())) headers.setETag(pkg.getEtag());
+        if (pkg.getEtag() != null) headers.setETag(pkg.getEtag());
         headers.setContentType(MediaType.parseMediaType(pkg.getContentTypeValue()));
         headers.setContentDisposition(cd);
         headers.set(X_CONTENT_TYPE_OPTIONS, NOSNIFF);

@@ -11,6 +11,7 @@ import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.dockerinit.global.constants.AutoCompleteSuggest.PLACE_HOLDER;
 
@@ -28,7 +29,7 @@ public class ArgumentTypeSuggester implements TypeSuggester {
     }
 
     private String placeholder(CommandView cmd, String flag) {
-        Option option = (cmd != null) ? cmd.options().get(flag) : null;
+        Option option = (cmd == null) ? null : cmd.options().get(flag);
         return (option == null) ? PLACE_HOLDER : "<" + option.argName() + ">";
     }
 }

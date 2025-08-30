@@ -15,10 +15,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -187,7 +184,7 @@ public class DockerfileRenderer implements DockerfileArtifactRenderer {
         List<String> opts = new ArrayList<>();
         if (notBlank(h.interval())) opts.add("--interval=" + h.interval());
         if (notBlank(h.timeout())) opts.add("--timeout=" + h.timeout());
-        if (h.retries() != null) opts.add("--retries=" + h.retries());
+        if ( h.retries() != null) opts.add("--retries=" + h.retries());
         if (notBlank(h.startPeriod())) opts.add("--start-period=" + h.startPeriod());
 
         sb.append("HEALTHCHECK ");

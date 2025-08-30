@@ -10,7 +10,7 @@ public class SafeRelPathValidator implements ConstraintValidator<SafeRelPath, St
 
     @Override
     public boolean isValid(String v, ConstraintValidatorContext c) {
-        if (Objects.isNull(v) || v.isBlank()) return true;
+        if (v == null || v.isBlank()) return true;
 
         if (v.startsWith("/")) return false;
 

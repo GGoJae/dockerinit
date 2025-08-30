@@ -81,7 +81,7 @@ public class AutocompleteService {
                         }
                 )) : Map.of();
 
-        List<String> examples = (cmd != null) ? cmd.examples() : List.of();
+        List<String> examples = (cmd == null) ? List.of() : List.copyOf(cmd.examples());
 
         SuggestionsBlockDTO suggestions = new SuggestionsBlockDTO(groups, MAX_SUGGEST);
 

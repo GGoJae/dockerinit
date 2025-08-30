@@ -61,7 +61,7 @@ public final class RedisKeys {
     }
 
     public static String explainKey(String module, String cmd, Locale loc, String sigHash) {
-        String locale = Objects.isNull(loc) ? "ko_KR" : loc.toString();
+        String locale = (loc == null) ? "ko_KR" : loc.toString();
         return APP + ":" + V + ":explain:" + module + ":" + cmd.toLowerCase() + ":" + locale + ":" + sigHash;
     }
 }

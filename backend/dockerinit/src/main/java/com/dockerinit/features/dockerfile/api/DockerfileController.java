@@ -59,7 +59,7 @@ public class DockerfileController {
     public ResponseEntity<Resource> downloadAsZip(@Valid @RequestBody DockerfileRequest request, WebRequest webRequest) {
         PackageResult pkg = service.downloadPackageAsZip(request);
 
-        if (Objects.nonNull(pkg.getEtag()) && webRequest.checkNotModified(pkg.getEtag())) {
+        if (pkg.getEtag() != null && webRequest.checkNotModified(pkg.getEtag())) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
                     .eTag(pkg.getEtag())
                     .header(X_CONTENT_TYPE_OPTIONS, NOSNIFF)
@@ -70,7 +70,7 @@ public class DockerfileController {
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
-        if (Objects.nonNull(pkg.getEtag())) headers.setETag(pkg.getEtag());
+        if (pkg.getEtag() != null) headers.setETag(pkg.getEtag());
         headers.setContentType(MediaType.parseMediaType(pkg.getContentTypeValue()));
         headers.setContentDisposition(cd);
         headers.set(X_CONTENT_TYPE_OPTIONS, NOSNIFF);

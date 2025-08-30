@@ -44,7 +44,7 @@ public class ComposeEnvRenderer implements ComposeArtifactRenderer {
 
         for (Service s : services) {
             Map<String, String> env = s.environment();
-            if (Objects.isNull(env) || env.isEmpty()) continue;
+            if (env == null || env.isEmpty()) continue;
 
             List<Map.Entry<String, String>> sortedEnv = env.entrySet().stream()
                     .sorted(Map.Entry.comparingByKey())
@@ -86,7 +86,7 @@ public class ComposeEnvRenderer implements ComposeArtifactRenderer {
         } else {
             merged.keySet().stream().sorted().forEach(k -> {
                 String v = merged.get(k);
-                if (Objects.isNull(v) || v.isBlank()) {
+                if (v == null || v.isBlank()) {
                     sb.append(k).append('=').append('\n');
                 } else {
                     sb.append(k).append('=').append(v).append('\n');

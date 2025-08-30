@@ -17,7 +17,7 @@ public final class InvocationFactory {
         String cmd = parseResult.baseCommand().toLowerCase(Locale.ROOT);
         CommandView view = parseResult.command();
 
-        Map<String, Option> meta = Objects.isNull(view) ? Map.of() : view.options();
+        Map<String, Option> meta = view == null ? Map.of() : Map.copyOf(view.options());
         Map<String, String> opts = new LinkedHashMap<>();
         List<String> args = new ArrayList<>();
 
@@ -34,7 +34,7 @@ public final class InvocationFactory {
                 String flag = (eq >= 0) ? t.substring(0, eq) : t;
                 String val = (eq >= 0) ? t.substring(eq + 1) : "";
                 Option o = meta.get(flag);
-                if (Objects.nonNull(o) && o.argRequired() && val.isBlank() && i + 1 < tokens.size()) {
+                if (o != null && o.argRequired() && val.isBlank() && i + 1 < tokens.size()) {
                     val = tokens.get(++i).text();
                 }
                 opts.put(flag, val);
@@ -48,7 +48,7 @@ public final class InvocationFactory {
                     String flag = "-" + letters.charAt(p);
                     Option o = meta.get(flag);
                     String val = "";
-                    if (Objects.nonNull(o) && o.argRequired()) {
+                    if (o != null && o.argRequired()) {
                         boolean hasRemainder = (p < letters.length() - 1);
                         if (hasRemainder) {
                             val = letters.substring(p + 1);

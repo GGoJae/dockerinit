@@ -42,7 +42,7 @@ public class ComposeReadmeRenderer implements ComposeArtifactRenderer {
                 .sorted(Comparator.comparing(s -> s.name()))
                 .toList();
 
-        boolean hasBuild = services.stream().anyMatch(s -> Objects.nonNull(s.build()));
+        boolean hasBuild = services.stream().anyMatch(s -> s.build() != null);
         boolean usesEnvFile = true;
 
         String svcList = services.isEmpty()
