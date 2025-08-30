@@ -1,16 +1,17 @@
 package com.dockerinit.features.renderer;
 
+import com.dockerinit.features.model.FileType;
 import com.dockerinit.features.model.RenderContext;
 import com.dockerinit.features.model.GeneratedFile;
 
 import java.util.List;
 
-public interface ArtifactRenderer<RQ, PL, FT extends Enum<FT>> {
-    FT fileType();
+public interface ArtifactRenderer<RQ, PL> {
+    FileType fileType();
 
-    List<GeneratedFile> render(RenderContext<RQ, PL, FT> ctx, List<String> warnings);
+    boolean supports(RenderContext<RQ, PL> ctx);
 
-    boolean supports(RenderContext<RQ, PL, FT> ctx);
+    List<GeneratedFile> render(RenderContext<RQ, PL> ctx, List<String> warnings);
 
     default int order() {
         return 100;

@@ -12,7 +12,7 @@ public record Service(
         String image,
         Build build,
         List<String> command,
-        Map<String, String> enviroment,
+        Map<String, String> environment,
         List<String> envFile,
         List<String> ports,
         List<String> volumes,
@@ -23,7 +23,7 @@ public record Service(
     public Service {
         if (Objects.isNull(name) || name.isBlank()) throw new IllegalArgumentException("서비스 이름은 필수입니다");
         command = immutableOrEmpty(command);
-        enviroment = immutableOrEmpty(enviroment);
+        environment = immutableOrEmpty(environment);
         envFile = immutableOrEmpty(envFile);
         ports = immutableOrEmpty(ports);
         volumes = immutableOrEmpty(volumes);

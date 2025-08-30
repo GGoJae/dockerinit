@@ -1,9 +1,16 @@
-package com.dockerinit.features.dockerfile.renderer;
+package com.dockerinit.features.dockerfile.renderer.impl;
 
-import com.dockerinit.features.dockerfile.domain.*;
+import com.dockerinit.features.dockerfile.domain.CopyEntry;
+import com.dockerinit.features.model.FileType;
+import com.dockerinit.features.dockerfile.domain.DockerfilePlan;
+import com.dockerinit.features.dockerfile.domain.Healthcheck;
 import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
-import com.dockerinit.features.model.*;
-import com.dockerinit.features.renderer.ArtifactRenderer;
+import com.dockerinit.features.dockerfile.renderer.DockerfileArtifactRenderer;
+import com.dockerinit.features.model.ContentType;
+import com.dockerinit.features.model.EnvMode;
+import com.dockerinit.features.model.GeneratedFile;
+import com.dockerinit.features.model.RenderContext;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -17,28 +24,26 @@ import java.util.stream.Collectors;
 
 @Component
 @Order(1)
-public class DockerfileRenderer implements ArtifactRenderer<DockerfileRequest, DockerfilePlan, DockerFileType> {
+@Qualifier("dockerfile")
+public class DockerfileRenderer implements DockerfileArtifactRenderer {
 
     private static final int DEFAULT_CAPACITY = 512;
-    private static final Function<String, String> PLACEHOLDER =
-            (s) -> {
-                return "${" + s + "}";
-            };
+    private static final Function<String, String> PLACEHOLDER = (s) -> "${" + s + "}";
     public static final String DOCKERFILE = "Dockerfile";
 
     @Override
-    public boolean supports(RenderContext<DockerfileRequest, DockerfilePlan, DockerFileType> ctx) {
+    public boolean supports(RenderContext<DockerfileRequest, DockerfilePlan> ctx) {
         return true;
     }
 
     @Override
-    public DockerFileType fileType() {
-        return DockerFileType.DOCKERFILE;
+    public FileType fileType() {
+        return FileType.DOCKERFILE;
     }
 
 
     @Override
-    public List<GeneratedFile> render(RenderContext<DockerfileRequest, DockerfilePlan, DockerFileType> ctx, List<String> warnings) {
+    public List<GeneratedFile> render(RenderContext<DockerfileRequest, DockerfilePlan> ctx, List<String> warnings) {
         DockerfilePlan plan = ctx.plan();
         boolean prodLike = plan.envMode() == EnvMode.PROD_LIKE;
         StringBuilder sb = new StringBuilder(DEFAULT_CAPACITY);
@@ -92,7 +97,7 @@ public class DockerfileRenderer implements ArtifactRenderer<DockerfileRequest, D
         // 마지막 개행/공백 정리
         String dockerfile = trimTrailingNewlines(sb.toString());
         byte[] bytes = dockerfile.getBytes(StandardCharsets.UTF_8);
-        GeneratedFile file = new GeneratedFile(DOCKERFILE, bytes, ContentType.TEXT, false, DockerFileType.DOCKERFILE);
+        GeneratedFile file = new GeneratedFile(DOCKERFILE, bytes, ContentType.TEXT, false, FileType.DOCKERFILE);
 
         return List.of(file);
     }

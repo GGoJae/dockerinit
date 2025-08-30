@@ -1,45 +1,44 @@
-package com.dockerinit.features.dockerfile.renderer;
+package com.dockerinit.features.renderer;
 
-import com.dockerinit.features.dockerfile.domain.DockerfilePlan;
-import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
 import com.dockerinit.features.model.ContentType;
-import com.dockerinit.features.dockerfile.domain.DockerFileType;
+import com.dockerinit.features.model.FileType;
 import com.dockerinit.features.model.GeneratedFile;
 import com.dockerinit.features.model.RenderContext;
-import com.dockerinit.features.renderer.ArtifactRenderer;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-@Component
-@Order(999) //  가장 마지막
-public class ManifestRenderer implements ArtifactRenderer<DockerfileRequest, DockerfilePlan, DockerFileType> {
+public abstract class AbstractManifestRenderer<RQ, PL> implements ArtifactRenderer<RQ, PL>{
 
     private static final String FILE_NAME = "manifest.json";
 
     @Override
-    public DockerFileType fileType() {
-        return DockerFileType.MANIFEST;
+    public FileType fileType() {
+        return FileType.MANIFEST;
     }
 
     @Override
-    public boolean supports(RenderContext<DockerfileRequest, DockerfilePlan, DockerFileType> ctx) {
-        return ctx.targets().contains(DockerFileType.MANIFEST);
+    public boolean supports(RenderContext<RQ, PL> ctx) {
+        return ctx.targets().contains(FileType.MANIFEST);
     }
 
     @Override
-    public List<GeneratedFile> render(RenderContext<DockerfileRequest, DockerfilePlan, DockerFileType> ctx, List<String> warnings) {
+    public int order() {
+        return 999;     // 항상 마지막
+    }
+
+    @Override
+    public List<GeneratedFile> render(RenderContext<RQ, PL> ctx, List<String> warnings) {
         List<GeneratedFile> files = new ArrayList<>(ctx.untilNowArtifacts());
 
         files.sort(Comparator.comparing(GeneratedFile::filename));
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < files.size(); i++) {
-            var f = files.get(i);
+            GeneratedFile f = files.get(i);
             String sha = sha256Hex(f.content());
             sb.append("{")
                     .append("\"name\":\"").append(escapeJson(f.filename())).append("\",")
@@ -55,16 +54,16 @@ public class ManifestRenderer implements ArtifactRenderer<DockerfileRequest, Doc
         sb.append("]}");
 
         byte[] bytes = sb.toString().getBytes(StandardCharsets.UTF_8);
-        GeneratedFile gf = new GeneratedFile(FILE_NAME, bytes, ContentType.JSON, false, DockerFileType.MANIFEST);
+        GeneratedFile file = new GeneratedFile(FILE_NAME, bytes, ContentType.JSON, false, FileType.MANIFEST);
 
-        return List.of(gf);
+        return List.of(file);
     }
 
     private static String sha256Hex(byte[] data) {
         try {
-            var md = java.security.MessageDigest.getInstance("SHA-256");
-            var d = md.digest(data);
-            var sb = new StringBuilder(d.length * 2);
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] d = md.digest(data);
+            StringBuilder sb = new StringBuilder(d.length * 2);
             for (byte b : d) sb.append(Character.forDigit((b >>> 4) & 0xF, 16))
                     .append(Character.forDigit(b & 0xF, 16));
             return sb.toString();

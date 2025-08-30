@@ -1,10 +1,7 @@
 package com.dockerinit.service;
 
-import com.dockerinit.features.dockerfile.domain.DockerFileType;
-import com.dockerinit.features.dockerfile.domain.DockerfilePlan;
-import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
+import com.dockerinit.features.dockerfile.renderer.DockerfileArtifactRenderer;
 import com.dockerinit.features.packager.Packager;
-import com.dockerinit.features.renderer.ArtifactRenderer;
 import com.dockerinit.features.dockerfile.service.DockerfileService;
 import com.dockerinit.features.support.validation.DockerImageValidationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,13 +17,13 @@ class DockerfileServiceTest {
     @Mock
     private DockerImageValidationService dockerImageValidationService;
     @Mock
-    private List<ArtifactRenderer<DockerfileRequest, DockerfilePlan, DockerFileType>> artifactRenderers;
+    private List<DockerfileArtifactRenderer> renderers;
     @Mock
     private Packager packager;
     private DockerfileService dockerfileService;
 
     @BeforeEach
     void setUp() {
-        dockerfileService = new DockerfileService(dockerImageValidationService, artifactRenderers, packager);
+        dockerfileService = new DockerfileService(dockerImageValidationService, renderers, packager);
     }
 }

@@ -8,7 +8,7 @@ import com.dockerinit.features.dockerfile.domain.CopyEntry;
 import com.dockerinit.features.model.EnvMode;
 import com.dockerinit.features.dockerfile.domain.Healthcheck;
 import com.dockerinit.features.dockerfile.domain.DockerfilePlan;
-import com.dockerinit.features.dockerfile.domain.DockerFileType;
+import com.dockerinit.features.model.FileType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -21,22 +21,22 @@ public final class DockerfilePlanMapper {
         ArrayList<String> warnings = new ArrayList<>();
 
         // 1) targets 확정: DOCKERFILE은 항상 포함
-        Set<DockerFileType> targets = EnumSet.of(DockerFileType.DOCKERFILE);
+        Set<FileType> targets = EnumSet.of(FileType.DOCKERFILE);
         if (req.additionalFiles() != null) {
             for (AdditionalFile af : req.additionalFiles()) {
                 switch (af) {
-                    case ENV -> targets.add(DockerFileType.ENV);
-                    case README -> targets.add(DockerFileType.README);
-                    case MANIFEST -> targets.add(DockerFileType.MANIFEST);
+                    case ENV -> targets.add(FileType.ENV);
+                    case README -> targets.add(FileType.README);
+                    case MANIFEST -> targets.add(FileType.MANIFEST);
                 }
             }
         }
 
         // 2) 간단한 정책성 경고
-        if (targets.contains(DockerFileType.ENV) && (req.envVars() == null || req.envVars().isEmpty())) {
+        if (targets.contains(FileType.ENV) && (req.envVars() == null || req.envVars().isEmpty())) {
             warnings.add("ENV 파일이 요청되었지만 envVars가 비어있습니다. 비어있는 .env가 생성될 수 있습니다.");
         }
-        if (targets.contains(DockerFileType.README) && (req.baseImage() == null || req.baseImage().isBlank())) {
+        if (targets.contains(FileType.README) && (req.baseImage() == null || req.baseImage().isBlank())) {
             warnings.add("README에 표기할 baseImage가 비어 있습니다.");
         }
 

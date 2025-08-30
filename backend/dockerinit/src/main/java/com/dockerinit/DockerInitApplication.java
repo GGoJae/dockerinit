@@ -13,7 +13,7 @@ public class DockerInitApplication {
 	 * TODO
 	 * - 도커파일, 컴포즈 등 프리셋 mongodb 에 저장
 	 * - 프리셋 겟 하는 api
-	 * - 도커 컴포즈 랜더링하는 로직
+	 * - api 캐시 처리
 	 * - 레디스에 저장해놓은 검색횟수 db 에 반영하는 스케쥴 로직
 	 * - == null -> Objects.isNull 로 일관되게 고치기
 	 * - 전체 로그찍기 AOP ?

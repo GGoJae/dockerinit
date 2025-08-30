@@ -1,12 +1,13 @@
-package com.dockerinit.features.dockerfile.renderer;
+package com.dockerinit.features.dockerfile.renderer.impl;
 
-import com.dockerinit.features.dockerfile.domain.*;
+import com.dockerinit.features.dockerfile.domain.DockerfilePlan;
 import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
-import com.dockerinit.features.model.RenderContext;
-import com.dockerinit.features.renderer.ArtifactRenderer;
+import com.dockerinit.features.dockerfile.renderer.DockerfileArtifactRenderer;
 import com.dockerinit.features.model.ContentType;
-import com.dockerinit.features.dockerfile.domain.DockerFileType;
+import com.dockerinit.features.model.FileType;
 import com.dockerinit.features.model.GeneratedFile;
+import com.dockerinit.features.model.RenderContext;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -16,24 +17,25 @@ import java.util.Optional;
 
 @Component
 @Order(30)
-public class ReadmeRenderer implements ArtifactRenderer<DockerfileRequest, DockerfilePlan, DockerFileType> {
+@Qualifier("dockerfile")
+public class DockerReadmeRenderer implements DockerfileArtifactRenderer {
 
     private static final String README = "README.md";
     @Override
-    public DockerFileType fileType() {
-        return DockerFileType.README;
+    public FileType fileType() {
+        return FileType.README;
     }
 
     @Override
-    public boolean supports(RenderContext<DockerfileRequest, DockerfilePlan, DockerFileType> ctx) {
-        return ctx.targets().contains(DockerFileType.README);
+    public boolean supports(RenderContext<DockerfileRequest, DockerfilePlan> ctx) {
+        return ctx.targets().contains(FileType.README);
     }
 
     @Override
-    public List<GeneratedFile> render(RenderContext<DockerfileRequest, DockerfilePlan, DockerFileType> ctx, List<String> warnings) {
+    public List<GeneratedFile> render(RenderContext<DockerfileRequest, DockerfilePlan> ctx, List<String> warnings) {
         DockerfilePlan plan = ctx.plan();
         Optional<GeneratedFile> dockerfile = ctx.untilNowArtifacts().stream()
-                .filter(f -> f.fileType() == DockerFileType.DOCKERFILE)
+                .filter(f -> f.fileType() == FileType.DOCKERFILE)
                 .findFirst();
 
         String md = """
@@ -64,7 +66,7 @@ public class ReadmeRenderer implements ArtifactRenderer<DockerfileRequest, Docke
 
 
         GeneratedFile file = new GeneratedFile(README, md.getBytes(StandardCharsets.UTF_8),
-                ContentType.MD, false, DockerFileType.README);
+                ContentType.MD, false, FileType.README);
         return List.of(file);
     }
 }

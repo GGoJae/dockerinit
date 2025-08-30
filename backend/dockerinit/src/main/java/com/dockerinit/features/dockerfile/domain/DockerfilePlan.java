@@ -1,5 +1,6 @@
 package com.dockerinit.features.dockerfile.domain;
 
+import com.dockerinit.features.model.FileType;
 import com.dockerinit.features.model.EnvMode;
 
 import java.util.*;
@@ -21,7 +22,7 @@ public record DockerfilePlan(
         Healthcheck healthcheck,
         List<String> volume,
         List<String> warnings,
-        Set<DockerFileType> targets
+        Set<FileType> targets
 ) {
     private static final String WARN_NO_ENTRY = "No CMD/ENTRYPOINT: container won't start without a command.";
 
@@ -49,7 +50,7 @@ public record DockerfilePlan(
         warnings = List.copyOf(w);
 
         targets = (targets == null || targets.isEmpty())
-                ? Set.of(DockerFileType.DOCKERFILE)
+                ? Set.of(FileType.DOCKERFILE)
                 : Set.copyOf(targets);
 
         envMode = (envMode == null) ? EnvMode.DEV : envMode;
