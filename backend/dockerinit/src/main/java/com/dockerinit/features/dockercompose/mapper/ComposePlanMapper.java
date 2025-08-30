@@ -52,7 +52,7 @@ public final class ComposePlanMapper {
                                     .image(s.image())
                                     .build(build)
                                     .command(s.command())
-                                    .enviroment(s.environment())
+                                    .environment(s.environment())
                                     .envFile(s.envFile())
                                     .ports(s.ports())
                                     .volumes(s.volumes())

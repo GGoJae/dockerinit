@@ -18,7 +18,7 @@ import java.util.Map;
 @Component
 @Order(10)
 @Qualifier("dockerfile")
-public class DockerEnvFileRenderer implements DockerfileArtifactRenderer {
+public class DockerEnvRenderer implements DockerfileArtifactRenderer {
 
     private static final String DOT_ENV_DOT_EXAMPLE = ".env.example";
 
