@@ -2,13 +2,10 @@ package com.dockerinit.features.preset.domain;
 
 import com.dockerinit.features.model.ContentType;
 import com.dockerinit.features.model.FileType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter @Builder
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PresetArtifact {
     private FileType fileType;
     private String filename;
@@ -18,6 +15,8 @@ public class PresetArtifact {
     private String embeddedContent;
     private String storageProvider;         // 추후 s3 나 Object_storage 확장용
     private String storageKey;              // 추후 s3 나 Object_storage 확장용
+
+    private Boolean sensitive;
     private String etag;
     private Long contentLength;
 }
