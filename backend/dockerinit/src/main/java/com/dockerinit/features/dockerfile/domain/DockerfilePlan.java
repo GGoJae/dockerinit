@@ -31,7 +31,6 @@ public record DockerfilePlan(
             throw new IllegalArgumentException("baseImage는 필수");
         }
 
-        baseImage = baseImage.trim();
         copy = immutableOrEmpty(copy);
         add = immutableOrEmpty(add);
         envVars = immutableOrEmpty(envVars);
@@ -48,10 +47,6 @@ public record DockerfilePlan(
             w.add(WARN_NO_ENTRY);
         }
         warnings = List.copyOf(w);
-
-        targets = (targets == null || targets.isEmpty())
-                ? Set.of(FileType.DOCKERFILE)
-                : Set.copyOf(targets);
 
         envMode = (envMode == null) ? EnvMode.DEV : envMode;
 

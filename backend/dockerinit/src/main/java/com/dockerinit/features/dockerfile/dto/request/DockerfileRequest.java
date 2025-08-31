@@ -90,4 +90,10 @@ public record DockerfileRequest(
         @Size(max = 10)
         Set<AdditionalFile> additionalFiles
 ) {
+        public DockerfileRequest {
+                if (baseImage == null || baseImage.isBlank()) {
+                        throw new IllegalArgumentException("baseImage는 필수");
+                }
+        }
+
 }

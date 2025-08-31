@@ -20,7 +20,6 @@ public final class DockerfilePlanMapper {
     public static DockerfilePlan toPlan(DockerfileRequest req) {
         ArrayList<String> warnings = new ArrayList<>();
 
-        // 1) targets 확정: DOCKERFILE은 항상 포함
         Set<FileType> targets = EnumSet.of(FileType.DOCKERFILE);
         if (req.additionalFiles() != null) {
             for (AdditionalFile af : req.additionalFiles()) {
@@ -32,7 +31,6 @@ public final class DockerfilePlanMapper {
             }
         }
 
-        // 2) 간단한 정책성 경고
         if (targets.contains(FileType.ENV) && (req.envVars() == null || req.envVars().isEmpty())) {
             warnings.add("ENV 파일이 요청되었지만 envVars가 비어있습니다. 비어있는 .env가 생성될 수 있습니다.");
         }
@@ -40,9 +38,17 @@ public final class DockerfilePlanMapper {
             warnings.add("README에 표기할 baseImage가 비어 있습니다.");
         }
 
-        // TODO 빌더로 바꾸기
+        String baseImage = req.baseImage().toLowerCase(Locale.ROOT).trim();
+
+        Healthcheck healthcheck = (req.healthcheck() == null) ? null : new Healthcheck(
+                req.healthcheck().cmd(),
+                req.healthcheck().interval(),
+                req.healthcheck().timeout(),
+                req.healthcheck().retries(),
+                req.healthcheck().startPeriod()
+        );
         return new DockerfilePlan(
-                req.baseImage(),
+                baseImage,
                 req.workdir(),
                 toEntries(req.copy()),
                 toEntries(req.add()),
@@ -55,13 +61,7 @@ public final class DockerfilePlanMapper {
                 safeMap(req.label()),
                 req.user(),
                 safeMap(req.args()),
-                req.healthcheck() == null ? null : new Healthcheck(
-                        req.healthcheck().cmd(),
-                        req.healthcheck().interval(),
-                        req.healthcheck().timeout(),
-                        req.healthcheck().retries(),
-                        req.healthcheck().startPeriod()
-                ),
+                healthcheck,
                 safeList(req.volume()),
                 warnings,
                 targets
@@ -76,7 +76,9 @@ public final class DockerfilePlanMapper {
     }
 
     private static <T> List<T> safeList(List<T> l) { return l == null ? List.of() : List.copyOf(l); }
-    private static <K,V> Map<K,V> safeMap(Map<K,V> m) { return m == null ? Map.of() : Map.copyOf(m); }
+    private static <K,V> Map<K,V> safeMap(Map<K,V> m) {
+        return m == null ? Map.of() : Map.copyOf(m);
+    }
 
     private static EnvMode mapEnvMode(Mode m) {
         if (m == null) return null;
