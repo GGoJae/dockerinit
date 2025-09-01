@@ -2,19 +2,23 @@ package com.dockerinit.features.preset.mapper;
 
 import com.dockerinit.features.model.ContentType;
 import com.dockerinit.features.model.FileType;
+import com.dockerinit.features.model.GeneratedFile;
 import com.dockerinit.features.preset.domain.*;
 import com.dockerinit.features.preset.dto.request.PresetArtifactRequest;
 import com.dockerinit.features.preset.dto.request.PresetCreateRequest;
 import com.dockerinit.features.preset.dto.request.PresetUpdateRequest;
 import com.dockerinit.features.preset.dto.response.PresetArtifactMetaResponse;
 import com.dockerinit.features.preset.dto.response.PresetDetailResponse;
+import com.dockerinit.features.preset.dto.response.PresetSummaryResponse;
 import com.dockerinit.features.preset.dto.spec.ContentStrategyDTO;
 import com.dockerinit.features.preset.dto.spec.EnvValueModeDTO;
 import com.dockerinit.features.preset.dto.spec.PresetKindDTO;
 import com.dockerinit.features.preset.dto.spec.RenderPolicyDTO;
+import com.dockerinit.global.exception.InvalidInputCustomException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,6 +50,23 @@ public final class PresetMapper {
                 .build();
     }
 
+    private static GeneratedFile toGeneratedFile(PresetArtifact artifact) {
+        // TODO storage 에 담았을때 스토리지 키로 컨텐츠 가져오는 로직
+        if (artifact.getStrategy() == ContentStrategy.OBJECT_STORAGE) {
+            throw new InvalidInputCustomException("OBJECT_STORAGE 는 아직 지원하지 않습니다.", Map.of("strategy", artifact.getStrategy()));
+        }
+        String content = Objects.requireNonNull(artifact.getEmbeddedContent(), "EMBEDED preset artifact 가 content 를 가지고 있지않습니다");
+        byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
+        return new GeneratedFile(artifact.getFilename(), contentBytes, artifact.getContentType(), artifact.getSensitive(), artifact.getFileType());
+    }
+
+    public static List<GeneratedFile> toGeneratedFiles(List<PresetArtifact> artifacts, Set<FileType> targets) {
+        return artifacts.stream()
+                .filter(a -> targets.contains(a.getFileType()))
+                .map(PresetMapper::toGeneratedFile)
+                .toList();
+    }
+
     public static PresetDetailResponse toDetail(PresetDocument doc) {
         PresetKindDTO kindDTO = toDTO(doc.getPresetKind());
         RenderPolicyDTO renderPolicyDTO = toDTO(doc.getRenderPolicy());
@@ -56,6 +77,15 @@ public final class PresetMapper {
                 doc.getDeprecated(), doc.getDeprecationNote(), doc.getCreatedAt(), doc.getUpdatedAt(), doc.getDownloadCount(),
                 presetArtifactMetaResponses);
 
+    }
+
+    public static PresetSummaryResponse toSummary(PresetDocument doc) {
+        PresetKindDTO kindDTO = toDTO(doc.getPresetKind());
+
+        return new PresetSummaryResponse(
+                doc.getId(), doc.getSlug(), doc.getDisplayName(), kindDTO, doc.getTags(), doc.getDeprecated(),
+                doc.getDownloadCount(), doc.getUpdatedAt()
+        );
     }
 
     /* ---------- UPDATE (PATCH) ---------- */
@@ -82,7 +112,7 @@ public final class PresetMapper {
 
     /* ---------- helpers ---------- */
 
-    private static List<PresetArtifact> mapArtifactsToDomain(List<PresetArtifactRequest> in) {
+    public static List<PresetArtifact> mapArtifactsToDomain(List<PresetArtifactRequest> in) {
         if (in == null || in.isEmpty()) return List.of();
         List<PresetArtifact> list = in.stream().map(r -> mapArtifactToDomain(r)).collect(Collectors.toUnmodifiableList());
 
@@ -97,7 +127,7 @@ public final class PresetMapper {
         return List.copyOf(list);
     }
 
-    private static PresetArtifact mapArtifactToDomain(PresetArtifactRequest a) {
+    public static PresetArtifact mapArtifactToDomain(PresetArtifactRequest a) {
         ContentStrategy strategy = toDomain(a.strategy());
         // 전략별 필드 유효성
         if (strategy == ContentStrategy.EMBEDDED) {
@@ -122,7 +152,7 @@ public final class PresetMapper {
                 .build();
     }
 
-    private static PresetArtifactMetaResponse mapArtifactToRes(PresetArtifact a) {
+    public static PresetArtifactMetaResponse mapArtifactToRes(PresetArtifact a) {
         ContentStrategyDTO strategy = toDTO(a.getStrategy());
         String contentTypeToString = contentTypeToString(a.getContentType());
         String normalizeEtag = normalizeEtag(a.getEtag());
@@ -131,12 +161,12 @@ public final class PresetMapper {
                 a.getSensitive(), normalizeEtag, a.getContentLength(), a.getStorageProvider(), a.getStorageKey());
     }
 
-    private static List<PresetArtifactMetaResponse> mapArtifactsToRes(List<PresetArtifact> in) {
+    public static List<PresetArtifactMetaResponse> mapArtifactsToRes(List<PresetArtifact> in) {
         if (in == null || in.isEmpty()) return List.of();
-        return in.stream().map(r -> mapArtifactToRes(r)).collect(Collectors.toUnmodifiableList());
+        return in.stream().map(PresetMapper::mapArtifactToRes).toList();
     }
 
-    private static RenderPolicy toDomain(RenderPolicyDTO dto) {
+    public static RenderPolicy toDomain(RenderPolicyDTO dto) {
         if (dto == null) return null;
         return RenderPolicy.builder()
                 .envValueMode(toDomain(dto.envValueMode()))
@@ -147,14 +177,14 @@ public final class PresetMapper {
                 .build();
     }
 
-    private static RenderPolicyDTO toDTO(RenderPolicy rp) {
+    public static RenderPolicyDTO toDTO(RenderPolicy rp) {
         if (rp == null) return null;
         EnvValueModeDTO evm = toDTO(rp.getEnvValueMode());
         return new RenderPolicyDTO(evm, rp.getPlaceholderFormat(), rp.getIncludeManifestByDefault(), rp.getEnsureTrailingNewline(),
                 rp.getLineEndings());
     }
 
-    private static PresetKind toDomain(PresetKindDTO k) {
+    public static PresetKind toDomain(PresetKindDTO k) {
         if (k == null) return null;
         return switch (k) {
             case DOCKERFILE -> PresetKind.DOCKERFILE;
@@ -164,7 +194,7 @@ public final class PresetMapper {
         };
     }
 
-    private static PresetKindDTO toDTO(PresetKind k) {
+    public static PresetKindDTO toDTO(PresetKind k) {
         if (k == null) return null;
         return switch (k) {
             case DOCKERFILE -> PresetKindDTO.DOCKERFILE;
@@ -174,7 +204,7 @@ public final class PresetMapper {
         };
     }
 
-    private static EnvValueModeDTO toDTO(EnvValueMode evm) {
+    public static EnvValueModeDTO toDTO(EnvValueMode evm) {
         if (evm == null) return null;
         return switch (evm) {
             case INLINE -> EnvValueModeDTO.INLINE;
@@ -182,7 +212,7 @@ public final class PresetMapper {
         };
     }
 
-    private static EnvValueMode toDomain(EnvValueModeDTO m) {
+    public static EnvValueMode toDomain(EnvValueModeDTO m) {
         if (m == null) return null;
         return switch (m) {
             case INLINE -> EnvValueMode.INLINE;
@@ -190,7 +220,7 @@ public final class PresetMapper {
         };
     }
 
-    private static ContentStrategy toDomain(ContentStrategyDTO d) {
+    public static ContentStrategy toDomain(ContentStrategyDTO d) {
         if (d == null) return null;
         return switch (d) {
             case EMBEDDED -> ContentStrategy.EMBEDDED;
@@ -198,7 +228,7 @@ public final class PresetMapper {
         };
     }
 
-    private static ContentStrategyDTO toDTO(ContentStrategy d) {
+    public static ContentStrategyDTO toDTO(ContentStrategy d) {
         if (d == null) return null;
         return switch (d) {
             case EMBEDDED -> ContentStrategyDTO.EMBEDDED;
@@ -206,7 +236,7 @@ public final class PresetMapper {
         };
     }
 
-    private static ContentType toContentType(String mime) {
+    public static ContentType toContentType(String mime) {
         if (mime == null || mime.isBlank()) return ContentType.OCTET;
         String m = mime.toLowerCase(Locale.ROOT);
         if (m.contains("yaml") || m.contains("yml")) return ContentType.YAML;
@@ -217,12 +247,12 @@ public final class PresetMapper {
         return ContentType.OCTET;
     }
 
-    private static String contentTypeToString(ContentType type) {
+    public static String contentTypeToString(ContentType type) {
         if (type == null ) return null;
         return type.value();
     }
 
-    private static String normalizeEtag(String etag) {
+    public static String normalizeEtag(String etag) {
         if (etag == null || etag.isBlank()) return null;
         String e = etag.trim();
         if (e.startsWith("\"") && e.endsWith("\"") && e.length() > 1) {
