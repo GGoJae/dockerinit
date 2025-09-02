@@ -50,23 +50,6 @@ public final class PresetMapper {
                 .build();
     }
 
-    private static GeneratedFile toGeneratedFile(PresetArtifact artifact) {
-        // TODO storage 에 담았을때 스토리지 키로 컨텐츠 가져오는 로직
-        if (artifact.getStrategy() == ContentStrategy.OBJECT_STORAGE) {
-            throw new InvalidInputCustomException("OBJECT_STORAGE 는 아직 지원하지 않습니다.", Map.of("strategy", artifact.getStrategy()));
-        }
-        String content = Objects.requireNonNull(artifact.getEmbeddedContent(), "EMBEDED preset artifact 가 content 를 가지고 있지않습니다");
-        byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
-        return new GeneratedFile(artifact.getFilename(), contentBytes, artifact.getContentType(), artifact.getSensitive(), artifact.getFileType());
-    }
-
-    public static List<GeneratedFile> toGeneratedFiles(List<PresetArtifact> artifacts, Set<FileType> targets) {
-        return artifacts.stream()
-                .filter(a -> targets.contains(a.getFileType()))
-                .map(PresetMapper::toGeneratedFile)
-                .toList();
-    }
-
     public static PresetDetailResponse toDetail(PresetDocument doc) {
         PresetKindDTO kindDTO = toDTO(doc.getPresetKind());
         RenderPolicyDTO renderPolicyDTO = toDTO(doc.getRenderPolicy());

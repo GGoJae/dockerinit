@@ -21,5 +21,11 @@ public enum StateCode {
     CONFLICT,
 
     @Schema(description = "서버 내부 오류")
-    INTERNAL_ERROR
+    INTERNAL_ERROR,
+
+    @Schema(description = "지원하지 않는 서비스")
+    UNSUPPORTED_OPERATION,
+
+    @Schema(description = "생성 완료함")
+    CREATED
 }

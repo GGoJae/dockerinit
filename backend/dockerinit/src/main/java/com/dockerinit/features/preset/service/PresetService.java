@@ -12,6 +12,7 @@ import com.dockerinit.features.preset.dto.response.PresetDetailResponse;
 import com.dockerinit.features.preset.dto.response.PresetSummaryResponse;
 import com.dockerinit.features.preset.dto.spec.PresetKindDTO;
 import com.dockerinit.features.preset.mapper.PresetMapper;
+import com.dockerinit.features.preset.materializer.PresetArtifactMaterializer;
 import com.dockerinit.features.preset.repository.PresetRepository;
 import com.dockerinit.global.exception.InvalidInputCustomException;
 import com.dockerinit.global.exception.NotFoundCustomException;
@@ -29,6 +30,7 @@ public class PresetService {
 
     private final PresetRepository repository;
     private final Packager packager;
+    private final PresetArtifactMaterializer materializer;
 
     public Page<PresetSummaryResponse> list(PresetKindDTO dto, Set<String> tags, Pageable pageable) {
         // TODO 커스텀 으로 동적 쿼리 만들기
@@ -73,7 +75,7 @@ public class PresetService {
                 : rawTargets;
 
         String packageName = "%s-v%d".formatted(document.getSlug(), Optional.ofNullable(document.getSchemaVersion()).orElse(1));
-        List<GeneratedFile> files = PresetMapper.toGeneratedFiles(document.getArtifacts(), targets);
+        List<GeneratedFile> files = materializer.toGeneratedFiles(document.getArtifacts(), targets);
 
         if (files.isEmpty()) {
             throw new InvalidInputCustomException(
