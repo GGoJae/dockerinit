@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 public record PresetUpdateRequest(
-        @Pattern(regexp="^[a-z0-9]([a-z0-9-]*[a-z0-9])?$") String slug,
         String displayName,
         @Size(max=2000) String description,
         PresetKindDTO presetKind,

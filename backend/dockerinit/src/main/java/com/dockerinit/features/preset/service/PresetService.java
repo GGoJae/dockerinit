@@ -4,6 +4,7 @@ import com.dockerinit.features.model.FileType;
 import com.dockerinit.features.model.GeneratedFile;
 import com.dockerinit.features.model.PackageResult;
 import com.dockerinit.features.packager.Packager;
+import com.dockerinit.features.preset.domain.PresetArtifact;
 import com.dockerinit.features.preset.domain.PresetDocument;
 import com.dockerinit.features.preset.domain.PresetKind;
 import com.dockerinit.features.preset.dto.response.PresetArtifactMetaResponse;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +66,11 @@ public class PresetService {
         PresetDocument document = repository.findBySlug(slug)
                 .orElseThrow(() -> new NotFoundCustomException("해당 preset을 찾을 수 없습니다.", Map.of("slug", rawSlug)));
 
-        Set<FileType> targets = (rawTargets == null || rawTargets.isEmpty()) ? document.getDefaultTargets() : rawTargets;
+        Set<FileType> targets = (rawTargets == null || rawTargets.isEmpty())
+                ? (document.getDefaultTargets().isEmpty()
+                    ? document.getArtifacts().stream().map(PresetArtifact::getFileType).collect(Collectors.toSet())
+                    : document.getDefaultTargets())
+                : rawTargets;
 
         String packageName = "%s-v%d".formatted(document.getSlug(), Optional.ofNullable(document.getSchemaVersion()).orElse(1));
         List<GeneratedFile> files = PresetMapper.toGeneratedFiles(document.getArtifacts(), targets);
@@ -75,7 +81,9 @@ public class PresetService {
                     Map.of("slug", rawSlug, "targets", String.valueOf(targets))
             );
         }
-        return packager.packageFiles(files, packageName);
+        PackageResult result = packager.packageFiles(files, packageName);
+        repository.increaseDownloadCount(document.getId(), 1);
+        return result;
     }
 
 

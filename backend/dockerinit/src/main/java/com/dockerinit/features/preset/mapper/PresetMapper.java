@@ -27,7 +27,7 @@ public final class PresetMapper {
 
     public static PresetDocument toDocument(PresetCreateRequest req, String createdBy) {
         // 필수값/정규화
-        String slug = req.slug().trim();
+        String slug = req.slug().trim().toLowerCase(Locale.ROOT);
         String display = req.displayName().trim();
 
         return PresetDocument.builder()
@@ -89,10 +89,10 @@ public final class PresetMapper {
     }
 
     /* ---------- UPDATE (PATCH) ---------- */
+    // TODO 지금은 updatedBy GJ 로 하드코딩 시큐리티 도입하면 바꾸기
     public static PresetDocument merge(PresetDocument base, PresetUpdateRequest req, String updatedBy) {
-        var b = base.toBuilder();
+        PresetDocument.PresetDocumentBuilder b = base.toBuilder();
 
-        if (req.slug() != null) b.slug(req.slug().trim());
         if (req.displayName() != null) b.displayName(req.displayName().trim());
         if (req.description() != null) b.description(trimOrNull(req.description()));
         if (req.presetKind() != null) b.presetKind(toDomain(req.presetKind()));
