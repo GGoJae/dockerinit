@@ -1,5 +1,6 @@
 package com.dockerinit.features.dockercompose.mapper;
 
+import com.dockerinit.features.dockercompose.domain.composeCustom.*;
 import com.dockerinit.features.dockercompose.dto.request.ComposeRequestV1;
 import com.dockerinit.features.dockercompose.domain.*;
 import lombok.AccessLevel;

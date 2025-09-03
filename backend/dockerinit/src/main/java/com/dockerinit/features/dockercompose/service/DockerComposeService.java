@@ -1,6 +1,6 @@
 package com.dockerinit.features.dockercompose.service;
 
-import com.dockerinit.features.dockercompose.domain.ComposePlan;
+import com.dockerinit.features.dockercompose.domain.composeCustom.ComposePlan;
 import com.dockerinit.features.dockercompose.dto.request.ComposeRequestV1;
 import com.dockerinit.features.dockercompose.dto.response.ComposeAsStringResponse;
 import com.dockerinit.features.dockercompose.dto.response.ComposePresetResponse;
@@ -11,7 +11,7 @@ import com.dockerinit.features.model.GeneratedFile;
 import com.dockerinit.features.model.PackageResult;
 import com.dockerinit.features.model.RenderContext;
 import com.dockerinit.features.packager.Packager;
-import com.dockerinit.features.support.FileResult;
+import com.dockerinit.features.model.FileResult;
 import com.dockerinit.features.support.Hash;
 import com.dockerinit.features.support.validation.DockerImageValidationService;
 import com.dockerinit.global.constants.ErrorMessage;

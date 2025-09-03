@@ -1,6 +1,7 @@
 package com.dockerinit.features.dockercompose.renderer.impl;
 
 import com.dockerinit.features.dockercompose.domain.*;
+import com.dockerinit.features.dockercompose.domain.composeCustom.*;
 import com.dockerinit.features.dockercompose.dto.request.ComposeRequestV1;
 import com.dockerinit.features.model.FileType;
 import com.dockerinit.features.model.GeneratedFile;
@@ -12,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class ComposeRendererTest {
 

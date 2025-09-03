@@ -4,7 +4,7 @@ import com.dockerinit.features.dockercompose.dto.request.ComposeRequestV1;
 import com.dockerinit.features.dockercompose.dto.response.ComposeAsStringResponse;
 import com.dockerinit.features.dockercompose.dto.response.ComposePresetResponse;
 import com.dockerinit.features.model.PackageResult;
-import com.dockerinit.features.support.FileResult;
+import com.dockerinit.features.model.FileResult;
 import com.dockerinit.global.response.ApiResponse;
 import com.dockerinit.features.dockercompose.service.DockerComposeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,7 +20,6 @@ import org.springframework.web.context.request.WebRequest;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
-import java.util.Objects;
 
 import static com.dockerinit.global.constants.HttpInfo.*;
 

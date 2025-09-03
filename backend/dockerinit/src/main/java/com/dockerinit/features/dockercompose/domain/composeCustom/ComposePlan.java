@@ -1,11 +1,11 @@
-package com.dockerinit.features.dockercompose.domain;
+package com.dockerinit.features.dockercompose.domain.composeCustom;
 
+import com.dockerinit.features.dockercompose.domain.Service;
 import lombok.Builder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Builder
 public record ComposePlan(

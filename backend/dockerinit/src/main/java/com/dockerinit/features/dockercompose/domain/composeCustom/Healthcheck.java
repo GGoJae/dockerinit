@@ -1,4 +1,4 @@
-package com.dockerinit.features.dockercompose.domain;
+package com.dockerinit.features.dockercompose.domain.composeCustom;
 
 import lombok.Builder;
 

@@ -1,4 +1,4 @@
-package com.dockerinit.features.support;
+package com.dockerinit.features.model;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;

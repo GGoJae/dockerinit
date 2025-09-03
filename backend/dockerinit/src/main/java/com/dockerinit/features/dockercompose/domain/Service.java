@@ -1,10 +1,11 @@
 package com.dockerinit.features.dockercompose.domain;
 
+import com.dockerinit.features.dockercompose.domain.composeCustom.Build;
+import com.dockerinit.features.dockercompose.domain.composeCustom.Healthcheck;
 import lombok.Builder;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Builder
 public record Service(

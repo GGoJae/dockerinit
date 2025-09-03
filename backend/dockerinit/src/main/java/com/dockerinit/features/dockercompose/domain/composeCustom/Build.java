@@ -1,7 +1,6 @@
-package com.dockerinit.features.dockercompose.domain;
+package com.dockerinit.features.dockercompose.domain.composeCustom;
 
 import java.util.Map;
-import java.util.Objects;
 
 public record Build(
         String context,
