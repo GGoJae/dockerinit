@@ -1,6 +1,7 @@
 package com.dockerinit.features.dockercompose.repository;
 
 import com.dockerinit.features.dockercompose.domain.composePreset.ComposeServicePresetDocument;
+import com.dockerinit.features.preset.domain.PresetDocument;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Update;
@@ -22,6 +23,15 @@ public class ComposeServicePresetRepositoryImpl implements ComposeServicePresetR
                 query(where("_id").is(id)),
                 new Update().inc("usedCount", delta).currentDate("updatedAt"),
                 ComposeServicePresetDocument.class
+        );
+    }
+
+    @Override
+    public void increaseUsedCountBySlug(String slug, long delta) {
+        mongo.updateFirst(
+                query(where("slug").is(slug)),
+                new Update().inc("usedCount", delta).currentDate("updatedAt"),
+                PresetDocument.class
         );
     }
 }

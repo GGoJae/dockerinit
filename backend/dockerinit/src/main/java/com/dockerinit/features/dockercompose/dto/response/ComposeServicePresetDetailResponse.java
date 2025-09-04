@@ -1,7 +1,7 @@
 package com.dockerinit.features.dockercompose.dto.response;
 
 import com.dockerinit.features.dockercompose.dto.spec.CategoryDTO;
-import com.dockerinit.features.dockercompose.dto.spec.ServiceDTO;
+import com.dockerinit.features.dockercompose.dto.spec.ServiceSpecDTO;
 
 import java.time.Instant;
 import java.util.Map;
@@ -15,7 +15,7 @@ public record ComposeServicePresetDetailResponse(
         CategoryDTO category,
         Set<String> tags,
         Integer schemaVersion,
-        ServiceDTO service,
+        ServiceSpecDTO service,
         Map<String, String> suggestedEnvDefaults,
         Boolean active,
         Instant createdAt,

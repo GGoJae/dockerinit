@@ -8,7 +8,7 @@ import com.dockerinit.features.dockercompose.dto.response.ComposeServicePresetSu
 import com.dockerinit.features.dockercompose.dto.spec.BuildDTO;
 import com.dockerinit.features.dockercompose.dto.spec.CategoryDTO;
 import com.dockerinit.features.dockercompose.dto.spec.HealthcheckDTO;
-import com.dockerinit.features.dockercompose.dto.spec.ServiceDTO;
+import com.dockerinit.features.dockercompose.dto.spec.ServiceSpecDTO;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -78,9 +78,9 @@ public class ComposeServicePresetMapper {
         };
     }
 
-    public static ServiceDTO toServiceDTO(Service s) {
+    public static ServiceSpecDTO toServiceDTO(Service s) {
         if (s == null) return null;
-        return new ServiceDTO(
+        return new ServiceSpecDTO(
                 s.name(),
                 s.image(),
                 s.build() == null ? null :

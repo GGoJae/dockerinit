@@ -10,7 +10,7 @@ import java.util.Map;
 
 @Schema(description = "서비스 정의")
 @ExactlyOneOfImageOrBuild
-public record ServiceDTO(
+public record ServiceSpecDTO(
         @Schema(description = "서비스 이름", example = "app")
         @NotBlank String name,
 

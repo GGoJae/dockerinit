@@ -3,6 +3,9 @@ package com.dockerinit.features.dockercompose.mapper;
 import com.dockerinit.features.dockercompose.domain.composeCustom.*;
 import com.dockerinit.features.dockercompose.dto.request.ComposeRequestV1;
 import com.dockerinit.features.dockercompose.domain.*;
+import com.dockerinit.features.dockercompose.dto.spec.BuildDTO;
+import com.dockerinit.features.dockercompose.dto.spec.HealthcheckDTO;
+import com.dockerinit.features.dockercompose.dto.spec.ServiceSpecDTO;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -35,12 +38,13 @@ public final class ComposePlanMapper {
         return Optional.ofNullable(request.services()).orElseGet(() -> List.of())
                 .stream().map(
                         s -> {
-                            ComposeRequestV1.Build rb = s.build();
+                            ServiceSpecDTO serviceDTO = s.service();
+                            BuildDTO rb = serviceDTO.build();
                             Build build = (rb == null)
                                     ? null : new Build(rb.context(), rb.dockerfile(), rb.args());
 
 
-                            ComposeRequestV1.Healthcheck rhc = s.healthcheck();
+                            HealthcheckDTO rhc = serviceDTO.healthcheck();
                             Healthcheck healthcheck = (rhc == null)
                                     ? null :
                                     Healthcheck.builder()
@@ -49,16 +53,16 @@ public final class ComposePlanMapper {
 
 
                             return Service.builder()
-                                    .name(s.name())
-                                    .image(s.image())
+                                    .name(serviceDTO.name())
+                                    .image(serviceDTO.image())
                                     .build(build)
-                                    .command(s.command())
-                                    .environment(s.environment())
-                                    .envFile(s.envFile())
-                                    .ports(s.ports())
-                                    .volumes(s.volumes())
-                                    .dependsOn(s.dependsOn())
-                                    .restart(s.restart())
+                                    .command(serviceDTO.command())
+                                    .environment(serviceDTO.environment())
+                                    .envFile(serviceDTO.envFile())
+                                    .ports(serviceDTO.ports())
+                                    .volumes(serviceDTO.volumes())
+                                    .dependsOn(serviceDTO.dependsOn())
+                                    .restart(serviceDTO.restart())
                                     .healthcheck(healthcheck)
                                     .build();
                         }

@@ -2,10 +2,13 @@ package com.dockerinit.features.dockercompose.service;
 
 import com.dockerinit.features.dockercompose.domain.composeCustom.ComposePlan;
 import com.dockerinit.features.dockercompose.dto.request.ComposeRequestV1;
+import com.dockerinit.features.dockercompose.dto.request.ServiceSelectionDTO;
 import com.dockerinit.features.dockercompose.dto.response.ComposeAsStringResponse;
 import com.dockerinit.features.dockercompose.dto.response.ComposePresetResponse;
+import com.dockerinit.features.dockercompose.dto.spec.SelectionKind;
 import com.dockerinit.features.dockercompose.mapper.ComposePlanMapper;
 import com.dockerinit.features.dockercompose.renderer.ComposeArtifactRenderer;
+import com.dockerinit.features.dockercompose.repository.ComposeServicePresetRepository;
 import com.dockerinit.features.model.FileType;
 import com.dockerinit.features.model.GeneratedFile;
 import com.dockerinit.features.model.PackageResult;
@@ -20,6 +23,8 @@ import com.dockerinit.global.exception.InvalidInputCustomException;
 import com.dockerinit.global.exception.NotFoundCustomException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
@@ -40,64 +45,67 @@ import static com.dockerinit.global.constants.HttpInfo.APPLICATION_ZIP_VALUE;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DockerComposeService {
 
     private final DockerImageValidationService dockerImageValidationService;
     private final List<ComposeArtifactRenderer> renderers;
     private final Packager packager;
+    private final ComposeServicePresetRepository repository;
 
-    private final Map<String, ComposePresetResponse> presetMap = new HashMap<>();
-
-
-    public DockerComposeService(DockerImageValidationService dockerImageValidationService, List<ComposeArtifactRenderer> renderers, Packager packager) {
-        this.dockerImageValidationService = dockerImageValidationService;
-        this.renderers = renderers;
-        this.packager = packager;
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            InputStream is = this.getClass().getResourceAsStream("/data/docker-compose-presets.json");
-            TypeReference<Map<String, ComposePresetResponse>> typeRef = new TypeReference<>() {};
-            presetMap.putAll(mapper.readValue(is, typeRef));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public List<ComposePresetResponse> getAllPresets() {
-        return presetMap.values().stream().toList();
-    }
-
-    public ComposePresetResponse getPreset(String name) {
-        return Optional.ofNullable(presetMap.get(name))
-                .orElseThrow(() -> new NotFoundCustomException(
-                        ErrorMessage.PRESET_NOT_FOUND,
-                        Map.of("presetName", name)
-                ));
-    }
-
-    public FileResult getPresetAsZip(String name) {
-        ComposePresetResponse preset = Optional.ofNullable(presetMap.get(name))
-                .orElseThrow(() -> new NotFoundCustomException(
-                        ErrorMessage.PRESET_NOT_FOUND,
-                        Map.of("presetName", name)
-                ));
-
-        byte[] zipBytes = buildDeterministicZip(
-                "docker-compose.yml",
-                preset.ymlContent().getBytes(StandardCharsets.UTF_8));
-
-        String eTag = getETag(zipBytes);
-
-        ByteArrayResource resource = new ByteArrayResource(zipBytes);
-        return new FileResult(
-                resource,
-                zipBytes.length,
-                name + ".zip",
-                MediaType.parseMediaType(APPLICATION_ZIP_VALUE),
-                eTag);
-    }
+//    private final Map<String, ComposePresetResponse> presetMap = new HashMap<>();
+//
+//
+//    public DockerComposeService(DockerImageValidationService dockerImageValidationService, List<ComposeArtifactRenderer> renderers, Packager packager) {
+//        this.dockerImageValidationService = dockerImageValidationService;
+//        this.renderers = renderers;
+//        this.packager = packager;
+//        try {
+//            ObjectMapper mapper = new ObjectMapper();
+//            InputStream is = this.getClass().getResourceAsStream("/data/docker-compose-presets.json");
+//            TypeReference<Map<String, ComposePresetResponse>> typeRef = new TypeReference<>() {};
+//            presetMap.putAll(mapper.readValue(is, typeRef));
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+//
+//    public List<ComposePresetResponse> getAllPresets() {
+//        return presetMap.values().stream().toList();
+//    }
+//
+//    public ComposePresetResponse getPreset(String name) {
+//        return Optional.ofNullable(presetMap.get(name))
+//                .orElseThrow(() -> new NotFoundCustomException(
+//                        ErrorMessage.PRESET_NOT_FOUND,
+//                        Map.of("presetName", name)
+//                ));
+//    }
+//
+//    public FileResult getPresetAsZip(String name) {
+//        ComposePresetResponse preset = Optional.ofNullable(presetMap.get(name))
+//                .orElseThrow(() -> new NotFoundCustomException(
+//                        ErrorMessage.PRESET_NOT_FOUND,
+//                        Map.of("presetName", name)
+//                ));
+//
+//        byte[] zipBytes = buildDeterministicZip(
+//                "docker-compose.yml",
+//                preset.ymlContent().getBytes(StandardCharsets.UTF_8));
+//
+//        String eTag = getETag(zipBytes);
+//
+//        ByteArrayResource resource = new ByteArrayResource(zipBytes);
+//        return new FileResult(
+//                resource,
+//                zipBytes.length,
+//                name + ".zip",
+//                MediaType.parseMediaType(APPLICATION_ZIP_VALUE),
+//                eTag);
+//    }
 
     public PackageResult downloadComposePackage(ComposeRequestV1 request) {
+
         ComposePlan plan = ComposePlanMapper.toPlan(request);
         ArrayList<String> warnings = new ArrayList<>(plan.warnings());
 
@@ -109,6 +117,10 @@ public class DockerComposeService {
                 .filter(r -> r.supports(ctx))
                 .sorted(Comparator.comparingInt(r -> r.order()))
                 .forEach(r -> artifacts.addAll(r.render(ctx, warnings)));
+
+        request.services().stream()
+                .filter(s -> (s.kind() == SelectionKind.PRESET || s.kind() == SelectionKind.PRESET_OVERRIDDEN))
+                .forEach(si -> repository.increaseUsedCountBySlug(si.presetSlug(), 1L));
 
         return packager.packageFiles(artifacts, plan.projectName());
     }
@@ -147,35 +159,35 @@ public class DockerComposeService {
         return Optional.empty();
     }
 
-
-    private static String getETag(byte[] zipBytes) {
-        String rawETag = Hash.sha256Hex(zipBytes);
-        return (rawETag != null) ? "\"" + rawETag + "\"" : null;
-    }
-
-    private static byte[] buildDeterministicZip(String entryName, byte[] content) {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ZipOutputStream zos = new ZipOutputStream(baos)) {
-
-            ZipEntry entry = new ZipEntry(entryName);
-            FileTime fileTime = FileTime.from(Instant.EPOCH);
-            entry.setCreationTime(fileTime);
-            entry.setLastModifiedTime(fileTime);
-            entry.setLastAccessTime(fileTime);
-            zos.putNextEntry(entry);
-            zos.write(content);
-            zos.closeEntry();
-            zos.finish();
-            return baos.toByteArray();
-        } catch (IOException e) {
-            throw new InternalErrorCustomException("도커 컴포즈 zip byte 민드는 도중 예외", e);
-        }
-    }
+//
+//    private static String getETag(byte[] zipBytes) {
+//        String rawETag = Hash.sha256Hex(zipBytes);
+//        return (rawETag != null) ? "\"" + rawETag + "\"" : null;
+//    }
+//
+//    private static byte[] buildDeterministicZip(String entryName, byte[] content) {
+//        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//             ZipOutputStream zos = new ZipOutputStream(baos)) {
+//
+//            ZipEntry entry = new ZipEntry(entryName);
+//            FileTime fileTime = FileTime.from(Instant.EPOCH);
+//            entry.setCreationTime(fileTime);
+//            entry.setLastModifiedTime(fileTime);
+//            entry.setLastAccessTime(fileTime);
+//            zos.putNextEntry(entry);
+//            zos.write(content);
+//            zos.closeEntry();
+//            zos.finish();
+//            return baos.toByteArray();
+//        } catch (IOException e) {
+//            throw new InternalErrorCustomException("도커 컴포즈 zip byte 민드는 도중 예외", e);
+//        }
+//    }
 
     private void validateImages(ComposeRequestV1 request) {
         Map<String, String> target = request.services().stream().collect(Collectors.toMap(
-                s -> s.name(),
-                s -> s.image(),
+                s -> s.service().name(),
+                s -> s.service().image(),
                 (a, b) -> a
         ));
 
