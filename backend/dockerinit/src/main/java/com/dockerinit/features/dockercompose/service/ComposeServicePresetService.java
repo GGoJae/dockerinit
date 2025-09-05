@@ -6,6 +6,7 @@ import com.dockerinit.features.dockercompose.dto.response.ComposeServicePresetSu
 import com.dockerinit.features.dockercompose.dto.spec.CategoryDTO;
 import com.dockerinit.features.dockercompose.mapper.ComposeServicePresetMapper;
 import com.dockerinit.features.dockercompose.repository.ComposeServicePresetRepository;
+import com.dockerinit.features.support.validation.Slug;
 import com.dockerinit.global.exception.NotFoundCustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,11 +38,10 @@ public class ComposeServicePresetService {
                 .map(ComposeServicePresetMapper::toSummary);
     }
 
-    public ComposeServicePresetDetailResponse get(String rawSlug) {
-        String slug = ComposeServicePresetMapper.normalizeSlug(rawSlug);
+    public ComposeServicePresetDetailResponse get(String slug) {
         return repository.findBySlug(slug)
                 .map(ComposeServicePresetMapper::toDetail)
-                .orElseThrow(() -> new NotFoundCustomException("서비스 프리셋을 찾을 수 없습니다.", Map.of("slug", rawSlug)));
+                .orElseThrow(() -> new NotFoundCustomException("서비스 프리셋을 찾을 수 없습니다.", Map.of("slug", slug)));
     }
 
     /** 사용 시점에 카운트 올리고 싶으면 호출 */

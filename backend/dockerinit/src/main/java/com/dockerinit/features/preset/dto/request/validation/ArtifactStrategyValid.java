@@ -1,4 +1,4 @@
-package com.dockerinit.features.preset.dto.validation;
+package com.dockerinit.features.preset.dto.request.validation;
 
 import jakarta.validation.Constraint;
 

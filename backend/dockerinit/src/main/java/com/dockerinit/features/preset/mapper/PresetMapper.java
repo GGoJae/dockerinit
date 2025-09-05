@@ -2,7 +2,6 @@ package com.dockerinit.features.preset.mapper;
 
 import com.dockerinit.features.model.ContentType;
 import com.dockerinit.features.model.FileType;
-import com.dockerinit.features.model.GeneratedFile;
 import com.dockerinit.features.preset.domain.*;
 import com.dockerinit.features.preset.dto.request.PresetArtifactRequest;
 import com.dockerinit.features.preset.dto.request.PresetCreateRequest;
@@ -14,20 +13,16 @@ import com.dockerinit.features.preset.dto.spec.ContentStrategyDTO;
 import com.dockerinit.features.preset.dto.spec.EnvValueModeDTO;
 import com.dockerinit.features.preset.dto.spec.PresetKindDTO;
 import com.dockerinit.features.preset.dto.spec.RenderPolicyDTO;
-import com.dockerinit.global.exception.InvalidInputCustomException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PresetMapper {
 
-    public static PresetDocument toDocument(PresetCreateRequest req, String createdBy) {
-        // 필수값/정규화
-        String slug = req.slug().trim().toLowerCase(Locale.ROOT);
+    public static PresetDocument createDocument(String slug, PresetCreateRequest req, String createdBy) {
         String display = req.displayName().trim();
 
         return PresetDocument.builder()

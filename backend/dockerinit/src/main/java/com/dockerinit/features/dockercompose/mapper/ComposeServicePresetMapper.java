@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ComposeServicePresetMapper {
+public final class ComposeServicePresetMapper {
 
     public static ComposeServicePresetSummaryResponse toSummary(ComposeServicePresetDocument doc) {
         return new ComposeServicePresetSummaryResponse(

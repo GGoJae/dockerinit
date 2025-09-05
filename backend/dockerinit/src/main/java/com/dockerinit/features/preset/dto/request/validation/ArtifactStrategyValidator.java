@@ -1,4 +1,4 @@
-package com.dockerinit.features.preset.dto.validation;
+package com.dockerinit.features.preset.dto.request.validation;
 
 import com.dockerinit.features.preset.dto.request.PresetArtifactRequest;
 import com.dockerinit.features.preset.dto.spec.ContentStrategyDTO;
