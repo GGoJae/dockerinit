@@ -27,7 +27,7 @@ public class PresetArtifactMaterializer {
         if (artifact.getStrategy() == ContentStrategy.OBJECT_STORAGE) {
             throw new UnsupportedOperationCustomException("OBJECT_STORAGE 는 아직 지원하지 않습니다.", Map.of("strategy", artifact.getStrategy()));
         }
-        String content = Objects.requireNonNull(artifact.getEmbeddedContent(), "EMBEDED preset artifact 가 content 를 가지고 있지않습니다");
+        String content = Objects.requireNonNull(artifact.getEmbeddedContent(), "EMBEDDED preset artifact 가 content 를 가지고 있지않습니다");
         byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
         return new GeneratedFile(artifact.getFilename(), contentBytes, artifact.getContentType(), artifact.getSensitive(), artifact.getFileType());
     }

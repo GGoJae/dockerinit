@@ -1,10 +1,9 @@
 package com.dockerinit.features.dockerfile.api;
 
-import com.dockerinit.features.dockerfile.dto.request.DockerfilePresetRequest;
 import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
 import com.dockerinit.features.dockerfile.dto.response.DockerfileResponse;
-import com.dockerinit.features.model.PackageResult;
 import com.dockerinit.features.dockerfile.service.DockerfileService;
+import com.dockerinit.features.model.PackageResult;
 import com.dockerinit.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -13,12 +12,13 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Objects;
 
 import static com.dockerinit.global.constants.HttpInfo.*;
 
@@ -34,22 +34,6 @@ public class DockerfileController {
     @PostMapping
     public ResponseEntity<ApiResponse<DockerfileResponse>> render(@Valid @RequestBody DockerfileRequest request) {
         return ResponseEntity.ok(ApiResponse.success(service.renderContent(request)));
-    }
-
-
-    @Operation(summary = "Dockerfile 프리셋 전체 조회",
-            description = "자주 사용하는 Dockerfile 프리셋 전체 목록을 제공합니다.")
-    @GetMapping("/presets")
-    public ResponseEntity<ApiResponse<List<DockerfilePresetRequest>>> listPresets() {
-        return ResponseEntity.ok(ApiResponse.success(service.getAllPresets()));
-    }
-
-
-    @Operation(summary = "Dockerfile 프리셋 단건 조회",
-            description = "지정한 이름의 Dockerfile 프리셋을 반환합니다.")
-    @GetMapping("/presets/{name}")
-    public ResponseEntity<ApiResponse<DockerfilePresetRequest>> getPreset(@PathVariable String name) {
-        return ResponseEntity.ok(ApiResponse.success(service.getPreset(name)));
     }
 
 
@@ -83,7 +67,7 @@ public class DockerfileController {
         } else {
             headers.setCacheControl("private, max-age=3600");
         }
-        pkg.contentLength().ifPresent(cl -> headers.setContentLength(cl));
+        pkg.contentLength().ifPresent(headers::setContentLength);
 
         Resource body = pkg.fold(
                 ByteArrayResource::new,

@@ -1,8 +1,8 @@
 package com.dockerinit.features.dockercompose.mapper;
 
+import com.dockerinit.features.dockercompose.domain.Service;
 import com.dockerinit.features.dockercompose.domain.composeCustom.*;
 import com.dockerinit.features.dockercompose.dto.request.ComposeRequestV1;
-import com.dockerinit.features.dockercompose.domain.*;
 import com.dockerinit.features.dockercompose.dto.spec.BuildDTO;
 import com.dockerinit.features.dockercompose.dto.spec.HealthcheckDTO;
 import com.dockerinit.features.dockercompose.dto.spec.ServiceSpecDTO;

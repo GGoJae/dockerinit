@@ -7,6 +7,7 @@ import com.dockerinit.features.preset.dto.response.PresetSummaryResponse;
 import com.dockerinit.features.preset.dto.spec.PresetKindDTO;
 import com.dockerinit.features.preset.service.PresetService;
 import com.dockerinit.global.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
@@ -30,6 +31,8 @@ public class PresetController {
 
     private final PresetService service;
 
+    @Operation(summary = "프리셋 리스트 목록",
+    description = "조건에 맞는 프리셋 목록을 받습니다.")
     @GetMapping
     public ResponseEntity<ApiResponse<Page<PresetSummaryResponse>>> list(
             @RequestParam(required = false) PresetKindDTO kind,
@@ -41,6 +44,8 @@ public class PresetController {
         );
     }
 
+    @Operation(summary = "특정 프리셋 아티팩트 목록",
+    description = "특정 프리셋이 가지고 있는 아티팩트의 목록을 가져옵니다.")
     @GetMapping("/{slug}/artifacts")
     public ResponseEntity<ApiResponse<List<PresetArtifactMetaResponse>>> artifacts(
             @PathVariable String slug
@@ -50,6 +55,8 @@ public class PresetController {
         );
     }
 
+    @Operation(summary = "프리셋 패키지.zip 다운로드",
+    description = "사용자가 선택한 프리셋과 부속 파일들을 zip으로 받습니다.")
     @PostMapping(value = "/{slug}/package", produces = APPLICATION_ZIP_VALUE)
     public ResponseEntity<Resource> downloadZip(
             @PathVariable String slug,

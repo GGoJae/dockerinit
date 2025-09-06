@@ -1,7 +1,6 @@
 package com.dockerinit.features.dockerfile.service;
 
 import com.dockerinit.features.dockerfile.domain.DockerfilePlan;
-import com.dockerinit.features.dockerfile.dto.request.DockerfilePresetRequest;
 import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
 import com.dockerinit.features.dockerfile.dto.response.DockerfileResponse;
 import com.dockerinit.features.dockerfile.mapper.DockerfilePlanMapper;
@@ -13,8 +12,8 @@ import com.dockerinit.features.model.RenderContext;
 import com.dockerinit.features.packager.Packager;
 import com.dockerinit.features.support.validation.DockerImageValidationService;
 import com.dockerinit.global.constants.ErrorMessage;
+import com.dockerinit.global.exception.InternalErrorCustomException;
 import com.dockerinit.global.exception.InvalidInputCustomException;
-import com.dockerinit.global.exception.NotFoundCustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -34,8 +33,6 @@ public class DockerfileService {
         this.renderers = renderers.stream().sorted(Comparator.comparingInt(DockerfileArtifactRenderer::order)).toList();
         this.packager = packager;
     }
-
-    private final Map<String, DockerfilePresetRequest> dockerfilePresets = new HashMap<>();
 
     public PackageResult downloadPackageAsZip(DockerfileRequest request) {
         String baseImage = request.baseImage();
@@ -75,25 +72,11 @@ public class DockerfileService {
         List<String> warnings = new ArrayList<>(plan.warnings());
 
         GeneratedFile dockerfile = renderSingleFile(request, plan, FileType.DOCKERFILE, warnings)
-                .orElseThrow(() -> new IllegalArgumentException("도커 파일 렌더 실패"));
+                .orElseThrow(() -> new InternalErrorCustomException("도커 파일 렌더 실패"));
 
         String content = new String(dockerfile.content(), StandardCharsets.UTF_8);
 
         return new DockerfileResponse(content, List.copyOf(warnings));
-    }
-
-
-    public List<DockerfilePresetRequest> getAllPresets() {
-        return dockerfilePresets.values().stream().toList();
-    }
-
-
-    public DockerfilePresetRequest getPreset(String name) {
-        return Optional.ofNullable(dockerfilePresets.get(name))
-                .orElseThrow(() -> new NotFoundCustomException(
-                        ErrorMessage.PRESET_NOT_FOUND,
-                        Map.of("presetName", name)
-                ));
     }
 
 
@@ -116,72 +99,5 @@ public class DockerfileService {
 
         return Optional.empty();
     }
-
-
-//    private DockerfilePresetRequest springBootJar() {
-//        DockerfileRequest req = new DockerfileRequest(
-//                "openjdk:17",
-//                "/app",
-//                List.of(new CopyDirective(".", ".")),
-//                null,
-//                Mode.prod,
-//                Map.of("SPRING_PROFILES_ACTIVE", "prod"),
-//                List.of(8080),
-//                List.of("java", "-jar", "app.jar"),
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null
-//        );
-//
-//        DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
-//        RenderResult render = renderer.render(spec);
-//
-//
-//        return new DockerfilePresetRequest("Spring Boot JAR", render.dockerfile());
-//    }
-//        // TODO 프리셋 어떻게 할지 정하기. 리소스에 파일 만들어놓고 맵?
-//    private DockerfilePresetRequest nodeJsExpress() {
-//        DockerfileRequest req = new DockerfileRequest(
-//                "node:20",
-//                "/app",
-//                List.of(new CopyDirective(".", ".")),
-//                null,
-//                Mode.prod,
-//                Map.of("NODE_ENV", "production"),
-//                List.of(3000),
-//                List.of("node", "app.js"),
-//                List.of("npm install"),
-//                null, null, null, null, null, null
-//        );
-//
-//        DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
-//        RenderResult render = renderer.render(spec);
-//        return new DockerfilePresetRequest("Node.js Express", render.dockerfile());
-//    }
-//
-//    private DockerfilePresetRequest pythonFlask() {
-//        DockerfileRequest req = new DockerfileRequest(
-//                "python:3.11",
-//                "/app",
-//                List.of(new CopyDirective(".", ".")),
-//                List.of(new CopyDirective("requirements.txt", ".")),
-//                Mode.prod,
-//                Map.of("FLASK_ENV", "production"),
-//                List.of(5000),
-//                List.of("python", "app.py"),
-//                null, null, null, null, null, null, null
-//        );
-//
-//        DockerfileSpec spec = DockerfileSpecMapper.toSpec(req);
-//        RenderResult render = renderer.render(spec);
-//
-//        return new DockerfilePresetRequest("Python Flask", render.dockerfile());
-//    }
-
-
 
 }

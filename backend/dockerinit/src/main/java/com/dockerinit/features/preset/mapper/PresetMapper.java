@@ -41,7 +41,6 @@ public final class PresetMapper {
                 .deprecationNote(trimOrNull(req.deprecationNote()))
                 .createdBy(createdBy)
                 .updatedBy(createdBy)
-                // createdAt/updatedAt/version/downloadCount 는 Mongo Auditing/업무 로직이 채움
                 .build();
     }
 
@@ -92,7 +91,7 @@ public final class PresetMapper {
 
     public static List<PresetArtifact> mapArtifactsToDomain(List<PresetArtifactRequest> in) {
         if (in == null || in.isEmpty()) return List.of();
-        List<PresetArtifact> list = in.stream().map(r -> mapArtifactToDomain(r)).collect(Collectors.toUnmodifiableList());
+        List<PresetArtifact> list = in.stream().map(PresetMapper::mapArtifactToDomain).toList();
 
         // 중복 파일명 방지: (fileType, filename) 기준
         var keySet = new HashSet<String>();

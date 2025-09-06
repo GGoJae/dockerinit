@@ -18,8 +18,10 @@ public final class PresetSlugFactory {
     private static final int MAX_LEN = 80;
 
     public static String build(PresetKindDTO kind, List<String> baseTokens, Integer schemaVersion) {
+        Objects.requireNonNull(kind);
 
-        List<String> tokens = baseTokens.stream()
+
+        List<String> tokens = (baseTokens == null) ? List.of() : baseTokens.stream()
                 .filter(Objects::nonNull)
                 .map(Slug::normalize)
                 .filter(s -> !s.isBlank())
