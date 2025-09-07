@@ -19,13 +19,6 @@ public class LinuxCommandController {
 
     private final LinuxCommandService service;
 
-//    @Operation(summary = "리눅스 명령어 설명 제공",
-//            description = "요청한 명령어에 대한 설명과 옵션에 대한 정보를 제공합니다.")
-//    @PostMapping("/commands/generate")
-//    public ResponseEntity<?> generate(@Valid @RequestBody LinuxCommandGenerateRequest request) {
-//        return ResponseEntity.ok(ApiResponse.success(service.generate(request)));
-//    }
-
     @GetMapping("/commands")
     public ResponseEntity<ApiResponse<List<LinuxCommandResponse>>> findAll() {
         return ResponseEntity.ok(ApiResponse.success(service.getAll()));

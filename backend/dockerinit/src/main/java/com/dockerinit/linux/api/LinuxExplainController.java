@@ -4,6 +4,7 @@ import com.dockerinit.global.response.ApiResponse;
 import com.dockerinit.linux.application.service.CommandExplainService;
 import com.dockerinit.linux.dto.request.ExplainLineRequest;
 import com.dockerinit.linux.dto.response.ExplainResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cglib.core.Local;
@@ -24,7 +25,9 @@ public class LinuxExplainController {
 
     private final CommandExplainService service;
 
-    @PostMapping()
+    @Operation(summary = "리눅스 명령어 설명 제공",
+            description = "요청한 명령어에 대한 설명과 옵션에 대한 정보를 제공합니다.")
+    @PostMapping
     public ResponseEntity<ApiResponse<ExplainResponse>> explain(@RequestBody @Valid ExplainLineRequest request, Locale locale) {
         Locale loc = locale == null ? Locale.KOREA : locale;
         return ResponseEntity.ok(ApiResponse.success(service.explain(request.line(), loc)));

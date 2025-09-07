@@ -22,10 +22,11 @@ public class ComposeServicePresetService {
 
     private final ComposeServicePresetRepository repository;
 
-    public Page<ComposeServicePresetSummaryResponse> list(CategoryDTO ctDTO, Set<String> tags, Pageable pageable) {
+    public Page<ComposeServicePresetSummaryResponse> list(CategoryDTO ctDTO, Set<String> rawTags, Pageable pageable) {
+        Set<String> tags = ComposeServicePresetMapper.normalizeTags(rawTags);
         // TODO custom repository 에 동적 쿼리 만들어서 한번에 처리하기
-        if (tags != null && !tags.isEmpty()) {
-            return repository.findAllByTagsInAndActiveTrue(tags, pageable)
+        if (rawTags != null && !rawTags.isEmpty()) {
+            return repository.findAllByTagsInAndActiveTrue(rawTags, pageable)
                     .map(ComposeServicePresetMapper::toSummary);
         }
         if (ctDTO != null) {
