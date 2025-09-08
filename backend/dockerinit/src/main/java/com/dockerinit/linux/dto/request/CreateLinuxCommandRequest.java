@@ -20,10 +20,10 @@ import static com.dockerinit.global.constants.ErrorMessage.LINUX_COMMAND_DUPLICA
 import static com.dockerinit.global.constants.ErrorMessage.LINUX_COMMAND_REQUIRED_OPTION;
 
 /**
- * 리눅스 명령어(메타데이터) 등록/수정 요청 DTO
+ * 리눅스 명령어(메타데이터) 등록 요청 DTO
  */
-@Schema(description = "Linux 명령어 등록·수정 요청")
-public record AddLinuxCommandRequest(
+@Schema(description = "Linux 명령어 등록 요청")
+public record CreateLinuxCommandRequest(
 
         @Schema(description = "카테고리", example = "네트워크")
         @NotBlank(message = "카테고리는 필수입니다.")
@@ -37,6 +37,9 @@ public record AddLinuxCommandRequest(
         @NotBlank(message = "description은 필수입니다.")
         String description,
 
+        @Schema(description = "별칭들", example = "")
+        List<String> aliases,
+
         // TODO example 복잡하니.. 정리가 된 후에 작성하기
         @Schema(description = "사용법(SYNOPSIS)", example = "")
         @NotEmpty(message = "synopsis는 필수입니다.")
@@ -49,9 +52,6 @@ public record AddLinuxCommandRequest(
         @Schema(description = "예시 목록", example = "[\"ping -c 3 google.com\"]")
         List<@NotBlank String> examples,
 
-        /*
-        verified 여부 리눅스 커맨드 작성할때 넣을건지....?? 작성자가 관리자 들이라면 열어도 될 듯
-         */
         @Schema(description = "검증 여부", defaultValue = "false")
         boolean verified,
 
@@ -66,62 +66,4 @@ public record AddLinuxCommandRequest(
         @Size(max = 10, message = "태그는 최대 10개까지만 등록 가능합니다.")
         List<@NotBlank String> tags
 ) {
-
-    public LinuxCommand toEntity() {
-
-        Map<String, Option> optionInfoMap = getOptionMap();
-
-        Synopsis synopsis = getSynopsis();
-
-
-        return new LinuxCommand(
-                category,
-                command.toLowerCase(Locale.ROOT),
-                description,
-                synopsis,
-                arguments != null ? arguments : List.<String>of(),
-                examples != null ? examples : List.<String>of(),
-                optionRequired,
-                optionInfoMap,
-                tags != null ? tags : List.<String>of()
-        );
-    }
-
-    private Synopsis getSynopsis() {
-        List<SynopsisPattern> linuxTokenDescriptions = new ArrayList<>();
-
-        synopsis.stream()
-                .map(spd -> {
-                    ArrayList<TokenDescriptor> tokenDescriptors = new ArrayList<>();
-                    spd.tokens().forEach(td -> {
-                        tokenDescriptors.add(new TokenDescriptor(td.tokenType(), td.repeat(), td.optional(), td.description()));
-                    });
-                    return new SynopsisPattern(tokenDescriptors);
-                }).forEach(td -> {
-                    linuxTokenDescriptions.add(td);
-                });
-
-        return new Synopsis(linuxTokenDescriptions);
-    }
-
-    private Map<String, Option> getOptionMap() {
-        List<OptionSpecDTO> optionList = options == null ? List.of() : options;
-
-        if (optionRequired && optionList.isEmpty()) {
-            throw new InvalidInputCustomException(LINUX_COMMAND_REQUIRED_OPTION,
-                    Map.of("optionRequired", optionRequired, "options", optionList));
-        }
-
-        Map<String, Option> optionInfoMap = new LinkedHashMap<>();
-        for (OptionSpecDTO o : optionList) {
-            Option prev = optionInfoMap.putIfAbsent(
-                    o.flag(),
-                    new Option(o.argName(), o.argRequired(), o.typeHint(), o.defaultValue(), o.description())
-            );
-            if (prev != null) {
-                throw new InvalidInputCustomException(LINUX_COMMAND_DUPLICATE_FLAG, Map.of("flag", o.flag()));
-            }
-        }
-        return optionInfoMap;
-    }
 }

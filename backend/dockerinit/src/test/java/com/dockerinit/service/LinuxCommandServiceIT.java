@@ -290,12 +290,13 @@ class LinuxCommandServiceIT {
                 "-c", new Option("count", true, "int", null, "보낼 ping 횟수"),
                 "-i", new Option("interval", true, "float", "1", "요청 간격(초)")
         );
-        return new LinuxCommand(
-                "네트워크", "ping", "네트워크 상태 확인",
+        return LinuxCommand.createForManual(
+                "네트워크", "ping", null,
+                "네트워크 상태 확인",
                 syn,
                 List.of("HOST"),
                 List.of("ping -c 3 google.com", "ping -i 0.5 8.8.8.8"),
-                false,
+                false, false,
                 opts,
                 List.of("icmp","연결확인")
         );
@@ -314,12 +315,12 @@ class LinuxCommandServiceIT {
                         td(TokenType.DIRECTORY, false, false, "DEST DIR")
                 ))
         ));
-        return new LinuxCommand(
-                "파일", "mv", "파일/디렉터리 이동 또는 이름 변경",
+        return LinuxCommand.createForManual(
+                "파일", "mv", null,"파일/디렉터리 이동 또는 이름 변경",
                 syn,
                 List.of("SOURCE","DEST"),
                 List.of("mv a.txt b.txt","mv *.log /var/logs/"),
-                false,
+                false, false,
                 Map.of("-f", new Option(null, false, null, null, "질문 없이 덮어쓰기")),
                 List.of("move","rename")
         );
@@ -332,12 +333,12 @@ class LinuxCommandServiceIT {
                         td(TokenType.PATH, false, true, "PATH")
                 ))
         ));
-        return new LinuxCommand(
-                "파일", "ls", "디렉터리 내용 나열",
+        return LinuxCommand.createForManual(
+                "파일", "ls", null, "디렉터리 내용 나열",
                 syn,
                 List.of("PATH"),
                 List.of("ls -l /var/log"),
-                false,
+                false, false,
                 Map.of("-l", new Option(null, false, null, null, "긴 형식으로 표시")),
                 List.of("list")
         );
@@ -350,12 +351,12 @@ class LinuxCommandServiceIT {
                         td(TokenType.PATH, false, true, "PATH")
                 ))
         ));
-        return new LinuxCommand(
-                "압축", "tar", "테이프 아카이브 유틸리티",
+        return LinuxCommand.createForManual(
+                "압축", "tar", null, "테이프 아카이브 유틸리티",
                 syn,
                 List.of("PATH"),
                 List.of("tar -xvf file.tar", "tar -czf out.tar.gz dir/"),
-                false,
+                false, false,
                 Map.of("-x", new Option(null, false, null, null, "해제"),
                         "-f", new Option("file", true, "path", null, "파일 지정")),
                 List.of("archive")
@@ -370,12 +371,12 @@ class LinuxCommandServiceIT {
                         td(TokenType.PATH, false, true, "PATH")
                 ))
         ));
-        return new LinuxCommand(
-                "텍스트", "grep", "패턴 검색",
+        return LinuxCommand.createForManual(
+                "텍스트", "grep", null, "패턴 검색",
                 syn,
                 List.of("PATTERN","PATH"),
                 List.of("grep -i error app.log"),
-                false,
+                false, false,
                 Map.of("-i", new Option(null, false, null, null, "대소문자 무시"),
                         "-E", new Option(null, false, null, null, "확장 정규식")),
                 List.of("search","regex")
