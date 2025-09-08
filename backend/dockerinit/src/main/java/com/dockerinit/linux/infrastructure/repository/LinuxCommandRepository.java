@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface LinuxCommandRepository extends MongoRepository<LinuxCommand, String> {
+public interface LinuxCommandRepository extends MongoRepository<LinuxCommand, String>, LinuxCommandRepositoryCustom {
 
     Optional<LinuxCommand> findByCommand(String command);
 

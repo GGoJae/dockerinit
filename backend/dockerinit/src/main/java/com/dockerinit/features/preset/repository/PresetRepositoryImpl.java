@@ -20,7 +20,7 @@ public class PresetRepositoryImpl implements PresetRepositoryCustom{
     public void increaseDownloadCount(String id, long delta) {
         mongo.updateFirst(
                 query(where("_id").is(id)),
-                new Update().inc("downloadCount", delta).currentDate("updatedAt"),
+                new Update().inc("downloadCount", delta),
                 PresetDocument.class
         );
     }

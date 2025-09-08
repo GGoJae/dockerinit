@@ -21,7 +21,7 @@ public class ComposeServicePresetRepositoryImpl implements ComposeServicePresetR
     public void increaseUsedCount(String id, long delta) {
         mongo.updateFirst(
                 query(where("_id").is(id)),
-                new Update().inc("usedCount", delta).currentDate("updatedAt"),
+                new Update().inc("usedCount", delta),
                 ComposeServicePresetDocument.class
         );
     }
@@ -30,7 +30,7 @@ public class ComposeServicePresetRepositoryImpl implements ComposeServicePresetR
     public void increaseUsedCountBySlug(String slug, long delta) {
         mongo.updateFirst(
                 query(where("slug").is(slug)),
-                new Update().inc("usedCount", delta).currentDate("updatedAt"),
+                new Update().inc("usedCount", delta),
                 PresetDocument.class
         );
     }
