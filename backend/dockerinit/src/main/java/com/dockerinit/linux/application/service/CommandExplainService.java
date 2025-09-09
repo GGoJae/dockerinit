@@ -1,14 +1,12 @@
 package com.dockerinit.linux.application.service;
 
 import com.dockerinit.linux.application.autocomplete.model.ParseResult;
-import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import com.dockerinit.linux.application.explain.strategy.explainStrategy.ExplainStrategy;
 import com.dockerinit.linux.application.shared.model.ModuleType;
 import com.dockerinit.linux.application.shared.model.ModuleTypeMapper;
+import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import com.dockerinit.linux.dto.response.ExplainResponse;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;

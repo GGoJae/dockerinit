@@ -9,9 +9,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import java.time.Duration;
 import java.util.Set;
 
 @RestController
@@ -20,7 +25,6 @@ import java.util.Set;
 public class ComposeServicePresetController {
 
     private final ComposeServicePresetService service;
-
     @Operation(summary = "요청 컴포즈의 서비스에 대한 프리셋 목록 제공",
             description = "요청한 카테고리와 태그에 해당하는 프리셋을 리스트로 제공합니다.")
     @GetMapping
@@ -36,8 +40,20 @@ public class ComposeServicePresetController {
     description = "요청한 컴포즈 서비스 프리셋에 대한 디테일을 보여줍니다.")
     @GetMapping("/{slug}")
     public ResponseEntity<ApiResponse<ComposeServicePresetDetailResponse>> get(
-            @PathVariable String slug
+            @PathVariable String slug, WebRequest request
     ) {
-        return ResponseEntity.ok(ApiResponse.success(service.get(slug)));
+        ComposeServicePresetDetailResponse res = service.get(slug);
+        String etag = "W/\"" + slug + ":" + res.updatedAt().toEpochMilli() + ":" + res.usedCount() + "\"";
+        if (request.checkNotModified(etag)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                    .eTag(etag)
+                    .build();
+        }
+
+        return ResponseEntity.ok()
+                .eTag(etag)
+                .cacheControl(CacheControl.maxAge(Duration.ofMinutes(10)).cachePublic())
+                .header(HttpHeaders.VARY, HttpHeaders.AUTHORIZATION)
+                .body(ApiResponse.success(res));
     }
 }
