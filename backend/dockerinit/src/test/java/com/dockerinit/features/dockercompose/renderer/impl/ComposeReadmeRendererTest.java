@@ -1,9 +1,10 @@
 package com.dockerinit.features.dockercompose.renderer.impl;
 
-import com.dockerinit.features.dockercompose.domain.composeCustom.Build;
-import com.dockerinit.features.dockercompose.domain.composeCustom.ComposePlan;
-import com.dockerinit.features.dockercompose.domain.Service;
-import com.dockerinit.features.dockercompose.dto.request.ComposeRequestV1;
+import com.dockerinit.features.application.dockercompose.domain.composeCustom.Build;
+import com.dockerinit.features.application.dockercompose.domain.composeCustom.ComposePlan;
+import com.dockerinit.features.application.dockercompose.domain.Service;
+import com.dockerinit.features.application.dockercompose.dto.request.ComposeRequestV1;
+import com.dockerinit.features.application.dockercompose.renderer.impl.ComposeReadmeRenderer;
 import com.dockerinit.features.model.FileType;
 import com.dockerinit.features.model.RenderContext;
 import lombok.extern.slf4j.Slf4j;

@@ -8,6 +8,20 @@ spring:
       host: localhost
       port: 6379
       timeout: 1000ms
+  cache:
+    type: redis
+    cache-names:
+      - 'composePreset:detail'
+      - 'composePreset:list'
+      - 'preset:list'
+      - 'preset:detail'
+      - 'preset:artifacts'
+    redis:
+      time-to-live: 600000
+      use-key-prefix: true
+      key-prefix: 'di:cache:'
+      cache-null-values: false
+
 
 logging:
   level:

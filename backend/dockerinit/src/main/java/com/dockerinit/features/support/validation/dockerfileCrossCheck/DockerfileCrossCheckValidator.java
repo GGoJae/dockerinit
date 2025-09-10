@@ -1,11 +1,10 @@
 package com.dockerinit.features.support.validation.dockerfileCrossCheck;
 
-import com.dockerinit.features.dockerfile.dto.request.DockerfileRequest;
+import com.dockerinit.features.application.dockerfile.dto.request.DockerfileRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import java.util.List;
-import java.util.Objects;
 
 public class DockerfileCrossCheckValidator implements ConstraintValidator<DockerfileCrossCheck, DockerfileRequest> {
 

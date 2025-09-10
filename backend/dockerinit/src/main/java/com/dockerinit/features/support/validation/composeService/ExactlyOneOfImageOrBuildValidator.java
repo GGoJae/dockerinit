@@ -1,6 +1,6 @@
 package com.dockerinit.features.support.validation.composeService;
 
-import com.dockerinit.features.dockercompose.dto.spec.ServiceSpecDTO;
+import com.dockerinit.features.application.dockercompose.dto.spec.ServiceSpecDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

@@ -1,10 +1,11 @@
 package com.dockerinit.features.preset.materializer;
 
+import com.dockerinit.features.application.preset.materializer.PresetArtifactMaterializer;
 import com.dockerinit.features.model.ContentType;
 import com.dockerinit.features.model.FileType;
 import com.dockerinit.features.model.GeneratedFile;
-import com.dockerinit.features.preset.domain.ContentStrategy;
-import com.dockerinit.features.preset.domain.PresetArtifact;
+import com.dockerinit.features.application.preset.domain.ContentStrategy;
+import com.dockerinit.features.application.preset.domain.PresetArtifact;
 import com.dockerinit.global.exception.UnsupportedOperationCustomException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

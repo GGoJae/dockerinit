@@ -1,6 +1,7 @@
 package com.dockerinit.features.preset.support;
 
-import com.dockerinit.features.preset.dto.spec.PresetKindDTO;
+import com.dockerinit.features.application.preset.dto.spec.PresetKindDTO;
+import com.dockerinit.features.application.preset.support.PresetSlugFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

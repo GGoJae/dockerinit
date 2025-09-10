@@ -1,18 +1,20 @@
 package com.dockerinit.features.preset.mapper;
 
+import com.dockerinit.features.application.preset.domain.*;
+import com.dockerinit.features.application.preset.dto.response.PresetArtifactResponse;
+import com.dockerinit.features.application.preset.mapper.PresetMapper;
 import com.dockerinit.features.model.ContentType;
 import com.dockerinit.features.model.FileType;
-import com.dockerinit.features.preset.domain.*;
-import com.dockerinit.features.preset.dto.request.PresetArtifactRequest;
-import com.dockerinit.features.preset.dto.request.PresetCreateRequest;
-import com.dockerinit.features.preset.dto.request.PresetUpdateRequest;
-import com.dockerinit.features.preset.dto.response.PresetArtifactMetaResponse;
-import com.dockerinit.features.preset.dto.response.PresetDetailResponse;
-import com.dockerinit.features.preset.dto.response.PresetSummaryResponse;
-import com.dockerinit.features.preset.dto.spec.ContentStrategyDTO;
-import com.dockerinit.features.preset.dto.spec.EnvValueModeDTO;
-import com.dockerinit.features.preset.dto.spec.PresetKindDTO;
-import com.dockerinit.features.preset.dto.spec.RenderPolicyDTO;
+import com.dockerinit.features.application.preset.dto.request.PresetArtifactRequest;
+import com.dockerinit.features.application.preset.dto.request.PresetCreateRequest;
+import com.dockerinit.features.application.preset.dto.request.PresetUpdateRequest;
+import com.dockerinit.features.application.preset.dto.spec.PresetArtifactMetaDTO;
+import com.dockerinit.features.application.preset.dto.response.PresetDetailResponse;
+import com.dockerinit.features.application.preset.dto.response.PresetSummaryResponse;
+import com.dockerinit.features.application.preset.dto.spec.ContentStrategyDTO;
+import com.dockerinit.features.application.preset.dto.spec.EnvValueModeDTO;
+import com.dockerinit.features.application.preset.dto.spec.PresetKindDTO;
+import com.dockerinit.features.application.preset.dto.spec.RenderPolicyDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -293,11 +295,17 @@ class PresetMapperTest {
                 .storageKey("presets/df--alpine/Dockerfile")
                 .build();
 
-        PresetArtifactMetaResponse meta = PresetMapper.mapArtifactToRes(art);
+        PresetDocument doc = PresetDocument.builder()
+                .artifacts(List.of(art))
+                .updatedAt(Instant.EPOCH)
+                .build();
+
+        PresetArtifactResponse presetArtifactResponse = PresetMapper.toArtifactResponse(doc);
+        PresetArtifactMetaDTO meta = presetArtifactResponse.artifacts().get(0);
         assertThat(meta.fileType()).isEqualTo(FileType.DOCKERFILE);
         assertThat(meta.filename()).isEqualTo("Dockerfile");
         assertThat(meta.contentType()).isEqualTo(ContentType.TEXT.value());
-        assertThat(meta.strategy()).isEqualTo(com.dockerinit.features.preset.dto.spec.ContentStrategyDTO.EMBEDDED);
+        assertThat(meta.strategy()).isEqualTo(ContentStrategyDTO.EMBEDDED);
         assertThat(meta.sensitive()).isTrue();
         assertThat(meta.etag()).isEqualTo("abcdef");
         assertThat(meta.contentLength()).isEqualTo(123L);

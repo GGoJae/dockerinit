@@ -39,6 +39,7 @@ dependencies {
 
 	/* ── Redis (Lettuce 클라이언트 기본) ── */
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
