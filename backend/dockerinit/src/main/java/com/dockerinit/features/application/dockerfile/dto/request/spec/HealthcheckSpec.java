@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 @Schema(description = "Healthcheck 구조")
-public record Healthcheck(
+public record HealthcheckSpec(
         @Schema(description = "헬스체크 명령 전체", example = "CMD curl --fail http://localhost:8080 || exit 1")
         @NotBlank String cmd,
 

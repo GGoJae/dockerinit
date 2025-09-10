@@ -2,6 +2,7 @@ package com.dockerinit.linux.application.autocomplete.suggester.types;
 
 import com.dockerinit.linux.application.autocomplete.model.ExpectedToken;
 import com.dockerinit.linux.application.autocomplete.model.ParseResult;
+import com.dockerinit.linux.domain.model.LinuxCommand;
 import com.dockerinit.linux.dto.response.common.SuggestionType;
 import com.dockerinit.linux.dto.response.autocompleteV1.Suggestion;
 import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
@@ -56,7 +57,7 @@ public class CommandTypeSuggester implements TypeSuggester {
         List<String> res = fetchFromRedis(key, prefix, limit);
         if (res.isEmpty()) {
             res = repository.findAllByCommandStartingWith(prefix, PageRequest.of(0, limit))
-                    .stream().map(c -> c.getCommand()).toList();
+                    .stream().map(LinuxCommand::getCommand).toList();
         }
         return res;
     }

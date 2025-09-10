@@ -91,7 +91,7 @@ public class PresetService {
         List<GeneratedFile> files = materializer.toGeneratedFiles(document.getArtifacts(), targets);
 
         if (files.isEmpty()) {
-            throw new InvalidInputCustomException(
+            throw new NotFoundCustomException(
                     "선택한 targets에 해당하는 파일이 없습니다.",
                     Map.of("slug", rawSlug, "targets", String.valueOf(targets))
             );

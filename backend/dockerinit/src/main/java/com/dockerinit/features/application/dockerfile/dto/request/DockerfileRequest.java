@@ -2,7 +2,7 @@ package com.dockerinit.features.application.dockerfile.dto.request;
 
 import com.dockerinit.features.application.dockerfile.dto.request.spec.AdditionalFile;
 import com.dockerinit.features.application.dockerfile.dto.request.spec.CopyDirective;
-import com.dockerinit.features.application.dockerfile.dto.request.spec.Healthcheck;
+import com.dockerinit.features.application.dockerfile.dto.request.spec.HealthcheckSpec;
 import com.dockerinit.features.application.dockerfile.dto.request.spec.Mode;
 import com.dockerinit.features.support.validation.dockerfileCrossCheck.DockerfileCrossCheck;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -77,7 +77,7 @@ public record DockerfileRequest(
                 > args,
 
         @Schema(description = "Healthcheck 설정(선택)")
-        @Valid Healthcheck healthcheck,
+        @Valid HealthcheckSpec healthcheck,
 
         @Schema(description = "볼륨 설정(절대경로)", example = "[\"/data\", \"/var/log\"]")
         @Size(max = 50, message = "volume은 최대 50개까지 허용됩니다.")
