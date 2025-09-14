@@ -1,10 +1,8 @@
 package com.dockerinit.linux.domain.syntax;
 
-import com.dockerinit.global.exception.InvalidInputCustomException;
-import com.dockerinit.global.validation.ValidationErrors;
+import com.dockerinit.global.validation.ValidationCollector;
 
 import java.util.List;
-import java.util.Map;
 
 public record SynopsisPattern(List<TokenDescriptor> tokens) {
     public SynopsisPattern {
@@ -26,12 +24,12 @@ public record SynopsisPattern(List<TokenDescriptor> tokens) {
     }
 
     private void validateToken(List<TokenDescriptor> tokens) {
-        ValidationErrors.create()
+        ValidationCollector.create()
                 .required("tokens", tokens, "tokens 이 비어있음")
                 .forEachRejectIf("tokens", tokens,
                         td -> td.tokenType() == TokenType.COMMAND,
                         "pattern에 COMMAND 금지")
-                .judge();
+                .throwIfInvalid();
 
         // TODO 토큰 추가 검증 하기
     }

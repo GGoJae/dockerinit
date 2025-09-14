@@ -1,28 +1,31 @@
 package com.dockerinit.features.application.preset.service;
 
-import com.dockerinit.features.application.preset.dto.response.PresetArtifactResponse;
-import com.dockerinit.features.model.FileType;
-import com.dockerinit.features.model.GeneratedFile;
-import com.dockerinit.features.model.PackageResult;
-import com.dockerinit.features.packager.Packager;
 import com.dockerinit.features.application.preset.domain.PresetArtifact;
 import com.dockerinit.features.application.preset.domain.PresetDocument;
 import com.dockerinit.features.application.preset.domain.PresetKind;
+import com.dockerinit.features.application.preset.dto.response.PresetArtifactResponse;
 import com.dockerinit.features.application.preset.dto.response.PresetDetailResponse;
 import com.dockerinit.features.application.preset.dto.response.PresetSummaryResponse;
 import com.dockerinit.features.application.preset.dto.spec.PresetKindDTO;
 import com.dockerinit.features.application.preset.mapper.PresetMapper;
 import com.dockerinit.features.application.preset.materializer.PresetArtifactMaterializer;
 import com.dockerinit.features.application.preset.repository.PresetRepository;
-import com.dockerinit.global.validation.Slug;
+import com.dockerinit.features.model.FileType;
+import com.dockerinit.features.model.GeneratedFile;
+import com.dockerinit.features.model.PackageResult;
+import com.dockerinit.features.packager.Packager;
 import com.dockerinit.global.exception.NotFoundCustomException;
+import com.dockerinit.global.validation.Slug;
+import com.dockerinit.global.validation.ValidationCollector;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,10 +61,10 @@ public class PresetService {
             key = "T(com.dockerinit.features.support.validation.Slug).normalize(#rawSlug)"
     )
     public PresetDetailResponse get(String rawSlug) {
-        String slug = Slug.normalize(rawSlug);
+        String slug = Slug.normalizeRequired(rawSlug);
         return repository.findBySlug(slug)
                 .map(PresetMapper::toDetail)
-                .orElseThrow(() -> new NotFoundCustomException("해당 preset을 찾을 수 없습니다.", Map.of("slug", rawSlug)));
+                .orElseThrow(() -> NotFoundCustomException.of("Preset", "slug", rawSlug));
     }
 
     @Cacheable(
@@ -69,16 +72,16 @@ public class PresetService {
             key = "T(com.dockerinit.features.support.validation.Slug).normalize(#rawSlug)"
     )
     public PresetArtifactResponse artifacts(String rawSlug) {
-        String slug = Slug.normalize(rawSlug);
+        String slug = Slug.normalizeRequired(rawSlug);
         return repository.findBySlug(slug)
                 .map(PresetMapper::toArtifactResponse)
-                .orElseThrow(() -> new NotFoundCustomException("해당 preset을 찾을 수 없습니다.", Map.of("slug", rawSlug)));
+                .orElseThrow(() -> NotFoundCustomException.of("PresetArtifacts", "slug", rawSlug));
     }
 
     public PackageResult packagePreset(String rawSlug, Set<FileType> rawTargets) {
-        String slug = Slug.normalize(rawSlug);
+        String slug = Slug.normalizeRequired(rawSlug);
         PresetDocument document = repository.findBySlug(slug)
-                .orElseThrow(() -> new NotFoundCustomException("해당 preset을 찾을 수 없습니다.", Map.of("slug", rawSlug)));
+                .orElseThrow(() -> NotFoundCustomException.of("Preset", "slug", rawSlug));
 
         Set<FileType> targets = (rawTargets == null || rawTargets.isEmpty())
                 ? (document.getDefaultTargets().isEmpty()
@@ -89,12 +92,13 @@ public class PresetService {
         String packageName = "%s-v%d".formatted(document.getSlug(), Optional.ofNullable(document.getSchemaVersion()).orElse(1));
         List<GeneratedFile> files = materializer.toGeneratedFiles(document.getArtifacts(), targets);
 
-        if (files.isEmpty()) {
-            throw new NotFoundCustomException(
-                    "선택한 targets에 해당하는 파일이 없습니다.",
-                    Map.of("slug", rawSlug, "targets", String.valueOf(targets))
-            );
-        }
+        ValidationCollector.create()
+                .deferThrowIf(files.isEmpty())
+                .topMessage("선택한 Preset 안에 targets에 해당하는 파일이 없습니다.")
+                .withField("slug", rawSlug)
+                .withField("targets", targets)
+                .throwIfInvalid();
+
         PackageResult result = packager.packageFiles(files, packageName);
         repository.increaseDownloadCount(document.getId(), 1);
         return result;

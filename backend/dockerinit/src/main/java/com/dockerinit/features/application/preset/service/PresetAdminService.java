@@ -47,10 +47,11 @@ public class PresetAdminService {
             @CacheEvict(cacheNames = "preset:artifacts", key = "T(com.dockerinit.features.support.validation.Slug).normalize(#rawSlug)")
     })
     public PresetDetailResponse update(String rawSlug, PresetUpdateRequest request) {
-        String slug = Slug.normalize(rawSlug);
+        String slug = Slug.normalizeRequired(rawSlug);
         // TODO 회원 만들고 시큐리티 적용시키면 admin 의 아이디 혹은 이름 넣기 지금은 GJ 로 하드코딩
         PresetDocument doc = repository.findBySlug(slug)
-                .orElseThrow(() -> new NotFoundCustomException("slug를 찾을 수 없습니다.", Map.of("slug", rawSlug)));
+                .orElseThrow(() -> NotFoundCustomException.of("presetDocument", "slug", rawSlug));
+
         PresetDocument merged = PresetMapper.merge(doc, request, "GJ");
         return PresetMapper.toDetail(repository.save(merged));
     }

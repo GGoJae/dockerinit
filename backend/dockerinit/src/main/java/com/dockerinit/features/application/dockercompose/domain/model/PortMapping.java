@@ -1,7 +1,6 @@
 package com.dockerinit.features.application.dockercompose.domain.model;
 
-import com.dockerinit.global.exception.InvalidInputCustomException;
-import com.dockerinit.global.validation.ValidationErrors;
+import com.dockerinit.global.validation.ValidationCollector;
 
 public record PortMapping(
         Integer containerPort,
@@ -10,9 +9,9 @@ public record PortMapping(
         String hostIp
 ) {
     public PortMapping {
-        ValidationErrors.create()
+        ValidationCollector.create()
                 .range("containerPort", containerPort, 1, 65535, "port는 1~ 65535 사이여야합니다.")
-                .judge();
+                .throwIfInvalid();
 
         if (hostPort == null || hostPort < 1 || hostPort > 65535) {
             hostPort = containerPort;

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import static com.dockerinit.global.constants.AutoCompleteSuggest.REDIS_PREFIX_L
 @RequiredArgsConstructor
 public class CommandAutocompleteWarmer implements ApplicationRunner {
 
-    private final RedisTemplate<String, String> redis;
+    private final StringRedisTemplate redis;
     private final LinuxCommandRepository repository;
 
     @Override

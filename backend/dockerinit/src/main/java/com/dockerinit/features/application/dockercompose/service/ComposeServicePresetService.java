@@ -7,13 +7,13 @@ import com.dockerinit.features.application.dockercompose.dto.spec.CategoryDTO;
 import com.dockerinit.features.application.dockercompose.mapper.ComposeServicePresetMapper;
 import com.dockerinit.features.application.dockercompose.repository.ComposeServicePresetRepository;
 import com.dockerinit.global.exception.NotFoundCustomException;
+import com.dockerinit.global.validation.Slug;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -43,10 +43,11 @@ public class ComposeServicePresetService {
     }
 
     @Cacheable(cacheNames = "composePreset:detail", key = "#slug")
-    public ComposeServicePresetDetailResponse get(String slug) {
+    public ComposeServicePresetDetailResponse get(String rawSlug) {
+        String slug = Slug.normalizeRequired(rawSlug);
         return repository.findBySlug(slug)
                 .map(ComposeServicePresetMapper::toDetail)
-                .orElseThrow(() -> new NotFoundCustomException("서비스 프리셋을 찾을 수 없습니다.", Map.of("slug", slug)));
+                .orElseThrow(() -> NotFoundCustomException.of("composeServicePreset", "slug", rawSlug));
     }
 
 }

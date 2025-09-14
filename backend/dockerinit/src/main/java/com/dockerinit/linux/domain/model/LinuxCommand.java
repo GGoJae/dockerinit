@@ -1,7 +1,6 @@
 package com.dockerinit.linux.domain.model;
 
-import com.dockerinit.global.exception.InvalidInputCustomException;
-import com.dockerinit.global.validation.ValidationErrors;
+import com.dockerinit.global.validation.ValidationCollector;
 import com.dockerinit.linux.domain.syntax.Option;
 import com.dockerinit.linux.domain.syntax.Synopsis;
 import lombok.Getter;
@@ -71,9 +70,9 @@ public class LinuxCommand {
 
         String cmd = Objects.requireNonNull(command, "command").trim();
 
-        ValidationErrors.create()
+        ValidationCollector.create()
                 .notBlank("command", cmd, "command 가 비어있습니다.")
-                .judge();
+                .throwIfInvalid();
 
         String commandNorm = cmd.toLowerCase(Locale.ROOT);
         List<String> aliasesSafe = emptyOrCopyList(aliases);

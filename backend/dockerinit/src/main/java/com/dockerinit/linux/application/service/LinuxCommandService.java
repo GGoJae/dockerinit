@@ -24,7 +24,7 @@ public class LinuxCommandService {
     public LinuxCommandResponse getById(String id) {
         return repository.findById(id)
                 .map(LinuxCommandResponse::of)
-                .orElseThrow(() -> new NotFoundCustomException(LINUX_COMMAND_ID_NOT_FOUND, id));
+                .orElseThrow(() -> NotFoundCustomException.of(LINUX_COMMAND_ID_NOT_FOUND, "LinuxCommand", "id", id));
     }
 
     public List<LinuxCommandResponse> getAll() {

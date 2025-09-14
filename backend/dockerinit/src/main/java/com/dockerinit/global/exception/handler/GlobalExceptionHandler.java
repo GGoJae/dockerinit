@@ -2,7 +2,6 @@ package com.dockerinit.global.exception.handler;
 
 import com.dockerinit.global.constants.ErrorMessage;
 import com.dockerinit.global.exception.CustomApiException;
-import com.dockerinit.global.exception.InvalidInputCustomException;
 import com.dockerinit.global.exception.model.ErrorContent;
 import com.dockerinit.global.response.ApiResponse;
 import com.dockerinit.global.response.StateCode;

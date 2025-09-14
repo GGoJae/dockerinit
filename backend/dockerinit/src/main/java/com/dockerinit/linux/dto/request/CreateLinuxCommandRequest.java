@@ -1,11 +1,5 @@
 package com.dockerinit.linux.dto.request;
 
-import com.dockerinit.global.exception.InvalidInputCustomException;
-import com.dockerinit.linux.domain.model.LinuxCommand;
-import com.dockerinit.linux.domain.syntax.Option;
-import com.dockerinit.linux.domain.syntax.Synopsis;
-import com.dockerinit.linux.domain.syntax.SynopsisPattern;
-import com.dockerinit.linux.domain.syntax.TokenDescriptor;
 import com.dockerinit.linux.dto.request.spec.OptionSpecDTO;
 import com.dockerinit.linux.dto.request.spec.SynopsisPatternSpecDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,10 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
-import java.util.*;
-
-import static com.dockerinit.global.constants.ErrorMessage.LINUX_COMMAND_DUPLICATE_FLAG;
-import static com.dockerinit.global.constants.ErrorMessage.LINUX_COMMAND_REQUIRED_OPTION;
+import java.util.List;
 
 /**
  * 리눅스 명령어(메타데이터) 등록 요청 DTO

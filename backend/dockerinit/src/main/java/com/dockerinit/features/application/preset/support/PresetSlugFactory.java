@@ -11,6 +11,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PresetSlugFactory {
@@ -20,11 +21,10 @@ public final class PresetSlugFactory {
     public static String build(PresetKindDTO kind, List<String> baseTokens, Integer schemaVersion) {
         Objects.requireNonNull(kind);
 
-
         List<String> tokens = (baseTokens == null) ? List.of() : baseTokens.stream()
                 .filter(Objects::nonNull)
-                .map(Slug::normalize)
-                .filter(s -> !s.isBlank())
+                .map(Slug::normalizeToken)
+                .flatMap(Optional::stream)
                 .toList();
 
         String prefix = kind.code() + "--";

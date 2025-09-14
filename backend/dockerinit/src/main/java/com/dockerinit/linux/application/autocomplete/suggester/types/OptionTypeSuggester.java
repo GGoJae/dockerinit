@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -23,7 +24,7 @@ import static com.dockerinit.global.constants.Modules.LINUX;
 @RequiredArgsConstructor
 public class OptionTypeSuggester implements TypeSuggester {
 
-    private final RedisTemplate<String, String> redis;
+    private final StringRedisTemplate redis;
 
     private static final String MODULE = LINUX;
 

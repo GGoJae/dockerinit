@@ -13,7 +13,7 @@ import com.dockerinit.features.packager.Packager;
 import com.dockerinit.global.validation.DockerImageValidationService;
 import com.dockerinit.global.constants.ErrorMessage;
 import com.dockerinit.global.exception.InternalErrorCustomException;
-import com.dockerinit.global.validation.ValidationErrors;
+import com.dockerinit.global.validation.ValidationCollector;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -37,10 +37,10 @@ public class DockerfileService {
     public PackageResult downloadPackageAsZip(DockerfileRequest request) {
         String baseImage = request.baseImage();
 
-        ValidationErrors.create()
+        ValidationCollector.create()
                 .requiredTrue(dockerImageValidationService.existsInDockerHub(baseImage),
                         "image", ErrorMessage.INVALID_DOCKER_IMAGE, baseImage)
-                .judge();
+                .throwIfInvalid();
 
         DockerfilePlan plan = DockerfilePlanMapper.toPlan(request);
         List<String> warnings = new ArrayList<>(plan.warnings());
@@ -68,10 +68,10 @@ public class DockerfileService {
 
         String baseImage = request.baseImage();
 
-        ValidationErrors.create()
+        ValidationCollector.create()
                 .requiredTrue(dockerImageValidationService.existsInDockerHub(baseImage), "image", ErrorMessage.INVALID_DOCKER_IMAGE,
                         baseImage)
-                .judge();
+                .throwIfInvalid();
 
         DockerfilePlan plan = DockerfilePlanMapper.toPlan(request);
         List<String> warnings = new ArrayList<>(plan.warnings());

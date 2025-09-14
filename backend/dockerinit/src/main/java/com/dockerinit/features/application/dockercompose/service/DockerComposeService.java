@@ -13,7 +13,7 @@ import com.dockerinit.features.model.PackageResult;
 import com.dockerinit.features.model.RenderContext;
 import com.dockerinit.features.packager.Packager;
 import com.dockerinit.global.validation.DockerImageValidationService;
-import com.dockerinit.global.validation.ValidationErrors;
+import com.dockerinit.global.validation.ValidationCollector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -101,7 +101,7 @@ public class DockerComposeService {
                 (a, b) -> a
         ));
 
-        ValidationErrors ve = ValidationErrors.create().topMessage("유효하지 않은 Docker 이미지 입니다.");
+        ValidationCollector ve = ValidationCollector.create().topMessage("유효하지 않은 Docker 이미지 입니다.");
 
         ve.forEachValueRejectIf("services", target,
                 v -> v != null && !v.isBlank() && !IMAGE.matcher(v).matches(),
@@ -121,7 +121,7 @@ public class DockerComposeService {
         ve.forEachValueRejectIf("services", okSyntax,
                 v -> Boolean.FALSE.equals(exists.get(v)),
                 "Docker Hub 에 존재하지 않는 이미지입니다."
-        ).judge();
+        ).throwIfInvalid();
 
     }
 }

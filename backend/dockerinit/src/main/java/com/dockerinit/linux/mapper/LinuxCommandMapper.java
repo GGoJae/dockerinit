@@ -1,7 +1,6 @@
 package com.dockerinit.linux.mapper;
 
-import com.dockerinit.global.exception.InvalidInputCustomException;
-import com.dockerinit.global.validation.ValidationErrors;
+import com.dockerinit.global.validation.ValidationCollector;
 import com.dockerinit.linux.domain.model.LinuxCommand;
 import com.dockerinit.linux.domain.syntax.Option;
 import com.dockerinit.linux.domain.syntax.Synopsis;
@@ -59,13 +58,13 @@ public final class LinuxCommandMapper {
     private static Map<String, Option> dtoToOptionMap(List<OptionSpecDTO> dto, boolean optionRequired) {
         List<OptionSpecDTO> optionList = dto == null ? List.of() : dto;
 
-        ValidationErrors.create()
-                .throwDelayIf(optionRequired && optionList.isEmpty(), LINUX_COMMAND_REQUIRED_OPTION)
+        ValidationCollector.create()
+                .deferThrowIf(optionRequired && optionList.isEmpty(), LINUX_COMMAND_REQUIRED_OPTION)
                 .withField("optionRequired", optionRequired)
                 .withField("options", optionList)
-                .judge();
+                .throwIfInvalid();
 
-        ValidationErrors ve = ValidationErrors.create().topMessage(LINUX_COMMAND_DUPLICATE_FLAG);
+        ValidationCollector ve = ValidationCollector.create().topMessage(LINUX_COMMAND_DUPLICATE_FLAG);
         Set<String> seen = new HashSet<>();
         for (int i = 0; i < optionList.size(); i++) {
             OptionSpecDTO o = optionList.get(i);
@@ -74,7 +73,7 @@ public final class LinuxCommandMapper {
                 ve.addForList("options", i, "flag", "중복된 플래그 입니다,", flag);
             }
         }
-        ve.judge();
+        ve.throwIfInvalid();
 
         Map<String, Option> optionInfoMap = new LinkedHashMap<>();
         for (var o : optionList) {

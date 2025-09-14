@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import static com.dockerinit.global.constants.Modules.LINUX;
 public class CommandTypeSuggester implements TypeSuggester {
 
     private final LinuxCommandRepository repository;
-    private final RedisTemplate<String, String> redis;
+    private final StringRedisTemplate redis;
 
     private static final String MODULE = LINUX;
 

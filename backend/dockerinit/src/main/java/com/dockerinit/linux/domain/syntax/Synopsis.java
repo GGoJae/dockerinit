@@ -1,17 +1,15 @@
 package com.dockerinit.linux.domain.syntax;
 
-import com.dockerinit.global.exception.InvalidInputCustomException;
-import com.dockerinit.global.validation.ValidationErrors;
+import com.dockerinit.global.validation.ValidationCollector;
 
 import java.util.List;
-import java.util.Map;
 
 public record Synopsis(List<SynopsisPattern> patterns) {
     public Synopsis {
         patterns = List.copyOf(patterns);
-        ValidationErrors.create()
+        ValidationCollector.create()
                 .required("patterns", patterns, "synopsis pattern이 비어있습니다.")
-                .judge();
+                .throwIfInvalid();
     }
 
     public List<TokenType> expectedTypeAt(int position) {
