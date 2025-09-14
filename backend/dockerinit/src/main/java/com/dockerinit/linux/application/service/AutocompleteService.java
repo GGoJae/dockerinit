@@ -4,15 +4,14 @@ import com.dockerinit.linux.application.autocomplete.model.CommandView;
 import com.dockerinit.linux.application.autocomplete.model.ParseResult;
 import com.dockerinit.linux.application.autocomplete.strategy.autocompleteStrategies.AutocompleteStrategy;
 import com.dockerinit.linux.application.autocomplete.strategy.autocompleteStrategies.impl.CommonLinuxAutocompleteStrategy;
-import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import com.dockerinit.linux.application.shared.model.ModuleType;
 import com.dockerinit.linux.application.shared.model.ModuleTypeMapper;
+import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import com.dockerinit.linux.domain.syntax.Option;
 import com.dockerinit.linux.dto.request.CommandAutocompleteRequest;
 import com.dockerinit.linux.dto.response.LinuxAutocompleteResponse;
-import com.dockerinit.linux.dto.response.common.SuggestionType;
 import com.dockerinit.linux.dto.response.autocompleteV1.*;
-import org.springframework.data.redis.core.RedisTemplate;
+import com.dockerinit.linux.dto.response.common.SuggestionType;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 

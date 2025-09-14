@@ -23,4 +23,8 @@ public record ExplainResponse(
 
         @Schema(description = "캐시로부터 가져왔는지 여부")
         boolean fromCache
-) {}
+) {
+        public boolean isEmpty() {
+                return header.isEmpty();
+        }
+}

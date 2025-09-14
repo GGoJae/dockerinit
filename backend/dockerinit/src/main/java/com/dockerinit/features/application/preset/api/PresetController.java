@@ -59,13 +59,13 @@ public class PresetController {
                 .sorted()
                 .collect(Collectors.joining(","));
 
-        String ver = catalogVersionService.getComposePresetCatalogVer();
+        long ver = catalogVersionService.getComposePresetCatalogVer();
         String etag = "\"" + String.join("|",
                 "preset:list", normKind, normTags,
                 String.valueOf(pageable.getPageNumber()),
                 String.valueOf(pageable.getPageSize()),
                 String.valueOf(pageable.getSort()),
-                ver
+                String.valueOf(ver)
         ) + "\"";
 
         if (request.checkNotModified(etag)) {

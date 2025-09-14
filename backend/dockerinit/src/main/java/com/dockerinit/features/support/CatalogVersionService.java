@@ -11,21 +11,29 @@ public class CatalogVersionService {
     private static final String PRESET_VER_KEY = "di:preset:catalog:ver";
     private static final String COMPOSE_PRESET_VER_KEY = "di:compose:preset:catalog:ver";
 
-    public String getPresetCatalogVer() {
-        String v = redis.opsForValue().get(PRESET_VER_KEY);
-        return (v == null) ? "0" : v;
+    private long getOrZero(String key) {
+        String v = redis.opsForValue().get(key);
+        return (v == null) ? 0L : Long.parseLong(v);
     }
 
-    public void bumpPresetCatalogVer() {
-        redis.opsForValue().increment(PRESET_VER_KEY);
+    private long bump(String key) {
+        Long v = redis.opsForValue().increment(key);
+        return (v == null) ? 0L : v;
     }
 
-    public String getComposePresetCatalogVer() {
-        String v = redis.opsForValue().get(COMPOSE_PRESET_VER_KEY);
-        return (v == null) ? "0" : v;
+    public long getPresetCatalogVer() {
+        return getOrZero(PRESET_VER_KEY);
     }
 
-    public void bumpComposePresetCatalogVer() {
-        redis.opsForValue().increment(COMPOSE_PRESET_VER_KEY);
+    public long bumpPresetCatalogVer() {
+        return bump(PRESET_VER_KEY);
+    }
+
+    public long getComposePresetCatalogVer() {
+        return getOrZero(COMPOSE_PRESET_VER_KEY);
+    }
+
+    public long bumpComposePresetCatalogVer() {
+        return bump(COMPOSE_PRESET_VER_KEY);
     }
 }

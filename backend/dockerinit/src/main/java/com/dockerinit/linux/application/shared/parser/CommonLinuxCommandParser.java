@@ -38,27 +38,21 @@ public class CommonLinuxCommandParser implements CommandLineParser {
     public ParseResult parse(String line, int cursor, List<ShellTokenizer.Token> tokens) {
 
         String baseCommand = tokens.isEmpty() ? "" : tokens.get(0).text();
-        CommandView view = getCommandView(baseCommand);
+        Optional<CommandView> viewOpt = getCommandView(baseCommand);
 
         int idx = ShellTokenizer.indexOfTokenAtCursor(cursor, tokens);
         String currentTokenText = (idx >= 0 && idx < tokens.size()) ? tokens.get(idx).text() : "";
 
         int position = Math.max(0, idx - 1);
-        Map<String, Option> options = (view == null) ? Map.of() : Map.copyOf(view.options());
+        Map<String, Option> options = viewOpt.map(view -> Map.copyOf(view.options()))
+                .orElseGet(Map::of);
         String prevFlag = computePrevFlag(tokens, idx, currentTokenText, options);
 
-        if (view == null) {
-            List<ExpectedToken> expected = ifNotFoundCommandGetET(currentTokenText);
+        List<ExpectedToken> expected = viewOpt.map(view -> view.synopsis().expectedTypeAt(position))
+                .map(types -> getExpectedTokens(types, currentTokenText, prevFlag, options))
+                .orElseGet(() -> ifNotFoundCommandGetET(currentTokenText));
 
-            return new ParseResult(
-                    line, cursor, baseCommand, currentTokenText, idx,
-                    prevFlag, null, expected, position
-            );
-        }
-
-        List<TokenType> types = view.synopsis().expectedTypeAt(position);
-
-        List<ExpectedToken> expected = getExpectedTokens(types, currentTokenText, prevFlag, options);
+        CommandView view = viewOpt.orElse(null);
 
         return new ParseResult(
                 line, cursor, baseCommand, currentTokenText, idx,
@@ -84,11 +78,11 @@ public class CommonLinuxCommandParser implements CommandLineParser {
         return expected;
     }
 
-    private CommandView getCommandView(String baseCommand) {
-        if (baseCommand.isEmpty()) return null;
+    private Optional<CommandView> getCommandView(String baseCommand) {
+        if (baseCommand.isEmpty()) return Optional.empty();
 
         // 레디스 미스에 키가 이미 있다면 null
-        if (Boolean.TRUE.equals(redis.hasKey(RedisKeys.cmdMiss(MODULE, baseCommand)))) return null;
+        if (Boolean.TRUE.equals(redis.hasKey(RedisKeys.cmdMiss(MODULE, baseCommand)))) return Optional.empty();
 
         String key = RedisKeys.cmdCache(MODULE, baseCommand);
         String json = null;
@@ -98,45 +92,48 @@ public class CommonLinuxCommandParser implements CommandLineParser {
             log.warn("redis 가져오기 실패 key = {}, error = {}", key, e.toString());
         }
 
-        CommandView view = tryParseJson(json);
+        Optional<CommandView> viewOpt = tryParseJson(json);
 
-        if (view == null) {
-            view = loadFromDbAndCache(baseCommand, key);
+        if (viewOpt.isEmpty()) {
+            viewOpt = loadFromDbAndCache(baseCommand, key);
         }
 
-        return view;
+        return viewOpt;
     }
 
-    private CommandView loadFromDbAndCache(String baseCommand, String key) {
-        Optional<LinuxCommand> cmdOpt = repository.findByCommand(baseCommand);
-        if (cmdOpt.isEmpty()) {
-            try {
-                redis.opsForValue().set(
-                        RedisKeys.cmdMiss(MODULE, baseCommand), "1", Duration.ofMinutes(5));
-            } catch (Exception e) {
-                log.debug("레디스 miss key 저장 실패: {}", e.toString());
-            }
-            return null;
-        }
+    private Optional<CommandView> loadFromDbAndCache(String baseCommand, String key) {
+        Optional<CommandView> viewOpt = repository.findByCommand(baseCommand)
+                .map(CommandView::of);
 
-        CommandView view = CommandView.of(cmdOpt.get());
+        viewOpt.ifPresentOrElse(
+                        view -> {
+                            try {
+                                redis.opsForValue().set(key, mapper.writeValueAsString(view), Duration.ofHours(6));
+                            } catch (Exception e) {
+                                log.warn("redis 저장 실패 key={}, err={}", key, e.toString());
+                            }
+                        },
+                        () -> {
+                            try {
+                                redis.opsForValue().set(
+                                        RedisKeys.cmdMiss(MODULE, baseCommand), "1", Duration.ofMinutes(5));
+                            } catch (Exception e) {
+                                log.debug("레디스 miss key 저장 실패: {}", e.toString());
+                            }
+                        }
+                );
 
-        try {
-            redis.opsForValue().set(key, mapper.writeValueAsString(view), Duration.ofHours(6));
-        } catch (Exception e) {
-            log.warn("redis 저장 실패 key={}, err={}", key, e.toString());
-        }
-        return view;
+        return viewOpt;
     }
 
-    private CommandView tryParseJson(String json) {
-        if (json == null) return null;
+    private Optional<CommandView> tryParseJson(String json) {
+        if (json == null) return Optional.empty();
 
         try {
-            return mapper.readValue(json, CommandView.class);
+            return Optional.ofNullable(mapper.readValue(json, CommandView.class));
         } catch (Exception e) {
             log.warn("CommandView json parse 실패  error = {}", e.toString());
-            return null;
+            return Optional.empty();
         }
     }
 

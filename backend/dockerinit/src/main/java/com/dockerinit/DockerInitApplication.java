@@ -12,7 +12,6 @@ public class DockerInitApplication {
 	/**
 	 * TODO
 	 * - 프리셋 mongodb 에 저장
-	 * - 레디스에 저장해놓은 검색횟수 db 에 반영하는 스케쥴 로직
 	 * - 전체 로그찍기 AOP ?
 	 * - man 페이지 크롤링 -> 번역 api -> db에 저장하는 로직 장성
 	 * - 스프링 시큐리티 도입 및 설정

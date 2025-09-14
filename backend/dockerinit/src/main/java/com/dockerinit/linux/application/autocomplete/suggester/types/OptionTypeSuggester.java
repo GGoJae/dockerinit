@@ -2,16 +2,15 @@ package com.dockerinit.linux.application.autocomplete.suggester.types;
 
 import com.dockerinit.linux.application.autocomplete.model.ExpectedToken;
 import com.dockerinit.linux.application.autocomplete.model.ParseResult;
-import com.dockerinit.linux.domain.syntax.Option;
-import com.dockerinit.linux.dto.response.common.SuggestionType;
-import com.dockerinit.linux.dto.response.autocompleteV1.Suggestion;
-import com.dockerinit.linux.infrastructure.redis.RedisKeys;
 import com.dockerinit.linux.application.autocomplete.replace.Replace;
 import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
+import com.dockerinit.linux.domain.syntax.Option;
+import com.dockerinit.linux.dto.response.autocompleteV1.Suggestion;
+import com.dockerinit.linux.dto.response.common.SuggestionType;
+import com.dockerinit.linux.infrastructure.redis.RedisKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.Limit;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 

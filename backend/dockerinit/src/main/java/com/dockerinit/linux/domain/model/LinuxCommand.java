@@ -172,7 +172,7 @@ public class LinuxCommand {
                 tags, searchCount);
     }
 
-    static class Updating {
+    public static class Updating {
         private final String id;
         private  String category; // 카테고리 (예: 파일, 네트워크 등)
         private  String command; // 명령어 이름 (예: ls, ping)

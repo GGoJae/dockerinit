@@ -1,12 +1,11 @@
 package com.dockerinit.global.support.warmer;
 
 import com.dockerinit.linux.domain.model.LinuxCommand;
-import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
 import com.dockerinit.linux.infrastructure.redis.RedisKeys;
+import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 

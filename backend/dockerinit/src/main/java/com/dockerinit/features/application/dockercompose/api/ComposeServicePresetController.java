@@ -56,13 +56,13 @@ public class ComposeServicePresetController {
                 .sorted()
                 .collect(Collectors.joining(","));
 
-        String ver = catalogVersionService.getPresetCatalogVer();
+        long ver = catalogVersionService.getPresetCatalogVer();
         String etag = "\"" + String.join("|",
                 "compose:preset:list", normKind, normTags,
                 String.valueOf(pageable.getPageNumber()),
                 String.valueOf(pageable.getPageSize()),
                 String.valueOf(pageable.getSort()),
-                ver
+                String.valueOf(ver)
         ) + "\"";
 
         if (request.checkNotModified(etag)) {

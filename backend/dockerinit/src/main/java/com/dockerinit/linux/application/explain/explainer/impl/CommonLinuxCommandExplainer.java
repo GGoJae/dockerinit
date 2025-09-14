@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 import static com.dockerinit.global.constants.AppInfo.CURRENT_EXPLAIN_VERSION;
-import static java.util.List.of;
 
 @Component
 @RequiredArgsConstructor
@@ -27,18 +26,18 @@ public class CommonLinuxCommandExplainer implements CommandExplainer {
         if (view == null) {
             return new ExplainResponse(
                     CURRENT_EXPLAIN_VERSION,
-                    new Header("", "해당 명령를 찾을 수 없습니다.", of()),
-                    new Details(of(), of(), of(
+                    Header.empty(),
+                    new Details(List.of(), List.of(), List.of(
                             new Note(NoteLevel.INFO, "알 수 없는 명령입니다.")
                     )),
-                    of(), false
+                    List.of(), false
             );
         }
 
         Invocation inv = InvocationFactory.from(result, ShellTokenizer.tokenize(result.line()), locale);
 
         String summary = (view.description() == null) ? "설명 없음" : view.description();
-        List<String> tags = (view.tags() == null) ? of() : view.tags();
+        List<String> tags = (view.tags() == null) ? List.of() : view.tags();
 
         Header header = new Header(view.command(), summary, tags);
 

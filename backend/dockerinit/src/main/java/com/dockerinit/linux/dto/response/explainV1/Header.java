@@ -14,4 +14,12 @@ public record Header(
 
         @Schema(description = "태그", example = "[\"네트워크\", \"icmp\"]")
         List<String> tags
-) {}
+) {
+        public static Header empty() {
+                return new Header("", "해당 명령를 찾을 수 없습니다.", List.of());
+        }
+
+        public boolean isEmpty() {
+                return "".equals(command) && "해당 명령를 찾을 수 없습니다.".equals(summary) && tags().isEmpty();
+        }
+}
