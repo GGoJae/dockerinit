@@ -1,4 +1,4 @@
-package com.dockerinit.features.support.validation;
+package com.dockerinit.global.validation;
 
 import com.dockerinit.global.exception.InvalidInputCustomException;
 import lombok.AccessLevel;
@@ -15,7 +15,9 @@ public final class Slug {
     private static final Pattern MULTI_DASH = Pattern.compile("-{2,}");
 
     public static String normalize(String raw) {
-        if (raw == null) throw new InvalidInputCustomException("slug가 비어있습니다.");
+
+        ValidationErrors.throwNowIf(raw == null || raw.isBlank(),
+                "slug", "slug가 비어있습니다.", raw);
 
 
         String s = raw.trim().toLowerCase(Locale.ROOT);
@@ -23,9 +25,12 @@ public final class Slug {
         s = MULTI_DASH.matcher(s).replaceAll("-");
         s = s.replaceAll("(^-+)|(-+$)", "");
 
-        if (!s.matches(p.pattern())) {
-            throw new InvalidInputCustomException("invalid slug: " + s);
-        }
+        ValidationErrors.create()
+                .required("slug", s, "slug가 비어있습니다.")
+                .matches("slug", s, p, "올바른 형식이 아닙니다.")
+                .lengthBetween("slug", s, 1, 64, "slug 길이는 1~64자여야 합니다.") // TODO 제약 생각해보기
+                .judge();
+
         return s;
     }
 

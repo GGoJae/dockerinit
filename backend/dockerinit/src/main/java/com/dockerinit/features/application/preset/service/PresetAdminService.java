@@ -7,7 +7,7 @@ import com.dockerinit.features.application.preset.dto.response.PresetDetailRespo
 import com.dockerinit.features.application.preset.mapper.PresetMapper;
 import com.dockerinit.features.application.preset.repository.PresetRepository;
 import com.dockerinit.features.application.preset.support.PresetSlugFactory;
-import com.dockerinit.features.support.validation.Slug;
+import com.dockerinit.global.validation.Slug;
 import com.dockerinit.global.exception.InternalErrorCustomException;
 import com.dockerinit.global.exception.NotFoundCustomException;
 import lombok.RequiredArgsConstructor;

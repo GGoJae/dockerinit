@@ -1,4 +1,4 @@
-package com.dockerinit.features.support.validation.safeRefPath;
+package com.dockerinit.global.validation.safeRefPath;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

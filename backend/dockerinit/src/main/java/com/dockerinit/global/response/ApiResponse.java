@@ -11,19 +11,19 @@ import java.time.ZonedDateTime;
 public class ApiResponse<T> {
 
     @Schema(description = "요청 성공 여부", example = "true")
-    private boolean success;
+    private final boolean success;
 
     @Schema(description = "응답 상태 코드 (성공/에러 등)")
-    private StateCode stateCode;
+    private final StateCode stateCode;
 
     @Schema(description = "응답 메시지", example = "성공적으로 처리되었습니다.")
-    private String message;
+    private final String message;
 
     @Schema(description = "응답 데이터")
-    private T data;
+    private final T data;
 
     @Schema(description = "응답 시간 (KST)", example = "2025-07-28T15:00:00+09:00")
-    private ZonedDateTime timestamp;
+    private final ZonedDateTime timestamp;
 
     public ApiResponse(boolean success, StateCode stateCode, String message, T data) {
         this.success = success;
@@ -47,6 +47,10 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> error(StateCode errorCode, String message, T data) {
         return new ApiResponse<>(false, errorCode, message, data);
+    }
+
+    public static <T> ApiResponse<T> ok() {
+        return new ApiResponse<>(true, StateCode.SUCCESS, "", null);
     }
 
 }

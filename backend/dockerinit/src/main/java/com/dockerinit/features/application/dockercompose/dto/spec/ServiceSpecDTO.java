@@ -1,6 +1,6 @@
 package com.dockerinit.features.application.dockercompose.dto.spec;
 
-import com.dockerinit.features.support.validation.composeService.ExactlyOneOfImageOrBuild;
+import com.dockerinit.global.validation.composeService.ExactlyOneOfImageOrBuild;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

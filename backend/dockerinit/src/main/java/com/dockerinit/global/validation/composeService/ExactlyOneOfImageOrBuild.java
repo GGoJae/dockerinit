@@ -1,4 +1,4 @@
-package com.dockerinit.features.support.validation.composeService;
+package com.dockerinit.global.validation.composeService;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

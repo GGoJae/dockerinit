@@ -2,13 +2,11 @@ package com.dockerinit.features.application.dockercompose.dto.request;
 
 import com.dockerinit.features.application.dockercompose.dto.spec.SelectionKind;
 import com.dockerinit.features.application.dockercompose.dto.spec.ServiceSpecDTO;
-import com.dockerinit.features.support.validation.Slug;
-import com.dockerinit.global.exception.InvalidInputCustomException;
+import com.dockerinit.global.validation.Slug;
+import com.dockerinit.global.validation.ValidationErrors;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-
-import java.util.Map;
 
 public record ServiceSelectionDTO(
         @Schema(description = "프리셋 선택 유형",
@@ -27,15 +25,16 @@ public record ServiceSelectionDTO(
 
     public ServiceSelectionDTO {
         String norm = (presetSlug == null) ? null : Slug.normalize(presetSlug);
-        if (kind != SelectionKind.CUSTOM && (norm == null || norm.isEmpty())) {
-            throw new InvalidInputCustomException("프리셋 베이스이지만 slug 를 입력하지 않았습니다", Map.of("kind", kind));
-        }
-        if (kind == SelectionKind.CUSTOM && norm != null) {
-            throw new InvalidInputCustomException(
-                    "CUSTOM 선택 시 presetSlug 를 넘기면 안됩니다.",
-                    Map.of("kind", kind, "slug", presetSlug)
-            );
-        }
+        ValidationErrors.throwNowIf(kind != SelectionKind.CUSTOM && (norm == null || norm.isEmpty()),
+                        "kind", "프리셋 베이스이지만 slug 를 입력하지 않았습니다", kind);
+
+        ValidationErrors.create()
+                .throwDelayIf(kind == SelectionKind.CUSTOM && norm != null,
+                        "CUSTOM 선택 시 presetSlug 를 넘기면 안됩니다.")
+                .withField("kind", kind)
+                .withField("slug", presetSlug)
+                .judge();
+
         presetSlug = norm;
     }
 }

@@ -4,7 +4,7 @@ import com.dockerinit.features.application.dockerfile.dto.request.spec.Additiona
 import com.dockerinit.features.application.dockerfile.dto.request.spec.CopyDirective;
 import com.dockerinit.features.application.dockerfile.dto.request.spec.HealthcheckSpec;
 import com.dockerinit.features.application.dockerfile.dto.request.spec.Mode;
-import com.dockerinit.features.support.validation.dockerfileCrossCheck.DockerfileCrossCheck;
+import com.dockerinit.global.validation.dockerfileCrossCheck.DockerfileCrossCheck;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;

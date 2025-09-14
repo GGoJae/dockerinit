@@ -1,7 +1,7 @@
 package com.dockerinit.features.application.dockercompose.renderer.impl;
 
 import com.dockerinit.features.application.dockercompose.domain.composeCustom.ComposePlan;
-import com.dockerinit.features.application.dockercompose.domain.Service;
+import com.dockerinit.features.application.dockercompose.domain.model.Service;
 import com.dockerinit.features.application.dockercompose.dto.request.ComposeRequestV1;
 import com.dockerinit.features.application.dockercompose.renderer.ComposeArtifactRenderer;
 import com.dockerinit.features.model.ContentType;

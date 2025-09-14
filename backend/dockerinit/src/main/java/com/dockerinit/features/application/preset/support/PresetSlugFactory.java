@@ -1,7 +1,7 @@
 package com.dockerinit.features.application.preset.support;
 
 import com.dockerinit.features.application.preset.dto.spec.PresetKindDTO;
-import com.dockerinit.features.support.validation.Slug;
+import com.dockerinit.global.validation.Slug;
 import com.dockerinit.global.exception.InternalErrorCustomException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

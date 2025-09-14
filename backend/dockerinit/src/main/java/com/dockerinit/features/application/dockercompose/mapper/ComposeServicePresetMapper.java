@@ -1,6 +1,6 @@
 package com.dockerinit.features.application.dockercompose.mapper;
 
-import com.dockerinit.features.application.dockercompose.domain.Service;
+import com.dockerinit.features.application.dockercompose.domain.model.Service;
 import com.dockerinit.features.application.dockercompose.domain.composePreset.Category;
 import com.dockerinit.features.application.dockercompose.domain.composePreset.ComposeServicePresetDocument;
 import com.dockerinit.features.application.dockercompose.dto.response.ComposeServicePresetDetailResponse;

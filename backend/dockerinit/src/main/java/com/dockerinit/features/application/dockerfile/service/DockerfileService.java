@@ -10,10 +10,10 @@ import com.dockerinit.features.model.GeneratedFile;
 import com.dockerinit.features.model.PackageResult;
 import com.dockerinit.features.model.RenderContext;
 import com.dockerinit.features.packager.Packager;
-import com.dockerinit.features.support.validation.DockerImageValidationService;
+import com.dockerinit.global.validation.DockerImageValidationService;
 import com.dockerinit.global.constants.ErrorMessage;
 import com.dockerinit.global.exception.InternalErrorCustomException;
-import com.dockerinit.global.exception.InvalidInputCustomException;
+import com.dockerinit.global.validation.ValidationErrors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -36,9 +36,12 @@ public class DockerfileService {
 
     public PackageResult downloadPackageAsZip(DockerfileRequest request) {
         String baseImage = request.baseImage();
-        if (!dockerImageValidationService.existsInDockerHub(baseImage)) {
-            throw new InvalidInputCustomException(ErrorMessage.INVALID_DOCKER_IMAGE, Map.of("image", baseImage));
-        }
+
+        ValidationErrors.create()
+                .requiredTrue(dockerImageValidationService.existsInDockerHub(baseImage),
+                        "image", ErrorMessage.INVALID_DOCKER_IMAGE, baseImage)
+                .judge();
+
         DockerfilePlan plan = DockerfilePlanMapper.toPlan(request);
         List<String> warnings = new ArrayList<>(plan.warnings());
 
@@ -51,7 +54,7 @@ public class DockerfileService {
                 try {
                     artifacts.addAll(r.render(ctx, warnings));
                 } catch (Exception e) {
-                    log.warn("랜더 도중 에러 {}", ctx, e);
+                    log.warn("랜더러 '{}' failed. ctx= {}",r.id(),  ctx, e);
                     warnings.add("Renderer '" + r.id() + "' failed ");
                 }
             }
@@ -64,9 +67,11 @@ public class DockerfileService {
     public DockerfileResponse renderContent(DockerfileRequest request) {
 
         String baseImage = request.baseImage();
-        if (!dockerImageValidationService.existsInDockerHub(baseImage)) {
-            throw new InvalidInputCustomException(ErrorMessage.INVALID_DOCKER_IMAGE, Map.of("image", baseImage));
-        }
+
+        ValidationErrors.create()
+                .requiredTrue(dockerImageValidationService.existsInDockerHub(baseImage), "image", ErrorMessage.INVALID_DOCKER_IMAGE,
+                        baseImage)
+                .judge();
 
         DockerfilePlan plan = DockerfilePlanMapper.toPlan(request);
         List<String> warnings = new ArrayList<>(plan.warnings());

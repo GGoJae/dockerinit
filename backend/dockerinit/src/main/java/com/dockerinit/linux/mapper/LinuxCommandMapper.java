@@ -1,6 +1,7 @@
 package com.dockerinit.linux.mapper;
 
 import com.dockerinit.global.exception.InvalidInputCustomException;
+import com.dockerinit.global.validation.ValidationErrors;
 import com.dockerinit.linux.domain.model.LinuxCommand;
 import com.dockerinit.linux.domain.syntax.Option;
 import com.dockerinit.linux.domain.syntax.Synopsis;
@@ -58,21 +59,29 @@ public final class LinuxCommandMapper {
     private static Map<String, Option> dtoToOptionMap(List<OptionSpecDTO> dto, boolean optionRequired) {
         List<OptionSpecDTO> optionList = dto == null ? List.of() : dto;
 
-        if (optionRequired && optionList.isEmpty()) {
-            throw new InvalidInputCustomException(LINUX_COMMAND_REQUIRED_OPTION,
-                    Map.of("optionRequired", optionRequired, "options", optionList));
-        }
+        ValidationErrors.create()
+                .throwDelayIf(optionRequired && optionList.isEmpty(), LINUX_COMMAND_REQUIRED_OPTION)
+                .withField("optionRequired", optionRequired)
+                .withField("options", optionList)
+                .judge();
 
-        Map<String, Option> optionInfoMap = new LinkedHashMap<>();
-        for (OptionSpecDTO o : optionList) {
-            Option prev = optionInfoMap.putIfAbsent(
-                    o.flag(),
-                    new Option(o.argName(), o.argRequired(), o.typeHint(), o.defaultValue(), o.description())
-            );
-            if (prev != null) {
-                throw new InvalidInputCustomException(LINUX_COMMAND_DUPLICATE_FLAG, Map.of("flag", o.flag()));
+        ValidationErrors ve = ValidationErrors.create().topMessage(LINUX_COMMAND_DUPLICATE_FLAG);
+        Set<String> seen = new HashSet<>();
+        for (int i = 0; i < optionList.size(); i++) {
+            OptionSpecDTO o = optionList.get(i);
+            String flag = o.flag();
+            if (!seen.add(flag)) {
+                ve.addForList("options", i, "flag", "중복된 플래그 입니다,", flag);
             }
         }
+        ve.judge();
+
+        Map<String, Option> optionInfoMap = new LinkedHashMap<>();
+        for (var o : optionList) {
+            optionInfoMap.put(o.flag(),
+                    new Option(o.argName(), o.argRequired(), o.typeHint(), o.defaultValue(), o.description()));
+        }
+
         return optionInfoMap;
     }
 }

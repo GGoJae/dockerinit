@@ -1,6 +1,6 @@
 package com.dockerinit.features.application.dockercompose.domain.composePreset;
 
-import com.dockerinit.features.application.dockercompose.domain.Service;
+import com.dockerinit.features.application.dockercompose.domain.model.Service;
 import lombok.*;
 import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.index.Indexed;

@@ -1,4 +1,4 @@
-package com.dockerinit.features.application.dockercompose.domain.composeCustom;
+package com.dockerinit.features.application.dockercompose.domain.model;
 
 import java.util.Map;
 

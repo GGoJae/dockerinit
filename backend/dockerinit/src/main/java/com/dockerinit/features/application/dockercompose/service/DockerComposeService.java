@@ -12,14 +12,15 @@ import com.dockerinit.features.model.GeneratedFile;
 import com.dockerinit.features.model.PackageResult;
 import com.dockerinit.features.model.RenderContext;
 import com.dockerinit.features.packager.Packager;
-import com.dockerinit.features.support.validation.DockerImageValidationService;
-import com.dockerinit.global.exception.InvalidInputCustomException;
+import com.dockerinit.global.validation.DockerImageValidationService;
+import com.dockerinit.global.validation.ValidationErrors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,6 +32,10 @@ public class DockerComposeService {
     private final List<ComposeArtifactRenderer> renderers;
     private final Packager packager;
     private final ComposeServicePresetRepository repository;
+
+    private static final Pattern IMAGE = Pattern.compile(
+            "^[a-z0-9]+([._-][a-z0-9]+)*/?[a-z0-9._-]+(:[a-zA-Z0-9._-]+)?(@sha256:[a-f0-9]{64})?$"
+    );
 
     public PackageResult downloadComposePackage(ComposeRequestV1 request) {
         validateImages(request);
@@ -89,26 +94,34 @@ public class DockerComposeService {
     }
 
     private void validateImages(ComposeRequestV1 request) {
+
         Map<String, String> target = request.services().stream().collect(Collectors.toMap(
                 s -> s.service().name(),
                 s -> s.service().image(),
                 (a, b) -> a
         ));
 
-        Map<String, Object> invalidImages = new HashMap<>();
+        ValidationErrors ve = ValidationErrors.create().topMessage("유효하지 않은 Docker 이미지 입니다.");
 
-        target.forEach((type, image) -> {
-            if ( image != null && !dockerImageValidationService.existsInDockerHub(image)) {
-                invalidImages.put(type, image);
-            }
-        });
+        ve.forEachValueRejectIf("services", target,
+                v -> v != null && !v.isBlank() && !IMAGE.matcher(v).matches(),
+                "이미지 이름 형식이 올바르지 않습니다.");
 
-        if (hasError(invalidImages)) {
-            throw new InvalidInputCustomException("유효하지 않은 Docker 이미지 입니다.", invalidImages);
+        Map<String, String> okSyntax = target.entrySet().stream()
+                .filter(e -> e.getValue() != null && !e.getValue().isBlank() && IMAGE.matcher(e.getValue()).matches())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        List<String> unique = okSyntax.values().stream().distinct().toList();
+
+        Map<String, Boolean> exists = new HashMap<>(unique.size());
+        for (String img : unique) {
+            exists.put(img, dockerImageValidationService.existsInDockerHub(img));
         }
-    }
 
-    private boolean hasError(Map<String, Object> bindingResult) {
-        return !bindingResult.isEmpty();
+        ve.forEachValueRejectIf("services", okSyntax,
+                v -> Boolean.FALSE.equals(exists.get(v)),
+                "Docker Hub 에 존재하지 않는 이미지입니다."
+        ).judge();
+
     }
 }

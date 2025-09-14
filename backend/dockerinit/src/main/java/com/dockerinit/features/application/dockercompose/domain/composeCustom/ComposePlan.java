@@ -1,6 +1,6 @@
 package com.dockerinit.features.application.dockercompose.domain.composeCustom;
 
-import com.dockerinit.features.application.dockercompose.domain.Service;
+import com.dockerinit.features.application.dockercompose.domain.model.Service;
 import lombok.Builder;
 
 import java.util.ArrayList;

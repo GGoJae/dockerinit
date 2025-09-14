@@ -1,6 +1,7 @@
 package com.dockerinit.linux.domain.model;
 
 import com.dockerinit.global.exception.InvalidInputCustomException;
+import com.dockerinit.global.validation.ValidationErrors;
 import com.dockerinit.linux.domain.syntax.Option;
 import com.dockerinit.linux.domain.syntax.Synopsis;
 import lombok.Getter;
@@ -69,7 +70,10 @@ public class LinuxCommand {
                  Long searchCount) {
 
         String cmd = Objects.requireNonNull(command, "command").trim();
-        if (cmd.isEmpty()) throw new InvalidInputCustomException("command 가 비어있습니다.", Map.of("command", cmd));
+
+        ValidationErrors.create()
+                .notBlank("command", cmd, "command 가 비어있습니다.")
+                .judge();
 
         String commandNorm = cmd.toLowerCase(Locale.ROOT);
         List<String> aliasesSafe = emptyOrCopyList(aliases);

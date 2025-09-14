@@ -1,9 +1,7 @@
-package com.dockerinit.features.support.validation.safeRefPath;
+package com.dockerinit.global.validation.safeRefPath;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-
-import java.util.Objects;
 
 public class SafeRelPathValidator implements ConstraintValidator<SafeRelPath, String> {
 

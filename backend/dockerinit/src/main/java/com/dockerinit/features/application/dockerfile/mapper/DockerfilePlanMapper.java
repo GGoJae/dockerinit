@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DockerfilePlanMapper {
     public static DockerfilePlan toPlan(DockerfileRequest req) {
+        Objects.requireNonNull(req.baseImage(), "baseImage");
         ArrayList<String> warnings = new ArrayList<>();
 
         Set<FileType> targets = EnumSet.of(FileType.DOCKERFILE);

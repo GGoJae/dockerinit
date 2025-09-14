@@ -1,12 +1,12 @@
-package com.dockerinit.features.application.dockercompose.domain;
+package com.dockerinit.features.application.dockercompose.domain.model;
 
-import com.dockerinit.features.application.dockercompose.domain.composeCustom.Build;
 import com.dockerinit.features.application.dockercompose.domain.composeCustom.Healthcheck;
 import lombok.Builder;
 
 import java.util.List;
 import java.util.Map;
 
+// TODO 컬렉션 기본값들 VO 로 만들기
 @Builder
 public record Service(
         String name,

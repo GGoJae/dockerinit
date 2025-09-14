@@ -1,4 +1,4 @@
-package com.dockerinit.features.support.validation.dockerfileCrossCheck;
+package com.dockerinit.global.validation.dockerfileCrossCheck;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

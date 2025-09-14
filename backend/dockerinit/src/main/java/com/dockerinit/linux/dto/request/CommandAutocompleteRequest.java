@@ -1,6 +1,7 @@
 package com.dockerinit.linux.dto.request;
 
 import com.dockerinit.global.exception.InvalidInputCustomException;
+import com.dockerinit.global.validation.ValidationErrors;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -26,13 +27,14 @@ public record CommandAutocompleteRequest(
 
         cursor = (cursor == null) ? line.length() : cursor;
 
-        if (cursor < 0 || line.length() < cursor) {
-            throw new InvalidInputCustomException(
-                    LINUX_CURSOR_OUT_OF_RANGE,
-                    Map.of("cursor", cursor, "lineLength", line.length())
-            );
-        }
-
+        ValidationErrors.create()
+                .rejectIf(cursor < 0 || line.length() < cursor,
+                        "cursor",
+                        LINUX_CURSOR_OUT_OF_RANGE,
+                        cursor
+                )
+                .withField("lineLength", line)
+                .judge();
     }
 
 
