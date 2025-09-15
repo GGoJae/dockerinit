@@ -4,8 +4,8 @@ import com.dockerinit.linux.application.service.AutocompleteService;
 import com.dockerinit.linux.domain.model.LinuxCommand;
 import com.dockerinit.linux.domain.syntax.*;
 import com.dockerinit.linux.dto.request.CommandAutocompleteRequest;
-import com.dockerinit.linux.dto.response.LinuxAutocompleteResponse;
-import com.dockerinit.linux.dto.response.common.SuggestionType;
+import com.dockerinit.linux.dto.response.autocompleteV1.LinuxAutocompleteResponse;
+import com.dockerinit.linux.dto.response.autocompleteV1.SuggestionType;
 import com.dockerinit.linux.dto.response.autocompleteV1.*;
 import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -383,7 +383,7 @@ class LinuxCommandServiceIT {
         );
     }
     private static TokenDescriptor td(TokenType t, boolean repeat, boolean optional, String desc) {
-        return new TokenDescriptor(t, repeat, optional, desc);
+        return TokenDescriptor.of(t, repeat, optional, desc);
     }
 
     private LinuxAutocompleteResponse getAutocompleteRes(String line, Integer cursor) {

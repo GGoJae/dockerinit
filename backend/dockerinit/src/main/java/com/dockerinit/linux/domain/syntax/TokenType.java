@@ -10,5 +10,6 @@ public enum TokenType {
     FILE,
     DIRECTORY,
     FLAG,
-    VALUE
+    VALUE,
+    LITERAL
 }

@@ -17,7 +17,7 @@ import java.util.Objects;
 
 @Document(collection = "linux_commands")
 @Getter
-@CompoundIndex( name = "cmd_prefix_rank", def = "{'commandNorm': 1, 'searchCount': -1}")
+@CompoundIndex(name = "cmd_prefix_rank", def = "{'commandNorm': 1, 'searchCount': -1}")
 @CompoundIndex(name = "alias_prefix_rank", def = "{'aliasesNorm': 1, 'searchCount': -1}")
 
 public class LinuxCommand {
@@ -54,22 +54,26 @@ public class LinuxCommand {
     @Indexed(direction = IndexDirection.DESCENDING)
     private final Long searchCount; // 검색된 횟수
 
-    private LinuxCommand(String id,
-                 String category,
-                 String command,
-                 List<String> aliases,
-                 String description,
-                 Synopsis synopsis,
-                 List<String> arguments,
-                 List<String> examples,
-                 boolean verified,
-                 boolean optionRequired,
-                 Map<String, Option> options,
-                 List<String> tags,
-                 Long searchCount) {
+    private final ManMeta manMeta;
+
+    private LinuxCommand(
+            String id,
+            String category,
+            String command,
+            List<String> aliases,
+            String description,
+            Synopsis synopsis,
+            List<String> arguments,
+            List<String> examples,
+            boolean verified,
+            boolean optionRequired,
+            Map<String, Option> options,
+            List<String> tags,
+            Long searchCount,
+            ManMeta manMeta
+    ) {
 
         String cmd = Objects.requireNonNull(command, "command").trim();
-
         ValidationCollector.create()
                 .notBlank("command", cmd, "command 가 비어있습니다.")
                 .throwIfInvalid();
@@ -98,21 +102,22 @@ public class LinuxCommand {
         this.options = options == null ? Map.of() : Map.copyOf(options);
         this.tags = tags == null ? List.of() : List.copyOf(tags);
         this.searchCount = (searchCount == null) ? 0L : searchCount;
+        this.manMeta = manMeta;
     }
 
 
-    public static LinuxCommand createForManual(String category,
-                                                String command,
-                                                List<String> aliases,
-                                                String description,
-                                                Synopsis synopsis,
-                                                List<String> arguments,
-                                                List<String> examples,
-                                                boolean verified,
-                                                boolean optionRequired,
-                                                Map<String, Option> options,
-                                                List<String> tags) {
-
+    public static LinuxCommand createForManual(
+            String category,
+            String command,
+            List<String> aliases,
+            String description,
+            Synopsis synopsis,
+            List<String> arguments,
+            List<String> examples,
+            boolean verified,
+            boolean optionRequired,
+            Map<String, Option> options,
+            List<String> tags) {
 
         return new LinuxCommand(
                 null,
@@ -127,20 +132,23 @@ public class LinuxCommand {
                 optionRequired,
                 emptyOrCopyMap(options),
                 emptyOrCopyList(tags),
-                0L);
+                0L,
+                null
+        );
     }
 
-    public static LinuxCommand createForCrawling(String category,
-                                                String command,
-                                                List<String> aliases,
-                                                String description,
-                                                Synopsis synopsis,
-                                                List<String> arguments,
-                                                List<String> examples,
-                                                boolean optionRequired,
-                                                Map<String, Option> options,
-                                                List<String> tags) {
-
+    public static LinuxCommand createForCrawling(
+            String category,
+            String command,
+            List<String> aliases,
+            String description,
+            Synopsis synopsis,
+            List<String> arguments,
+            List<String> examples,
+            boolean optionRequired,
+            Map<String, Option> options,
+            List<String> tags,
+            ManMeta manMeta) {
 
         return new LinuxCommand(
                 null,
@@ -155,7 +163,8 @@ public class LinuxCommand {
                 optionRequired,
                 emptyOrCopyMap(options),
                 emptyOrCopyList(tags),
-                0L);
+                0L,
+                manMeta);
     }
 
 
@@ -167,27 +176,33 @@ public class LinuxCommand {
         return mapOrNull == null ? Map.of() : Map.copyOf(mapOrNull);
     }
 
-    public Updating updater() {
-        return new Updating(id, category, command, aliases, description, synopsis, arguments, examples, verified, optionRequired, options,
-                tags, searchCount);
+    public Updater updater() {
+        return new Updater(id, category, command, aliases, description, synopsis, arguments, examples, verified, optionRequired, options,
+                tags, searchCount, manMeta);
     }
 
-    public static class Updating {
+    public static class Updater {
         private final String id;
-        private  String category; // 카테고리 (예: 파일, 네트워크 등)
-        private  String command; // 명령어 이름 (예: ls, ping)
-        private  List<String> aliases;
-        private  String description; // 명령어 설명 (man의 DESCRIPTION)
+        private String category; // 카테고리 (예: 파일, 네트워크 등)
+        private String command; // 명령어 이름 (예: ls, ping)
+        private List<String> aliases;
+        private String description; // 명령어 설명 (man의 DESCRIPTION)
         private Synopsis synopsis; // 사용 형식 (man의 SYNOPSIS)
         private List<String> arguments; // 명령어 주요 인자들 (예: FILE, HOST)
-        private  List<String> examples; // 여러 예시들 man, 수작업 or redis 의 zset 이용해서 주기 적으로 바꿔주면 좋을듯
+        private List<String> examples; // 여러 예시들 man, 수작업 or redis 의 zset 이용해서 주기 적으로 바꿔주면 좋을듯
         private boolean verified; // 검증 여부 (수동 검수 여부)
-        private  boolean optionRequired; // 옵션 필수 여부 (ex. -c 옵션 필수인가?)
-        private  Map<String, Option> options; // 옵션 정보 map (옵션 이름 -> 정보)
+        private boolean optionRequired; // 옵션 필수 여부 (ex. -c 옵션 필수인가?)
+        private Map<String, Option> options; // 옵션 정보 map (옵션 이름 -> 정보)
         private List<String> tags; // 관련 태그
         private final Long searchCount; // 검색된 횟수
+        private ManMeta manMeta;
 
-        public Updating(String id, String category, String command, List<String> aliases, String description, Synopsis synopsis, List<String> arguments, List<String> examples, boolean verified, boolean optionRequired, Map<String, Option> options, List<String> tags, Long searchCount) {
+        private Updater(
+                String id, String category, String command,
+                List<String> aliases, String description, Synopsis synopsis,
+                List<String> arguments, List<String> examples,
+                boolean verified, boolean optionRequired, Map<String, Option> options,
+                List<String> tags, Long searchCount, ManMeta manMeta) {
             this.id = id;
             this.category = category;
             this.command = command;
@@ -201,6 +216,7 @@ public class LinuxCommand {
             this.options = options;
             this.tags = tags;
             this.searchCount = searchCount;
+            this.manMeta = manMeta;
         }
 
         public LinuxCommand update() {
@@ -217,62 +233,68 @@ public class LinuxCommand {
                     optionRequired,
                     options,
                     tags,
-                    searchCount
+                    searchCount,
+                    manMeta
             );
         }
 
-        public Updating category(String category) {
+        public Updater category(String category) {
             this.category = category;
             return this;
         }
 
-        public Updating command(String command) {
+        public Updater command(String command) {
             this.command = command;
             return this;
         }
 
-        public Updating aliases(List<String> aliases) {
+        public Updater aliases(List<String> aliases) {
             this.aliases = aliases;
             return this;
         }
 
-        public Updating description(String description) {
+        public Updater description(String description) {
             this.description = description;
             return this;
         }
 
-        public Updating synopsis(Synopsis synopsis) {
+        public Updater synopsis(Synopsis synopsis) {
             this.synopsis = synopsis;
             return this;
         }
 
-        public Updating arguments(List<String> arguments) {
+        public Updater arguments(List<String> arguments) {
             this.arguments = arguments;
             return this;
         }
 
-        public Updating examples(List<String> examples) {
+        public Updater examples(List<String> examples) {
             this.examples = examples;
             return this;
         }
 
-        public Updating verified(boolean verified) {
+        public Updater verified(boolean verified) {
             this.verified = verified;
             return this;
         }
 
-        public Updating optionRequired(boolean optionRequired) {
+        public Updater optionRequired(boolean optionRequired) {
             this.optionRequired = optionRequired;
             return this;
         }
 
-        public Updating options(Map<String, Option> options) {
+        public Updater options(Map<String, Option> options) {
             this.options = options;
             return this;
         }
 
-        public Updating tags(List<String> tags) {
+        public Updater tags(List<String> tags) {
             this.tags = tags;
+            return this;
+        }
+
+        public Updater manMeta(ManMeta manMeta) {
+            this.manMeta = manMeta;
             return this;
         }
     }

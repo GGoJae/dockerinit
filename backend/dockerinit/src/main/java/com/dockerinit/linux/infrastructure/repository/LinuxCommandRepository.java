@@ -17,4 +17,6 @@ public interface LinuxCommandRepository extends MongoRepository<LinuxCommand, St
 
     List<LinuxCommand> findAllByCommandStartingWith(String prefix, Pageable pageable);
 
+    Optional<LinuxCommand> findByCommandNorm(String commandNorm);
+
 }

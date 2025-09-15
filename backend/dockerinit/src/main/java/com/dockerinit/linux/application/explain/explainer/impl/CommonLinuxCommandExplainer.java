@@ -7,7 +7,7 @@ import com.dockerinit.linux.application.explain.explainer.CommandExplainer;
 import com.dockerinit.linux.application.explain.model.Invocation;
 import com.dockerinit.linux.application.explain.util.InvocationFactory;
 import com.dockerinit.linux.domain.syntax.Option;
-import com.dockerinit.linux.dto.response.ExplainResponse;
+import com.dockerinit.linux.dto.response.explainV1.ExplainResponse;
 import com.dockerinit.linux.dto.response.explainV1.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

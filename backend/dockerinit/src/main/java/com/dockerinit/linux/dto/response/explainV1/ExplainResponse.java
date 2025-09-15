@@ -1,8 +1,5 @@
-package com.dockerinit.linux.dto.response;
+package com.dockerinit.linux.dto.response.explainV1;
 
-import com.dockerinit.linux.dto.response.explainV1.Details;
-import com.dockerinit.linux.dto.response.explainV1.ExampleItem;
-import com.dockerinit.linux.dto.response.explainV1.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;

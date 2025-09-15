@@ -47,7 +47,7 @@ public final class LinuxCommandMapper {
                 .map(spd -> {
                     ArrayList<TokenDescriptor> tokenDescriptors = new ArrayList<>();
                     spd.tokens().forEach(td -> {
-                        tokenDescriptors.add(new TokenDescriptor(td.tokenType(), td.repeat(), td.optional(), td.description()));
+                        tokenDescriptors.add(TokenDescriptor.of(td.tokenType(), td.repeat(), td.optional(), td.description()));
                     });
                     return new SynopsisPattern(tokenDescriptors);
                 }).forEach(linuxTokenDescriptions::add);

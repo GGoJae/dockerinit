@@ -1,6 +1,5 @@
-package com.dockerinit.linux.dto.response;
+package com.dockerinit.linux.dto.response.autocompleteV1;
 
-import com.dockerinit.linux.dto.response.autocompleteV1.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 

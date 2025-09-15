@@ -4,7 +4,7 @@ import com.dockerinit.linux.application.autocomplete.model.ParseResult;
 import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import com.dockerinit.linux.application.explain.strategy.explainStrategy.ExplainStrategy;
 import com.dockerinit.linux.application.shared.model.ModuleType;
-import com.dockerinit.linux.dto.response.ExplainResponse;
+import com.dockerinit.linux.dto.response.explainV1.ExplainResponse;
 import com.dockerinit.linux.dto.response.explainV1.Details;
 import com.dockerinit.linux.dto.response.explainV1.Header;
 import org.springframework.stereotype.Component;

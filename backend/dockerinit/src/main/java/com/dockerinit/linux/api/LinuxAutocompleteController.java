@@ -3,7 +3,7 @@ package com.dockerinit.linux.api;
 import com.dockerinit.global.response.ApiResponse;
 import com.dockerinit.linux.application.service.AutocompleteService;
 import com.dockerinit.linux.dto.request.CommandAutocompleteRequest;
-import com.dockerinit.linux.dto.response.LinuxAutocompleteResponse;
+import com.dockerinit.linux.dto.response.autocompleteV1.LinuxAutocompleteResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

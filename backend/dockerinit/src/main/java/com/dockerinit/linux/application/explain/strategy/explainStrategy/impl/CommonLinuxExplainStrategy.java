@@ -6,7 +6,7 @@ import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import com.dockerinit.linux.application.explain.explainer.impl.CommonLinuxCommandExplainer;
 import com.dockerinit.linux.application.explain.strategy.explainStrategy.ExplainStrategy;
 import com.dockerinit.linux.application.shared.model.ModuleType;
-import com.dockerinit.linux.dto.response.ExplainResponse;
+import com.dockerinit.linux.dto.response.explainV1.ExplainResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

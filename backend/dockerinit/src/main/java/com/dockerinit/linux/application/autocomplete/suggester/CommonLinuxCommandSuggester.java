@@ -7,7 +7,7 @@ import com.dockerinit.linux.application.autocomplete.replace.Replace;
 import com.dockerinit.linux.application.autocomplete.suggester.types.TypeSuggester;
 import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import com.dockerinit.linux.domain.syntax.TokenType;
-import com.dockerinit.linux.dto.response.common.SuggestionType;
+import com.dockerinit.linux.dto.response.autocompleteV1.SuggestionType;
 import com.dockerinit.linux.dto.response.autocompleteV1.Suggestion;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -48,8 +48,9 @@ public class CommonLinuxCommandSuggester implements AutocompleteSuggester {
 
         outer:
         for (ExpectedToken slot : slots) {
-            SuggestionType st = SuggestionMapping.fromTokenType(slot.type());
-            TypeSuggester typeSuggester = registry.get(st);
+            TypeSuggester typeSuggester = SuggestionMapping.fromTokenType(slot.type())
+                    .map(registry::get)
+                    .orElse(null);
 
             if (typeSuggester == null) continue;
 

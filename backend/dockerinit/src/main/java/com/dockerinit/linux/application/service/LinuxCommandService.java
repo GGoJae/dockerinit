@@ -3,8 +3,9 @@ package com.dockerinit.linux.application.service;
 import com.dockerinit.global.exception.NotFoundCustomException;
 import com.dockerinit.linux.domain.model.LinuxCommand;
 import com.dockerinit.linux.dto.request.CreateLinuxCommandRequest;
-import com.dockerinit.linux.dto.response.LinuxCommandResponse;
+import com.dockerinit.linux.dto.response.doc.LinuxCommandDocResponse;
 import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
+import com.dockerinit.linux.mapper.LinuxCommandDocMapper;
 import com.dockerinit.linux.mapper.LinuxCommandMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,19 +22,19 @@ public class LinuxCommandService {
 
     /* ─────────────────────────────── CRUD API ─────────────────────────────── */
 
-    public LinuxCommandResponse getById(String id) {
+    public LinuxCommandDocResponse getById(String id) {
         return repository.findById(id)
-                .map(LinuxCommandResponse::of)
+                .map(LinuxCommandDocMapper::toDoc)
                 .orElseThrow(() -> NotFoundCustomException.of(LINUX_COMMAND_ID_NOT_FOUND, "LinuxCommand", "id", id));
     }
 
-    public List<LinuxCommandResponse> getAll() {
-        return repository.findAll().stream().map(LinuxCommandResponse::of).toList();
+    public List<LinuxCommandDocResponse> getAll() {
+        return repository.findAll().stream().map(LinuxCommandDocMapper::toDoc).toList();
     }
 
-    public LinuxCommandResponse createCommand(CreateLinuxCommandRequest req) {
+    public LinuxCommandDocResponse createCommand(CreateLinuxCommandRequest req) {
         LinuxCommand saved = repository.save(LinuxCommandMapper.requestToDomain(req));
-        return LinuxCommandResponse.of(saved);
+        return LinuxCommandDocMapper.toDoc(saved);
     }
 
 }

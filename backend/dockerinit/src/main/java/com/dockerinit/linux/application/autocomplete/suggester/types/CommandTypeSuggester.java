@@ -6,7 +6,7 @@ import com.dockerinit.linux.application.autocomplete.replace.Replace;
 import com.dockerinit.linux.application.shared.tokenizer.ShellTokenizer;
 import com.dockerinit.linux.domain.model.LinuxCommand;
 import com.dockerinit.linux.dto.response.autocompleteV1.Suggestion;
-import com.dockerinit.linux.dto.response.common.SuggestionType;
+import com.dockerinit.linux.dto.response.autocompleteV1.SuggestionType;
 import com.dockerinit.linux.infrastructure.redis.RedisKeys;
 import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
 import lombok.RequiredArgsConstructor;

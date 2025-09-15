@@ -1,6 +1,5 @@
 package com.dockerinit.linux.dto.response.autocompleteV1;
 
-import com.dockerinit.linux.dto.response.common.SuggestionType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "자동완성 제안")

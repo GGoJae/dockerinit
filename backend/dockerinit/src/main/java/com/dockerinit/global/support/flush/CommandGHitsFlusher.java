@@ -38,18 +38,18 @@ public class CommandGHitsFlusher {
                     "return t;", List.class
     );
 
+    @SuppressWarnings("unchecked")
     @Scheduled(fixedDelay = 30_000) // 30초마다
     public void flush() {
         if (!acquireLock()) return;
         try {
             List<Object> raw = redis.execute(SNAPSHOT_SCRIPT, List.of(CommandExplainService.HITS_HASH_KEY));
-            if (raw == null || raw.isEmpty()) return;
+            if (raw.isEmpty()) return;
 
             // HGETALL 응답 → Map<String, Long>
             Map<String, Long> deltas = toMap(raw);
 
             try {
-                // DB bulk 증가
                 bulkIncreaseSearchCount(deltas);
             } catch (Exception dbEx) {
                 log.error("DB flush failed, restoring deltas to Redis …", dbEx);
