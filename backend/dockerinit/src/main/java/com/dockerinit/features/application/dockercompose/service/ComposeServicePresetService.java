@@ -27,18 +27,10 @@ public class ComposeServicePresetService {
             unless = "#pageable.pageSize > 100")
     public Page<ComposeServicePresetSummaryResponse> list(CategoryDTO ctDTO, Set<String> rawTags, Pageable pageable) {
         Set<String> tags = ComposeServicePresetMapper.normalizeTags(rawTags);
-        // TODO custom repository 에 동적 쿼리 만들어서 한번에 처리하기
-        if (rawTags != null && !rawTags.isEmpty()) {
-            return repository.findAllByTagsInAndActiveTrue(tags, pageable)
-                    .map(ComposeServicePresetMapper::toSummary);
-        }
-        if (ctDTO != null) {
-            Category category = ComposeServicePresetMapper.toDomain(ctDTO);
-            return repository.findAllByCategoryAndActiveTrue(category, pageable)
-                    .map(ComposeServicePresetMapper::toSummary);
-        }
+        Category category = ComposeServicePresetMapper.dtoToCategory(ctDTO);
 
-        return repository.findAllByActiveTrue(pageable)
+        // 나중에 tags  를 모두 포함한 값을 찾고싶으면 matchAll 인자에 스위치 넣을 수 있게 request 객체 수정
+        return repository.search(category, tags, false, pageable,true)
                 .map(ComposeServicePresetMapper::toSummary);
     }
 

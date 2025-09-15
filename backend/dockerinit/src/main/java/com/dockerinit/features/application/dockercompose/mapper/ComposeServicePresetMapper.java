@@ -24,7 +24,7 @@ public final class ComposeServicePresetMapper {
                 doc.getId(),
                 doc.getSlug(),
                 doc.getDisplayName(),
-                toDTO(doc.getCategory()),
+                categoryToDTO(doc.getCategory()),
                 doc.getTags(),
                 doc.getUpdatedAt(),
                 doc.getUsedCount()
@@ -37,10 +37,10 @@ public final class ComposeServicePresetMapper {
                 doc.getSlug(),
                 doc.getDisplayName(),
                 doc.getDescription(),
-                toDTO(doc.getCategory()),
+                categoryToDTO(doc.getCategory()),
                 doc.getTags(),
                 doc.getSchemaVersion(),
-                toServiceDTO(doc.getService()),
+                domainToServiceDTO(doc.getService()),
                 doc.getSuggestedEnvDefaults(),
                 doc.getActive(),
                 doc.getCreatedAt(),
@@ -50,7 +50,7 @@ public final class ComposeServicePresetMapper {
     }
 
 
-    public static CategoryDTO toDTO(Category category) {
+    public static CategoryDTO categoryToDTO(Category category) {
         if (category == null) return CategoryDTO.UNKNOWN;
         return switch (category) {
             case LANGUAGE -> CategoryDTO.LANGUAGE;
@@ -64,7 +64,7 @@ public final class ComposeServicePresetMapper {
         };
     }
 
-    public static Category toDomain(CategoryDTO dto) {
+    public static Category dtoToCategory(CategoryDTO dto) {
         if (dto == null) return Category.OTHER;
         return switch (dto) {
             case LANGUAGE -> Category.LANGUAGE;
@@ -78,7 +78,7 @@ public final class ComposeServicePresetMapper {
         };
     }
 
-    public static ServiceSpecDTO toServiceDTO(Service s) {
+    public static ServiceSpecDTO domainToServiceDTO(Service s) {
         if (s == null) return null;
         return new ServiceSpecDTO(
                 s.name(),
@@ -107,10 +107,6 @@ public final class ComposeServicePresetMapper {
         );
     }
 
-    /* slug 정규화 유틸 */
-    public static String normalizeSlug(String raw) {
-        return raw == null ? null : raw.trim().toLowerCase(Locale.ROOT);
-    }
 
     /* 태그 정규화(소문자/trim) */
     public static Set<String> normalizeTags(Set<String> tags) {
