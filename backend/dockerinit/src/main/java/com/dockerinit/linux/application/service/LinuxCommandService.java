@@ -8,9 +8,9 @@ import com.dockerinit.linux.infrastructure.repository.LinuxCommandRepository;
 import com.dockerinit.linux.mapper.LinuxCommandDocMapper;
 import com.dockerinit.linux.mapper.LinuxCommandMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 import static com.dockerinit.global.constants.ErrorMessage.LINUX_COMMAND_ID_NOT_FOUND;
 
@@ -28,8 +28,8 @@ public class LinuxCommandService {
                 .orElseThrow(() -> NotFoundCustomException.of(LINUX_COMMAND_ID_NOT_FOUND, "LinuxCommand", "id", id));
     }
 
-    public List<LinuxCommandDocResponse> getAll() {
-        return repository.findAll().stream().map(LinuxCommandDocMapper::toDoc).toList();
+    public Page<LinuxCommandDocResponse> getAll(Pageable pageable) {
+        return repository.findAll(pageable).map(LinuxCommandDocMapper::toDoc);
     }
 
     public LinuxCommandDocResponse createCommand(CreateLinuxCommandRequest req) {
