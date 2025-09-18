@@ -13,7 +13,9 @@ public interface LinuxCommandRepository extends MongoRepository<LinuxCommand, St
 
     Optional<LinuxCommand> findByCommand(String command);
 
-    List<LinuxCommand> findTop15ByCommandStartingWith(String prefix);
+    List<LinuxCommand> findTop15ByCommandNormOrderBySearchCountDesc();
+
+    List<LinuxCommand> findAllByCommandNormStartingWithOrderBySearchCountDesc(String prefixLower, Pageable pageable);
 
     List<LinuxCommand> findAllByCommandStartingWith(String prefix, Pageable pageable);
 

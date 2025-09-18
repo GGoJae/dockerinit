@@ -43,8 +43,10 @@ public class CommandTypeSuggester implements TypeSuggester {
         String key = RedisKeys.acCmdZSet(MODULE);
 
         if (prefix.isBlank()) {
-            return List.of();
-            // TODO Redis 에서 HOT 15 명령어 보여주기
+            return repository.findTop15ByCommandNormOrderBySearchCountDesc()
+                    .stream()
+                    .map(LinuxCommand::getCommand)
+                    .map(cmd -> new Suggestion(cmd, cmd, "", SuggestionType.COMMAND, 0.9, range.start(), range.end())).toList();
         }
 
         List<String> res = fetchFromRedisOrRep(key, prefix, limit);
@@ -55,7 +57,7 @@ public class CommandTypeSuggester implements TypeSuggester {
     private List<String> fetchFromRedisOrRep(String key, String prefix, int limit) {
         List<String> res = fetchFromRedis(key, prefix, limit);
         if (res.isEmpty()) {
-            res = repository.findAllByCommandStartingWith(prefix, PageRequest.of(0, limit))
+            res = repository.findAllByCommandNormStartingWithOrderBySearchCountDesc(prefix, PageRequest.of(0, limit))
                     .stream().map(LinuxCommand::getCommand).toList();
         }
         return res;
