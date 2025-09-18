@@ -23,7 +23,6 @@ public class LinuxCommandAdminController {
 
     private final LinuxCommandService service;
     private final LinuxManImportService importer;
-    // TODO 관리자용 컨트롤러 crud 여기로
 
     @PostMapping("/commands")
     public ResponseEntity<ApiResponse<LinuxCommandDocResponse>> createOne(@Valid @RequestBody CreateLinuxCommandRequest request) {

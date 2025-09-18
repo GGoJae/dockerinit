@@ -61,7 +61,7 @@ public final class ShellTokenizer {
         if (tokens.isEmpty()) return -1;
         for (int i = 0; i < tokens.size(); i++) {
             Token token = tokens.get(i);
-            if (token.begin() <= cursor && cursor < token.end) {
+            if (token.begin() <= cursor && cursor < token.end()) {
                 return i;
             }
         }
