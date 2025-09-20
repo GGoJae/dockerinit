@@ -1,0 +1,34 @@
+# VCS / IDE
+.git
+.gitignore
+**/.idea
+**/.vscode
+**/*.iml
+
+# Build artifacts & caches
+build
+out
+target
+.gradle
+.gradle/
+**/bin/
+**/out/
+
+# Local env & secrets
+.env
+**/.env
+application-*.local.yml
+application-secrets*.yml
+*.keystore
+*.pem
+*.p12
+
+# Logs
+*.log
+
+# Keep Gradle wrapper (중요)
+!gradlew
+!gradlew.bat
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+

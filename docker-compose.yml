@@ -1,0 +1,46 @@
+services:
+  api:
+    build: ./backend
+    image: dockerinit-api:latest
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      # SPRING_DATA_MONGODB_URI, SPRING_DATA_REDIS_HOST/PORT/PASSWORD 등은 .env로
+    depends_on: [mongo, redis]
+    expose: ["8080"]           # 컨테이너 간 통신만 허용, 호스트 미노출
+    networks: ["backend", "edge"]
+    profiles: ["backend"]
+
+  web:
+    build: ./frontend
+    image: dockerinit-web:latest
+    env_file: .env
+    environment:
+      # 컨테이너 간 호출용 (리버스프록시/인그레스 뒤에서 동작 가정)
+      VITE_API_BASE_URL: "http://api:8080"
+    # 포트 미노출 (edge 네트워크에만 붙임)
+    networks: ["edge"]
+    profiles: ["frontend"]
+
+  mongo:
+    image: mongo:7
+    volumes: ["mongo-data:/data/db"]
+    networks: ["backend"]      # 포트 미노출
+    profiles: ["infra"]
+
+  redis:
+    image: redis:7
+    command: ["redis-server","--appendonly","yes"]
+    volumes: ["redis-data:/data"]
+    networks: ["backend"]      # 포트 미노출
+    profiles: ["infra"]
+
+volumes:
+  mongo-data:
+  redis-data:
+
+networks:
+  backend:
+    internal: true             # 내부 전용 네트워크
+  edge: {}                     # 외부 노출이 필요한 서비스만 붙이기
+

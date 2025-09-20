@@ -1,0 +1,46 @@
+services:
+  api:
+    image: eclipse-temurin:17-jdk
+    working_dir: /app/dockerinit
+    volumes:
+      - ./backend:/app
+      - gradle-cache:/root/.gradle
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/dockerinit
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    command: ["./gradlew","bootRun","-x","test"]
+    ports: ["8080:8080"]
+    depends_on: [mongo, redis]
+    networks: ["backend", "edge"]
+
+  web:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    environment:
+      VITE_API_BASE_URL: "http://localhost:8080"
+    command: ["sh","-c","npm ci && npm run dev -- --host 0.0.0.0 --port 5173"]
+    ports: ["5173:5173"]
+    depends_on: [api]
+    networks: ["edge"]
+
+  mongo:
+    image: mongo:7
+    volumes: ["mongo-data:/data/db"]
+    networks: ["backend"]      # 필요하면 로컬 접근 위해 127.0.0.1:27017 매핑 추가 가능
+    profiles: ["infra"]
+
+  redis:
+    image: redis:7
+    command: ["redis-server","--appendonly","yes"]
+    networks: ["backend"]
+    profiles: ["infra"]
+
+volumes:
+  gradle-cache:
+  frontend-node-modules:
+
