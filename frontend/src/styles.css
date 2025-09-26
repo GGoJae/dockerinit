@@ -2,7 +2,7 @@
 
 /* 다크 기본 */
 :root { color-scheme: dark light; }
-html, body, #root { height: 100%; }
+html, body, #root { height: 100%; margin: 0;}
 body { @apply bg-zinc-950 text-zinc-100; }
 
 /* NavLink 활성 표시 */
