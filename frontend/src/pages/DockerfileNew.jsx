@@ -1,4 +1,4 @@
-import { useMemo, useReducer, useState } from 'react'
+import { useEffect, useMemo, useReducer, useState } from 'react'
 
 /** 1) 초기 상태 – 백엔드 DTO를 의식한 형태(입력 편의는 Text 필드로) */
 const initialForm = {
@@ -71,6 +71,9 @@ function reducer(state, action) {
       if (arr.has(action.value)) arr.delete(action.value)
       else arr.add(action.value)
       return { ...state, [action.key]: Array.from(arr) }
+    }
+    case 'applyPatch': {
+      return { ...state, ...action.patch }
     }
     case 'reset':
       return initialForm
@@ -224,6 +227,14 @@ export default function DockerfileNew() {
     // const res = await fetch('/api/dockerfile', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) })
   }
 
+  useEffect(() => {
+    const raw = localStorage.getItem('dockerfileFormPatch')
+    if (raw) {
+      try { dispatch({ type: 'applyPatch', patch: JSON.parse(raw) }) }
+      finally { localStorage.removeItem('dockerfileFormPatch') }
+    }
+  }, [])
+
   return (
     <div className="grid gap-y-6 lg:grid-cols-2 lg:gap-x-20">
       {/* 좌: 폼 */}
@@ -254,13 +265,7 @@ export default function DockerfileNew() {
           </label>
         </div>
 
-        {/* 토글 */}
-        <div className="flex items-center gap-4">
-          <label className="inline-flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={showOptional} onChange={(e) => setShowOptional(e.target.checked)} />
-            선택 필드들 보기
-          </label>
-        </div>
+        
 
         {/* 선택 섹션 */}
         {showOptional && (
@@ -356,16 +361,27 @@ export default function DockerfileNew() {
         )}
 
         {/* 액션 */}
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-3 lg:sticky lg:bottom-0 lg:bg-zinc-950/80 lg:backdrop-blur lg:border-t lg:border-zinc-800 lg:py-7">
+
+            {/* 토글 */}
+          <div className="flex items-center gap-4">
+            <label className="inline-flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={showOptional} onChange={(e) => setShowOptional(e.target.checked)} />
+              다른 필드들 보기
+            </label>
+
+          </div>
+          <div className='flex flex-wrap gap-4'>
+            <button className="btn" onClick={() => download('Dockerfile', dockerfile)}>Dockerfile 다운로드</button>
+            <button className="btn" onClick={submit}>요청 DTO 콘솔 출력</button>
+            <button className="btn" onClick={() => dispatch({ type: 'reset' })}>초기화</button>
+          </div>
           
-          <button className="btn" onClick={() => download('Dockerfile', dockerfile)}>Dockerfile 다운로드</button>
-          <button className="btn" onClick={submit}>요청 DTO 콘솔 출력</button>
-          <button className="btn" onClick={() => dispatch({ type: 'reset' })}>초기화</button>
         </div>
       </section>
 
       {/* 우: 미리보기 */}
-      <aside className="space-y-2">
+      <aside className="space-y-2 lg:sticky lg:self-start lg:top-16 lg:pl-8 lg:border-l lg:border-zinc-800">
         <h2 className="text-sm font-semibold text-zinc-400">미리보기</h2>
         <pre className="card p-4 overflow-auto text-sm leading-relaxed whitespace-pre-wrap">
 {dockerfile}
