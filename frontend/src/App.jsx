@@ -16,6 +16,7 @@ export default function App() {
           <NavLink to="/compose/new" className={linkClass}>Compose</NavLink>
           <NavLink to="/dockerfile/new" className={linkClass}>Dockerfile</NavLink>
           <NavLink to="/presets" className={linkClass}>Presets</NavLink>
+          <NavLink to="/cli" className={linkClass}>CLI</NavLink>
           <NavLink to="/settings" className={linkClass}>Settings</NavLink>
           <span className="ml-auto text-xs text-zinc-400">v0.1.0</span>
         </nav>

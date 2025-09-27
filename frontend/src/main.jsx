@@ -8,6 +8,7 @@ import Presets from './pages/Presets.jsx'
 import Settings from './pages/Settings.jsx'
 import NotFound from './pages/NotFound.jsx'
 import './styles.css'
+import Commands from './pages/Commands.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="compose/new" element={<ComposeNew />} />
           <Route path="dockerfile/new" element={<DockerfileNew />} />
           <Route path="presets" element={<Presets />} />
+          <Route path="/cli" element={<Commands />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Route>

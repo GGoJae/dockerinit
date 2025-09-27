@@ -1,4 +1,4 @@
-import { useMemo, useReducer } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 
 /** 1) 상태 모델 */
 const initialService = (name = 'web') => ({
