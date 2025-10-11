@@ -372,7 +372,6 @@ export default function DockerfileNew() {
 
           </div>
           <div className='flex flex-wrap gap-4'>
-            <button className="btn" onClick={() => download('Dockerfile', dockerfile)}>Dockerfile 다운로드</button>
             <button className="btn" onClick={submit}>요청 DTO 콘솔 출력</button>
             <button className="btn" onClick={() => dispatch({ type: 'reset' })}>초기화</button>
           </div>
@@ -386,7 +385,8 @@ export default function DockerfileNew() {
         <pre className="card p-4 overflow-auto text-sm leading-relaxed whitespace-pre-wrap">
 {dockerfile}
         </pre>
-        <button className="btn" onClick={() => navigator.clipboard.writeText(dockerfile)}>미리보기 복사</button>
+        <button className="btn" onClick={() => navigator.clipboard.writeText(dockerfile)}>복사</button>
+        <button className="btn" onClick={() => download('Dockerfile', dockerfile)}>Dockerfile 다운로드</button>
       </aside>
     </div>
   )
