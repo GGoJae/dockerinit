@@ -26,8 +26,12 @@ services:
       CHOKIDAR_USEPOLLING: "true"
       WATCHPACK_POLLING: "true"
     command: >
-      sh -lc '[ -d node_modules ] || (npm ci || npm i);
-              npm run dev -- --host 0.0.0.0 --port 5173'
+      sh -lc 'set -e;
+          if [ ! -x node_modules/.bin/vite ]; then
+            echo "[web] Installing deps (npm ci || npm i)...";
+            npm ci || npm i;
+          fi;
+          exec npm run dev -- --host 0.0.0.0 --port 5173'
     ports: ["5173:5173"]
     depends_on: [api]
     networks: ["edge"]

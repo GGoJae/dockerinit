@@ -10,6 +10,7 @@ import com.dockerinit.features.application.preset.dto.response.PresetSummaryResp
 import com.dockerinit.features.application.preset.dto.spec.*;
 import com.dockerinit.features.model.ContentType;
 import com.dockerinit.features.model.FileType;
+import com.dockerinit.global.exception.IllegalArgumentCustomException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -96,7 +97,7 @@ public final class PresetMapper {
         for (PresetArtifact a : list) {
             String key = a.getFileType() + "::" + a.getFilename();
             if (!keySet.add(key)) {
-                throw new IllegalArgumentException("duplicate artifact: " + key);
+                throw new IllegalArgumentCustomException("duplicate artifact: " + key);
             }
         }
         return List.copyOf(list);
@@ -107,10 +108,10 @@ public final class PresetMapper {
         // 전략별 필드 유효성
         if (strategy == ContentStrategy.EMBEDDED) {
             if (isBlank(a.inlineContent()))
-                throw new IllegalArgumentException("EMBEDDED requires inlineContent");
+                throw new IllegalArgumentCustomException("EMBEDDED requires inlineContent");
         } else if (strategy == ContentStrategy.OBJECT_STORAGE) {
             if (isBlank(a.storageKey()))
-                throw new IllegalArgumentException("OBJECT_STORAGE requires storageKey");
+                throw new IllegalArgumentCustomException("OBJECT_STORAGE requires storageKey");
         }
 
         return PresetArtifact.builder()
@@ -252,7 +253,7 @@ public final class PresetMapper {
 
     private static Set<String> safeSet(Set<String> s) {
         if (s == null || s.isEmpty()) return Set.of();
-        if (s.stream().anyMatch(Objects::isNull)) throw new IllegalArgumentException("tags contain null");
+        if (s.stream().anyMatch(Objects::isNull)) throw new IllegalArgumentCustomException("tags contain null");
         return s.stream()
                 .map(t -> t.trim().toLowerCase(Locale.ROOT))
                 .filter(t -> !t.isEmpty())
@@ -261,7 +262,7 @@ public final class PresetMapper {
 
     private static Set<FileType> safeFileTypes(Set<FileType> s) {
         if (s == null || s.isEmpty()) return Set.of();
-        if (s.stream().anyMatch(Objects::isNull)) throw new IllegalArgumentException("defaultTargets contain null");
+        if (s.stream().anyMatch(Objects::isNull)) throw new IllegalArgumentCustomException("defaultTargets contain null");
         return Set.copyOf(s);
     }
 

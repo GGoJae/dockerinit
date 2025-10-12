@@ -1,9 +1,13 @@
 package com.dockerinit.features.application.dockerfile.domain;
 
-import com.dockerinit.features.model.FileType;
 import com.dockerinit.features.model.EnvMode;
+import com.dockerinit.features.model.FileType;
+import com.dockerinit.global.exception.IllegalArgumentCustomException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public record DockerfilePlan(
         String baseImage,
@@ -28,7 +32,7 @@ public record DockerfilePlan(
 
     public DockerfilePlan {
         if (baseImage == null || baseImage.isBlank()) {
-            throw new IllegalArgumentException("baseImage는 필수");
+            throw new IllegalArgumentCustomException("baseImage는 필수");
         }
 
         copy = immutableOrEmpty(copy);
@@ -61,10 +65,10 @@ public record DockerfilePlan(
 
         for (Map.Entry<K, V> e : target.entrySet()) {
             if (e.getKey() == null) {
-                throw new IllegalArgumentException("envVars/label/args: null key");
+                throw new IllegalArgumentCustomException("envVars/label/args: null key");
             }
             if (e.getValue() == null) {
-                throw new IllegalArgumentException(
+                throw new IllegalArgumentCustomException(
                         "envVars/label/args: null value for key '" + e.getKey() + "'"
                 );
             }

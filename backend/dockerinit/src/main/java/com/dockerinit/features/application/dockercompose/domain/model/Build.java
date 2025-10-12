@@ -1,5 +1,7 @@
 package com.dockerinit.features.application.dockercompose.domain.model;
 
+import com.dockerinit.global.exception.IllegalArgumentCustomException;
+
 import java.util.Map;
 
 public record Build(
@@ -8,7 +10,7 @@ public record Build(
         Map<String, String> args
 ) {
     public Build {
-        if (context == null || context.isBlank()) throw new IllegalArgumentException("build.context 는 필수입니다");
+        if (context == null || context.isBlank()) throw new IllegalArgumentCustomException("build.context 는 필수입니다");
         args = (args == null) ? Map.of() : Map.copyOf(args);
     }
 }

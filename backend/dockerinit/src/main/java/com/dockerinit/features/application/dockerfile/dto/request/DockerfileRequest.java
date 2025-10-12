@@ -4,6 +4,7 @@ import com.dockerinit.features.application.dockerfile.dto.request.spec.Additiona
 import com.dockerinit.features.application.dockerfile.dto.request.spec.CopyDirective;
 import com.dockerinit.features.application.dockerfile.dto.request.spec.HealthcheckSpec;
 import com.dockerinit.features.application.dockerfile.dto.request.spec.Mode;
+import com.dockerinit.global.exception.IllegalArgumentCustomException;
 import com.dockerinit.global.validation.dockerfileCrossCheck.DockerfileCrossCheck;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -92,7 +93,7 @@ public record DockerfileRequest(
 ) {
         public DockerfileRequest {
                 if (baseImage == null || baseImage.isBlank()) {
-                        throw new IllegalArgumentException("baseImage는 필수");
+                        throw new IllegalArgumentCustomException("baseImage는 필수");
                 }
         }
 

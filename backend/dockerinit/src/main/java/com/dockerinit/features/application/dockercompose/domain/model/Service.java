@@ -1,6 +1,7 @@
 package com.dockerinit.features.application.dockercompose.domain.model;
 
 import com.dockerinit.features.application.dockercompose.domain.composeCustom.Healthcheck;
+import com.dockerinit.global.exception.IllegalArgumentCustomException;
 import lombok.Builder;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public record Service(
         Healthcheck healthcheck
 ) {
     public Service {
-        if (name == null || name.isBlank()) throw new IllegalArgumentException("서비스 이름은 필수입니다");
+        if (name == null || name.isBlank()) throw new IllegalArgumentCustomException("서비스 이름은 필수입니다");
         command = immutableOrEmpty(command);
         environment = immutableOrEmpty(environment);
         envFile = immutableOrEmpty(envFile);

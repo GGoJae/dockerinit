@@ -12,6 +12,7 @@ import com.dockerinit.features.model.GeneratedFile;
 import com.dockerinit.features.model.PackageResult;
 import com.dockerinit.features.model.RenderContext;
 import com.dockerinit.features.packager.Packager;
+import com.dockerinit.global.exception.IllegalArgumentCustomException;
 import com.dockerinit.global.validation.DockerImageValidationService;
 import com.dockerinit.global.validation.ValidationCollector;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +67,7 @@ public class DockerComposeService {
         RenderContext<ComposeRequestV1, ComposePlan> ctx = new RenderContext<>(request, plan, EnumSet.of(FileType.COMPOSE), List.of());
 
         GeneratedFile file = renderSingleFile(request, plan, FileType.COMPOSE, warnings)
-                .orElseThrow(() -> new IllegalArgumentException("컴포즈 렌더 실패"));
+                .orElseThrow(() -> new IllegalArgumentCustomException("컴포즈 렌더 실패"));
 
         String content = new String(file.content(), StandardCharsets.UTF_8);
 

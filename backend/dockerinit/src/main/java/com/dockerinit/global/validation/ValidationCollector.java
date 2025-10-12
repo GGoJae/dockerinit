@@ -26,6 +26,11 @@ public final class ValidationCollector {
         }
     }
 
+    public static void throwNow(String field, String message, Object rejectedValue) {
+        List<ErrorContent> errorContents = List.of(ErrorContent.of(message, safeToString(field, rejectedValue)));
+        throw new InvalidInputCustomException(DEFAULT_MESSAGE, Map.of(field, errorContents));
+    }
+
     public ValidationCollector deferThrowIf(boolean cond) {
         this.cond = cond;
         return this;

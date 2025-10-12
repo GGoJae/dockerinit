@@ -12,4 +12,8 @@ public class InvalidInputCustomException extends CustomApiException {
         super(message, StateCode.INVALID_INPUT, data);
     }
 
+    public InvalidInputCustomException(String message, String data) {
+        super(message, StateCode.INVALID_INPUT, data);
+    }
+
 }
