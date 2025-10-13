@@ -3,8 +3,8 @@ package com.dockerinit.features.application.presetV2.compose.api;
 import com.dockerinit.features.application.presetV2.compose.materializer.ComposePresetMaterializer;
 import com.dockerinit.features.application.presetV2.compose.renderer.ComposeRendererV2;
 import com.dockerinit.features.application.presetV2.shared.domain.PresetKind;
-import com.dockerinit.features.application.presetV2.shared.dto.response.PresetDetailResponse;
-import com.dockerinit.features.application.presetV2.shared.dto.response.PresetSummaryResponse;
+import com.dockerinit.features.application.presetV2.shared.dto.response.PresetDetailResponseV2;
+import com.dockerinit.features.application.presetV2.shared.dto.response.PresetSummaryResponseV2;
 import com.dockerinit.features.application.presetV2.shared.service.CatalogVersionServiceV2;
 import com.dockerinit.features.application.presetV2.shared.service.PresetQueryService;
 import com.dockerinit.features.application.presetV2.shared.support.ETagUtil;
@@ -39,7 +39,7 @@ public class ComposePresetControllerV2 {
 
     @Operation(summary = "Compose 프리셋 목록")
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<PresetSummaryResponse>>> list(
+    public ResponseEntity<ApiResponse<Page<PresetSummaryResponseV2>>> list(
             @RequestParam(required = false) Set<String> tags,
             Pageable pageable,
             WebRequest request
@@ -61,7 +61,7 @@ public class ComposePresetControllerV2 {
                     .build();
         }
 
-        Page<PresetSummaryResponse> page = queryService.list(PresetKind.COMPOSE, tags, pageable);
+        Page<PresetSummaryResponseV2> page = queryService.list(PresetKind.COMPOSE, tags, pageable);
         return ResponseEntity.ok()
                 .eTag(etag)
                 .cacheControl(CacheControl.maxAge(Duration.ofMinutes(1)).cachePrivate())
@@ -72,11 +72,11 @@ public class ComposePresetControllerV2 {
 
     @Operation(summary = "Compose 프리셋 상세")
     @GetMapping("/{slug}")
-    public ResponseEntity<ApiResponse<PresetDetailResponse>> get(
+    public ResponseEntity<ApiResponse<PresetDetailResponseV2>> get(
             @PathVariable String slug,
             WebRequest request
     ) {
-        PresetDetailResponse dto = queryService.get(PresetKind.COMPOSE, slug);
+        PresetDetailResponseV2 dto = queryService.get(PresetKind.COMPOSE, slug);
         String etag = ETagUtil.strong("compose:detail", slug,
                 "upd=" + dto.updatedAt().toEpochMilli(),
                 "v=" + dto.version());
@@ -106,7 +106,7 @@ public class ComposePresetControllerV2 {
             @PathVariable String slug,
             WebRequest request
     ) {
-        PresetDetailResponse dto = queryService.get(PresetKind.COMPOSE, slug);
+        PresetDetailResponseV2 dto = queryService.get(PresetKind.COMPOSE, slug);
         String etag = ETagUtil.strong("compose:render", slug,
                 "upd=" + dto.updatedAt().toEpochMilli(),
                 "v=" + dto.version());
