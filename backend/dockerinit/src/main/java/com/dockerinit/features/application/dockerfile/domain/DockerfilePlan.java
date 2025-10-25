@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+// TODO 기본타입들을 vo 로 바꾸기
 public record DockerfilePlan(
         String baseImage,
         String workdir,

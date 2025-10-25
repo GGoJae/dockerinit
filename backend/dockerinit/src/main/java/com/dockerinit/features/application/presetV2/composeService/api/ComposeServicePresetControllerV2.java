@@ -76,7 +76,7 @@ public class ComposeServicePresetControllerV2 {
             @PathVariable String slug,
             WebRequest request
     ) {
-        PresetDetailResponseV2 dto = queryService.get(PresetKind.COMPOSE_SERVICE, slug);
+        PresetDetailResponseV2 dto = queryService.getDetail(PresetKind.COMPOSE_SERVICE, slug);
         String etag = ETagUtil.strong("csvc:detail", slug,
                 "upd=" + dto.updatedAt().toEpochMilli(),
                 "v=" + dto.version());
@@ -106,7 +106,7 @@ public class ComposeServicePresetControllerV2 {
             @PathVariable String slug,
             WebRequest request
     ) {
-        PresetDetailResponseV2 dto = queryService.get(PresetKind.COMPOSE_SERVICE, slug);
+        PresetDetailResponseV2 dto = queryService.getDetail(PresetKind.COMPOSE_SERVICE, slug);
         String etag = ETagUtil.strong("csvc:render", slug,
                 "upd=" + dto.updatedAt().toEpochMilli(),
                 "v=" + dto.version());

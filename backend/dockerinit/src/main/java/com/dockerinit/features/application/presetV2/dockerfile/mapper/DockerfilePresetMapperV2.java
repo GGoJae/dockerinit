@@ -1,6 +1,9 @@
 package com.dockerinit.features.application.presetV2.dockerfile.mapper;
 
+import com.dockerinit.features.application.dockerfile.domain.DockerfilePlan;
+import com.dockerinit.features.application.dockerfile.dto.response.DockerfilePlanResponse;
 import com.dockerinit.features.application.presetV2.dockerfile.domain.DockerfilePresetDocument;
+import com.dockerinit.features.application.presetV2.shared.domain.PresetMetrics;
 import com.dockerinit.features.application.presetV2.shared.dto.response.PresetDetailResponseV2;
 import com.dockerinit.features.application.presetV2.shared.dto.response.PresetSummaryResponseV2;
 import com.dockerinit.features.application.presetV2.shared.dto.response.payload.DockerfileMeta;
@@ -8,7 +11,9 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DockerfilePresetMapperV2 {
@@ -18,7 +23,7 @@ public final class DockerfilePresetMapperV2 {
 
     public static PresetSummaryResponseV2 toSummary(DockerfilePresetDocument d) {
         var m = Objects.requireNonNull(d.getMeta(), "Meta 정보가 빠져있습니다.");
-        var metrics = m.getMetrics();
+        var metrics = (m.getMetrics() == null) ? new PresetMetrics() : m.getMetrics();
         return new PresetSummaryResponseV2(
                 m.getSlug(),
                 m.getDisplayName(),
@@ -37,7 +42,7 @@ public final class DockerfilePresetMapperV2 {
 
     public static PresetDetailResponseV2 toDetail(DockerfilePresetDocument d) {
         var m = Objects.requireNonNull(d.getMeta(), "Meta 정보가 빠져있습니다.");
-        var metrics = m.getMetrics();
+        var metrics = (m.getMetrics() == null) ? new PresetMetrics() : m.getMetrics();
 
         boolean hasHealth = d.getPlan() != null && d.getPlan().healthcheck() != null;
         int exposeCount = (d.getPlan() == null) ? 0 : sizeOf(d.getPlan().expose());
@@ -58,6 +63,29 @@ public final class DockerfilePresetMapperV2 {
                 nz(metrics.getApplied()),
                 nz(metrics.getCopied()),
                 nz(metrics.getDownloaded())
+        );
+    }
+
+    public static DockerfilePlanResponse toPlan(DockerfilePresetDocument d) {
+        DockerfilePlan plan = d.getPlan();
+        return new DockerfilePlanResponse(
+                plan.baseImage(),
+                plan.workdir(),
+                List.copyOf(plan.copy()),
+                List.copyOf(plan.add()),
+                plan.envMode(),
+                Map.copyOf(plan.envVars()),
+                List.copyOf(plan.expose()),
+                List.copyOf(plan.cmd()),
+                List.copyOf(plan.run()),
+                List.copyOf(plan.entrypoint()),
+                Map.copyOf(plan.label()),
+                plan.user(),
+                Map.copyOf(plan.args()),
+                plan.healthcheck(),
+                List.copyOf(plan.volume()),
+                List.copyOf(plan.warnings()),
+                Set.copyOf(plan.targets())
         );
     }
 }

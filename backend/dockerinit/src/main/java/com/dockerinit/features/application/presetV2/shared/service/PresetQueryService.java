@@ -1,5 +1,6 @@
 package com.dockerinit.features.application.presetV2.shared.service;
 
+import com.dockerinit.features.application.dockerfile.dto.response.DockerfilePlanResponse;
 import com.dockerinit.features.application.presetV2.compose.domain.ComposePresetDocument;
 import com.dockerinit.features.application.presetV2.compose.mapper.ComposePresetMapperV2;
 import com.dockerinit.features.application.presetV2.compose.repository.ComposePresetRepository;
@@ -11,6 +12,7 @@ import com.dockerinit.features.application.presetV2.dockerfile.mapper.Dockerfile
 import com.dockerinit.features.application.presetV2.dockerfile.repository.DockerfilePresetRepository;
 import com.dockerinit.features.application.presetV2.shared.domain.PresetKind;
 import com.dockerinit.features.application.presetV2.shared.dto.response.PresetDetailResponseV2;
+import com.dockerinit.features.application.presetV2.shared.dto.response.PresetSuggestDTO;
 import com.dockerinit.features.application.presetV2.shared.dto.response.PresetSummaryResponseV2;
 import com.dockerinit.global.exception.IllegalArgumentCustomException;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -51,7 +54,7 @@ public class PresetQueryService {
         };
     }
 
-    public PresetDetailResponseV2 get(PresetKind kind, String slug) {
+    public PresetDetailResponseV2 getDetail(PresetKind kind, String slug) {
         return switch (kind) {
             case DOCKERFILE -> dockerfileRepo.findByMeta_Slug(slug)
                     .map(DockerfilePresetMapperV2::toDetail)
@@ -62,6 +65,20 @@ public class PresetQueryService {
             case COMPOSE_SERVICE -> composeServiceRepo.findByMeta_Slug(slug)
                     .map(ComposeServicePresetMapperV2::toDetail)
                     .orElseThrow(() -> new IllegalArgumentCustomException("compose-service preset not found: " + slug));
+        };
+    }
+    // TODO compose, compose-service 도 맵핑 추가하기 or queryService 를 전략으로 바꾸기
+    public DockerfilePlanResponse getPlan(String slug) {
+        return dockerfileRepo.findByMeta_Slug(slug)
+                .map(DockerfilePresetMapperV2::toPlan)
+                .orElseThrow(() -> new IllegalArgumentCustomException("dockerfile preset not found: " + slug));
+    }
+
+    // TODO compose, compose-service 도 맵핑 추가하기 or queryService 를 전략으로 바꾸기
+    public List<PresetSuggestDTO> suggest(PresetKind kind) {
+        return switch (kind) {
+            case DOCKERFILE -> dockerfileRepo.suggestAll();
+            default -> List.of();
         };
     }
 }
