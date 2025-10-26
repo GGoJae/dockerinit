@@ -4,9 +4,9 @@ import com.dockerinit.features.application.dockerfile.dto.request.DockerfileRequ
 import com.dockerinit.features.application.dockerfile.dto.request.spec.AdditionalFile;
 import com.dockerinit.features.application.dockerfile.dto.request.spec.CopyDirective;
 import com.dockerinit.features.application.dockerfile.dto.request.spec.Mode;
-import com.dockerinit.features.application.dockerfile.domain.CopyEntry;
+import com.dockerinit.features.application.dockerfile.domain.vo.CopyEntry;
 import com.dockerinit.features.model.EnvMode;
-import com.dockerinit.features.application.dockerfile.domain.Healthcheck;
+import com.dockerinit.features.application.dockerfile.domain.vo.Healthcheck;
 import com.dockerinit.features.application.dockerfile.domain.DockerfilePlan;
 import com.dockerinit.features.model.FileType;
 import lombok.AccessLevel;

@@ -1,5 +1,7 @@
 package com.dockerinit.features.application.dockerfile.domain;
 
+import com.dockerinit.features.application.dockerfile.domain.vo.CopyEntry;
+import com.dockerinit.features.application.dockerfile.domain.vo.Healthcheck;
 import com.dockerinit.features.model.EnvMode;
 import com.dockerinit.features.model.FileType;
 import com.dockerinit.global.exception.IllegalArgumentCustomException;

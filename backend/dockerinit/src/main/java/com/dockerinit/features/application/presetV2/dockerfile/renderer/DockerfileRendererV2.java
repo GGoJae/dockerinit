@@ -1,8 +1,8 @@
 package com.dockerinit.features.application.presetV2.dockerfile.renderer;
 
-import com.dockerinit.features.application.dockerfile.domain.CopyEntry;
+import com.dockerinit.features.application.dockerfile.domain.vo.CopyEntry;
 import com.dockerinit.features.application.dockerfile.domain.DockerfilePlan;
-import com.dockerinit.features.application.dockerfile.domain.Healthcheck;
+import com.dockerinit.features.application.dockerfile.domain.vo.Healthcheck;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

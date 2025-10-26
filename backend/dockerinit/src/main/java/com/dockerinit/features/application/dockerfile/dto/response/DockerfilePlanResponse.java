@@ -1,7 +1,7 @@
 package com.dockerinit.features.application.dockerfile.dto.response;
 
-import com.dockerinit.features.application.dockerfile.domain.CopyEntry;
-import com.dockerinit.features.application.dockerfile.domain.Healthcheck;
+import com.dockerinit.features.application.dockerfile.domain.vo.CopyEntry;
+import com.dockerinit.features.application.dockerfile.domain.vo.Healthcheck;
 import com.dockerinit.features.model.EnvMode;
 import com.dockerinit.features.model.FileType;
 

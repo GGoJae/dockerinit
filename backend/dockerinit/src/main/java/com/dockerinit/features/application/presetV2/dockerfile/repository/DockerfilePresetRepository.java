@@ -1,7 +1,7 @@
 package com.dockerinit.features.application.presetV2.dockerfile.repository;
 
 import com.dockerinit.features.application.presetV2.dockerfile.domain.DockerfilePresetDocument;
-import com.dockerinit.features.application.presetV2.shared.dto.response.PresetSuggest;
+import com.dockerinit.features.application.presetV2.dockerfile.dto.DockerfilePlanProjection;
 import com.dockerinit.features.application.presetV2.shared.dto.response.PresetSuggestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,5 +30,10 @@ public interface DockerfilePresetRepository extends MongoRepository<DockerfilePr
             "{ $sort: { 'meta.metrics.viewed': -1, 'updatedAt': -1 } }"
     })
     List<PresetSuggestDTO> suggestAll();
+
+    @Query(
+            value = "{ 'meta.slug': ?0 }",
+            fields = "{ 'updatedAt': 1, 'version': 1, 'plan': 1 }")
+    Optional<DockerfilePlanProjection> findPlanBySlug(String slug);
 
 }

@@ -8,6 +8,7 @@ import com.dockerinit.features.application.presetV2.composeService.domain.Compos
 import com.dockerinit.features.application.presetV2.composeService.mapper.ComposeServicePresetMapperV2;
 import com.dockerinit.features.application.presetV2.composeService.repository.ComposeServicePresetRepositoryV2;
 import com.dockerinit.features.application.presetV2.dockerfile.domain.DockerfilePresetDocument;
+import com.dockerinit.features.application.presetV2.dockerfile.dto.DockerfilePlanProjection;
 import com.dockerinit.features.application.presetV2.dockerfile.mapper.DockerfilePresetMapperV2;
 import com.dockerinit.features.application.presetV2.dockerfile.repository.DockerfilePresetRepository;
 import com.dockerinit.features.application.presetV2.shared.domain.PresetKind;
@@ -31,7 +32,7 @@ public class PresetQueryService {
     private final ComposePresetRepository composeRepo;
     private final ComposeServicePresetRepositoryV2 composeServiceRepo;
 
-    public Page<PresetSummaryResponseV2> list(PresetKind kind, Set<String> tags, Pageable pageable) {
+    public Page<PresetSummaryResponseV2> summaryList(PresetKind kind, Set<String> tags, Pageable pageable) {
         return switch (kind) {
             case DOCKERFILE -> {
                 Page<DockerfilePresetDocument> p = (tags == null || tags.isEmpty())
@@ -68,11 +69,19 @@ public class PresetQueryService {
         };
     }
     // TODO compose, compose-service 도 맵핑 추가하기 or queryService 를 전략으로 바꾸기
-    public DockerfilePlanResponse getPlan(String slug) {
-        return dockerfileRepo.findByMeta_Slug(slug)
+    public DockerfilePlanResponse getPlanResponse(String slug) {
+        return dockerfileRepo.findPlanBySlug(slug)
                 .map(DockerfilePresetMapperV2::toPlan)
                 .orElseThrow(() -> new IllegalArgumentCustomException("dockerfile preset not found: " + slug));
     }
+
+    public DockerfilePlanProjection getPlanAndInfo(String slug) {
+        return dockerfileRepo.findPlanBySlug(slug)
+                .orElseThrow(() -> new IllegalArgumentCustomException("dockerfile preset not found: " + slug));
+    }
+
+
+
 
     // TODO compose, compose-service 도 맵핑 추가하기 or queryService 를 전략으로 바꾸기
     public List<PresetSuggestDTO> suggest(PresetKind kind) {

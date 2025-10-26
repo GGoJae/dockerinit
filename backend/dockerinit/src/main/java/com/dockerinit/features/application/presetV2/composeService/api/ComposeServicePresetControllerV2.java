@@ -61,7 +61,7 @@ public class ComposeServicePresetControllerV2 {
                     .build();
         }
 
-        Page<PresetSummaryResponseV2> page = queryService.list(PresetKind.COMPOSE_SERVICE, tags, pageable);
+        Page<PresetSummaryResponseV2> page = queryService.summaryList(PresetKind.COMPOSE_SERVICE, tags, pageable);
         return ResponseEntity.ok()
                 .eTag(etag)
                 .cacheControl(CacheControl.maxAge(Duration.ofMinutes(1)).cachePrivate())

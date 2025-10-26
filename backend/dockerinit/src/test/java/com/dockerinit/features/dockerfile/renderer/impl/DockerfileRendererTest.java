@@ -1,8 +1,8 @@
 package com.dockerinit.features.dockerfile.renderer.impl;
 
-import com.dockerinit.features.application.dockerfile.domain.CopyEntry;
+import com.dockerinit.features.application.dockerfile.domain.vo.CopyEntry;
 import com.dockerinit.features.application.dockerfile.domain.DockerfilePlan;
-import com.dockerinit.features.application.dockerfile.domain.Healthcheck;
+import com.dockerinit.features.application.dockerfile.domain.vo.Healthcheck;
 import com.dockerinit.features.application.dockerfile.renderer.impl.DockerfileRenderer;
 import com.dockerinit.features.model.*;
 import org.junit.jupiter.api.DisplayName;

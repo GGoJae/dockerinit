@@ -3,6 +3,7 @@ package com.dockerinit.features.application.presetV2.dockerfile.mapper;
 import com.dockerinit.features.application.dockerfile.domain.DockerfilePlan;
 import com.dockerinit.features.application.dockerfile.dto.response.DockerfilePlanResponse;
 import com.dockerinit.features.application.presetV2.dockerfile.domain.DockerfilePresetDocument;
+import com.dockerinit.features.application.presetV2.dockerfile.dto.DockerfilePlanProjection;
 import com.dockerinit.features.application.presetV2.shared.domain.PresetMetrics;
 import com.dockerinit.features.application.presetV2.shared.dto.response.PresetDetailResponseV2;
 import com.dockerinit.features.application.presetV2.shared.dto.response.PresetSummaryResponseV2;
@@ -66,7 +67,7 @@ public final class DockerfilePresetMapperV2 {
         );
     }
 
-    public static DockerfilePlanResponse toPlan(DockerfilePresetDocument d) {
+    public static DockerfilePlanResponse toPlan(DockerfilePlanProjection d) {
         DockerfilePlan plan = d.getPlan();
         return new DockerfilePlanResponse(
                 plan.baseImage(),
